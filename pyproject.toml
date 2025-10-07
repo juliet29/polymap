@@ -1,0 +1,22 @@
+[project]
+name = "polymap"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Juliet Nwagwu Ume-Ezeoke", email = "jnwagwu@stanford.edu" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "geom>=0.3.0",
+    "matplotlib>=3.10.6",
+    "pytest>=8.4.2",
+    "shapely>=2.1.2",
+]
+
+[project.scripts]
+polymap = "polymap:main"
+
+[build-system]
+requires = ["uv_build>=0.8.3,<0.9.0"]
+build-backend = "uv_build"
