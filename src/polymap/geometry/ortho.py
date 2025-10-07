@@ -3,19 +3,33 @@ from dataclasses import dataclass
 import shapely as sp
 from utils4plans.lists import pairwise
 from rich import print
-from typing import NamedTuple
 from itertools import cycle
 
 from polymap.geometry.vectors import vector_from_coords, is_perp_to_basis_vectors
+from polymap.interfaces import PairedCoord
+from polymap.geometry.surfaces import vector_to_surface, index_surfaces
 
 
-class PairedCoord(NamedTuple):
-    a: Coord
-    b: Coord
+def create_paired_coords(coords: list[Coord]):
+    num_coords = len(coords)
+    count = 0
+    paired_coords: list[PairedCoord] = []
+    for i, j in pairwise(cycle(coords)):
+        paired_coords.append(PairedCoord(i, j))
+        # print(f"{count}: {i}, {j}")
+
+        count += 1
+        if count > num_coords - 2:
+            break
+    assert paired_coords[0].a == paired_coords[-1].b
+
+    return paired_coords
 
 
 @dataclass
 class FancyOrthoDomain(OrthoDomain):
+    name: str = ""
+
     # TODO want to do some checks, make sure is closed and valid..
     @property
     def num_coords(self):
@@ -27,30 +41,29 @@ class FancyOrthoDomain(OrthoDomain):
         assert len(p.interiors) == 0, f"More than one interior: {p.interiors}"
         assert p.is_valid, "Polygon not valid"
         return p
-        # ext = p.exterior.normalize()
-        # assert ext.is_closed, "Polygon is not closed"
-        # return sp.Polygon(ext)
 
     @property
     def normalized_coords(self):
-        # NOTE: shapely will return coords in CW direction starting from the bottom left 
+        # NOTE: shapely will return coords in CW direction starting from the bottom left
         return [Coord(*i) for i in self.shapely_polygon.exterior.normalize().coords]
 
     @property
     def paired_coords(self):
-        count = 0
-        paired_coords: list[PairedCoord] = []
+        return create_paired_coords(self.normalized_coords)
 
-        for i, j in pairwise(cycle(self.normalized_coords)):
-            paired_coords.append(PairedCoord(i, j))
-            print(f"{count}: {i}, {j}")
+        # count = 0
+        # paired_coords: list[PairedCoord] = []
 
-            count += 1
-            if count > self.num_coords - 1:
-                break
-        assert paired_coords[0].a == paired_coords[-1].b
+        # for i, j in pairwise(cycle(self.normalized_coords)):
+        #     paired_coords.append(PairedCoord(i, j))
+        #     print(f"{count}: {i}, {j}")
 
-        return paired_coords
+        #     count += 1
+        #     if count > self.num_coords - 1:
+        #         break
+        # assert paired_coords[0].a == paired_coords[-1].b
+
+        # return paired_coords
 
     @property
     def vectors(self):
@@ -59,4 +72,18 @@ class FancyOrthoDomain(OrthoDomain):
     @property
     def is_orthogonal(self):
         res = [is_perp_to_basis_vectors(i) for i in self.vectors]
-        return all(res) # TODO: on post init... 
+        return all(res)  # TODO: on post init...
+
+    @property
+    def surfaces(self):
+        surfaces = [
+            vector_to_surface(i, j, self.name)
+            for i, j in zip(
+                self.vectors,
+                self.paired_coords,
+            )
+        ]
+        return index_surfaces(surfaces)
+
+    def set_name(self, name: str):
+        self.name = name

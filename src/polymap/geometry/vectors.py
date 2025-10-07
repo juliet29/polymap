@@ -1,12 +1,15 @@
 from utils4plans.geom import Coord
+from utils4plans.lists import get_unique_one
 import geom
 from enum import Enum
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, Iterable
+from typing import TypeVar, Callable
 
-# class Axes: # TODO literal?
-#     X = "X"
-# Y = "Y"
+
+T = TypeVar("T")
+
+
 Axes = Literal["X", "Y"]
 
 
@@ -16,15 +19,29 @@ class BasisVectors:
     e2 = geom.Vector([0, 0, 1])
 
 
+DirectionNames = Literal["north", "south", "east", "west"]
+
+
 @dataclass
 class Direction:
-    name: str
+    name: DirectionNames
     aligned_axis: Axes
     aligned_vector: geom.Vector
 
     def match_vector(self, v: geom.Vector):
         if v == self.aligned_vector:
             return self
+
+    @property
+    def normal_axis(self):
+        if self.aligned_axis == "X":
+            return "Y"
+        return "X"
+
+    def __lt__(self, other):
+        if isinstance(other, Direction):
+            return self.name < other.name
+        
 
 
 class CardinalDirections:
@@ -37,15 +54,9 @@ class CardinalDirections:
     def drn_list(self):
         return [self.NORTH, self.SOUTH, self.EAST, self.WEST]
 
-    # @property
-    # def drn_by_vector(self):
-    #     return {i.aligned_vector: i for i in self.drn_list}
-
     def get_drn_by_vector(self, v: geom.Vector):
         matches = [i.match_vector(v) for i in self.drn_list]
-        valid_matches = [i for i in matches if i]
-        assert len(valid_matches) == 1
-        return valid_matches[0]
+        return get_unique_one(matches, lambda x: x)
 
 
 def vector2D_from_coord(c: Coord):
@@ -70,11 +81,6 @@ def is_perp_to_basis_vectors(v: geom.Vector):
         f"{v} is not orthogonal to the basis vectors!"
     )
     return True
-
-
-# def is_parallel(v: geom.Vector, test_vector: geom.Vector):
-#     if v.dot(test_vector) == 1 or v.dot(test_vector) == -1:
-#         return True
 
 
 def compute_outward_normal_assuming_cw(v_: geom.Vector):
