@@ -26,13 +26,15 @@ class FancyOrthoDomain(OrthoDomain):
         p = sp.Polygon(self.tuple_list)
         assert len(p.interiors) == 0, f"More than one interior: {p.interiors}"
         assert p.is_valid, "Polygon not valid"
-        ext = p.exterior.normalize()
-        assert ext.is_closed, "Polygon is not closed"
-        return ext
+        return p
+        # ext = p.exterior.normalize()
+        # assert ext.is_closed, "Polygon is not closed"
+        # return sp.Polygon(ext)
 
     @property
     def normalized_coords(self):
-        return [Coord(*i) for i in self.shapely_polygon.coords]
+        # NOTE: shapely will return coords in CW direction starting from the bottom left 
+        return [Coord(*i) for i in self.shapely_polygon.exterior.normalize().coords]
 
     @property
     def paired_coords(self):
@@ -44,7 +46,7 @@ class FancyOrthoDomain(OrthoDomain):
             print(f"{count}: {i}, {j}")
 
             count += 1
-            if count > self.num_coords-1:
+            if count > self.num_coords - 1:
                 break
         assert paired_coords[0].a == paired_coords[-1].b
 
@@ -57,4 +59,4 @@ class FancyOrthoDomain(OrthoDomain):
     @property
     def is_orthogonal(self):
         res = [is_perp_to_basis_vectors(i) for i in self.vectors]
-        return all(res)
+        return all(res) # TODO: on post init... 

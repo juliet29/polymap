@@ -2,7 +2,13 @@ import geom
 from rich import print
 import pytest
 from utils4plans.geom import Coord
-from polymap.geometry.vectors import vector_from_coords
+from polymap.geometry.vectors import (
+    vector_from_coords,
+    compute_outward_normal_assuming_cw,
+    determine_normal_direction,
+    CardinalDirections,
+    Direction,
+)
 
 e0 = geom.Vector([1, 0, 0])
 e1 = geom.Vector([0, 1, 0])
@@ -23,6 +29,7 @@ vector_cross_group: list[tuple[geom.Vector, geom.Vector, geom.Vector]] = [
     (e1, e0, -e2),  # jxi -
     (e2, e0, e1),  # kxi +
     (e2, e1, -e0),  # kxj -
+    (-e1, e2, -e0),
 ]
 
 
@@ -40,6 +47,32 @@ def test_create_vector_from_coords():
     assert res == expected_res
 
 
+vector_normal_group: list[tuple[geom.Vector, geom.Vector]] = [
+    (e0, e1),
+    (-e1, e0),
+    (-e0, -e1),
+    (e1, -e0),
+]
+
+
+@pytest.mark.parametrize("v, result", vector_normal_group)
+def test_compute_outward_normal_assuming_cw(v, result):
+    assert compute_outward_normal_assuming_cw(v) == result
+
+
+vector_drn_group: list[tuple[geom.Vector, Direction]] = [
+    (e0, CardinalDirections.NORTH),
+    (-e1, CardinalDirections.EAST),
+    (-e0, CardinalDirections.SOUTH),
+    (e1, CardinalDirections.WEST),
+]
+
+
+@pytest.mark.parametrize("v, result", vector_drn_group)
+def test_compute_normal_direction(v, result):
+    assert determine_normal_direction(v) == result
+
+
 # def test_normal2():
 #     e2 = geom.Vector([0, 0, 1])
 #     new = geom.Vector([3, 2, 0])
@@ -48,6 +81,4 @@ def test_create_vector_from_coords():
 
 
 if __name__ == "__main__":
-    e2 = geom.Vector([0, 0, 1])
-    new = geom.Vector([3, 2, 0])
-    # manual_normal_calc(e2, new)
+    compute_outward_normal_assuming_cw(e0)
