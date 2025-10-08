@@ -10,6 +10,7 @@ requires-python = ">=3.13"
 dependencies = [
     "geom>=0.3.0",
     "matplotlib>=3.10.6",
+    "pipe>=2.2",
     "pytest>=8.4.2",
     "shapely>=2.1.2",
 ]

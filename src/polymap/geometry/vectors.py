@@ -41,7 +41,6 @@ class Direction:
     def __lt__(self, other):
         if isinstance(other, Direction):
             return self.name < other.name
-        
 
 
 class CardinalDirections:
@@ -54,9 +53,14 @@ class CardinalDirections:
     def drn_list(self):
         return [self.NORTH, self.SOUTH, self.EAST, self.WEST]
 
-    def get_drn_by_vector(self, v: geom.Vector):
+    def get_drn_by_vector(self, v_: geom.Vector):
+        v = v_.norm()
         matches = [i.match_vector(v) for i in self.drn_list]
-        return get_unique_one(matches, lambda x: x)
+        try:
+            res = get_unique_one(matches, lambda x: x)
+            return res
+        except AssertionError:
+            raise Exception(f"{v} has 0 or many potential matches: {matches}")
 
 
 def vector2D_from_coord(c: Coord):

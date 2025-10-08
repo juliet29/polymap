@@ -10,15 +10,19 @@ from polymap.interfaces import PairedCoord
 
 @dataclass(frozen=True)
 class FancyRange(Range):
-    ...
-    # TODO comparisons..
+    def is_coincident(self, other):
+        if isinstance(other, FancyRange):
+            if other.max <= self.min or other.min >= self.max:
+                return False
+            return True
+        raise Exception(f"Invalid comparison for object of type {type(other)}")
 
 
 def coords_to_range(coords: PairedCoord, ax: Axes):
     if ax == "X":
-        return FancyRange(*[i.x for i in coords])
+        return FancyRange(*sorted([i.x for i in coords]))
     else:
-        return FancyRange(*[i.y for i in coords])
+        return FancyRange(*sorted([i.y for i in coords]))
 
 
 def coords_to_location(coords: PairedCoord, ax: Axes):
@@ -35,24 +39,43 @@ class Surface:
     domain_name: str
     direction_ix: int = -1
 
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Surface):
+            return (
+                (self.direction == other.direction)
+                and (self.coords == other.coords)
+                and (self.domain_name == other.domain_name)
+            )
+        raise Exception(f"Invalid object of type {type(other)}")
+
+    def __hash__(self) -> int:
+        return hash(self.direction.name) + hash(self.coords) + hash(self.domain_name)
+
+    def __rich_repr__(self):
+        yield "domain_name", self.domain_name
+        yield "direction", self.direction.name
+        yield "ix", self.direction_ix
+
+    def __str__(self) -> str:
+        return f"{self.domain_name} | {self.direction.name}_{self.direction_ix}"
+
+    @property
+    def axis(self):
+        return self.direction.normal_axis
+
     @property
     def range(self):
-        return coords_to_range(self.coords, self.direction.normal_axis)
+        return coords_to_range(self.coords, self.axis)
 
     @property
     def location(self) -> float:
-        return coords_to_location(self.coords, self.direction.normal_axis)
+        return coords_to_location(self.coords, self.axis)
 
     def update_ix(self, ix: int):
         self.direction_ix = ix
 
 
 def index_surfaces(surfaces: list[Surface]):
-    # # TODO split by direction
-    # # check that there is only one direction..
-    # drns = [i.direction for i in surfaces]
-    # assert len(set(drns)) == 1
-
     grouped_surfaces = sort_and_group_objects(surfaces, lambda x: x.direction)
 
     def update_surfaces(surfs: list[Surface]):
@@ -66,7 +89,7 @@ def index_surfaces(surfaces: list[Surface]):
     return surfaces
 
 
-def vector_to_surface(v: geom.Vector, coords: PairedCoord, domain_name: str):
+def create_surface(v: geom.Vector, coords: PairedCoord, domain_name: str):
     direction = determine_normal_direction(v)
     assert direction, f"{geom.Vector} did not produce a matching direction"
     return Surface(direction, coords, domain_name)

@@ -1,13 +1,17 @@
 from utils4plans.geom import OrthoDomain, Coord
 from dataclasses import dataclass
 import shapely as sp
-from utils4plans.lists import pairwise
+from utils4plans.lists import pairwise, get_unique_one
 from rich import print
 from itertools import cycle
 
-from polymap.geometry.vectors import vector_from_coords, is_perp_to_basis_vectors
+from polymap.geometry.vectors import (
+    vector_from_coords,
+    is_perp_to_basis_vectors,
+    DirectionNames,
+)
 from polymap.interfaces import PairedCoord
-from polymap.geometry.surfaces import vector_to_surface, index_surfaces
+from polymap.geometry.surfaces import create_surface, index_surfaces
 
 
 def create_paired_coords(coords: list[Coord]):
@@ -51,20 +55,6 @@ class FancyOrthoDomain(OrthoDomain):
     def paired_coords(self):
         return create_paired_coords(self.normalized_coords)
 
-        # count = 0
-        # paired_coords: list[PairedCoord] = []
-
-        # for i, j in pairwise(cycle(self.normalized_coords)):
-        #     paired_coords.append(PairedCoord(i, j))
-        #     print(f"{count}: {i}, {j}")
-
-        #     count += 1
-        #     if count > self.num_coords - 1:
-        #         break
-        # assert paired_coords[0].a == paired_coords[-1].b
-
-        # return paired_coords
-
     @property
     def vectors(self):
         return [vector_from_coords(*i) for i in self.paired_coords]
@@ -76,14 +66,21 @@ class FancyOrthoDomain(OrthoDomain):
 
     @property
     def surfaces(self):
+        # print(self.name, self.vectors)
         surfaces = [
-            vector_to_surface(i, j, self.name)
+            create_surface(i, j, self.name)
             for i, j in zip(
                 self.vectors,
                 self.paired_coords,
             )
         ]
         return index_surfaces(surfaces)
+
+    def get_surface(self, direction_name: DirectionNames, direction_ix: int):
+        return get_unique_one(
+            self.surfaces,
+            lambda x: (x.direction.name == direction_name) and (x.direction_ix == direction_ix),
+        )
 
     def set_name(self, name: str):
         self.name = name
