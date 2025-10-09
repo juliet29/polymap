@@ -63,9 +63,6 @@ def filter_candidate_neighbors(
             )
 
         if virtual_domain.shapely_polygon.intersects(closer_domain.shapely_polygon):
-            # TODO log
-            #     f"`{closer_domain.name}` is contained in the distance betwen the current surf `{surf}` and the further surf on `{further_surf.domain_name}`. Removing the further surf"
-            # )
             bad_surfs.append(further_surf)
     remaining = set_difference(other_surfs, bad_surfs)
     print(f"{str(surf)}: {[i.domain_name for i in bad_surfs]}")
@@ -82,3 +79,5 @@ if __name__ == "__main__":
     surf = layout.get_domain("red").get_surface("south", 1)
     os = get_candidate_surface_neighbors(layout, surf)
     filter_candidate_neighbors(layout, surf, os)
+
+
