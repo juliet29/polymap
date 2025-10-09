@@ -1,6 +1,7 @@
 from pipe import batched
 from polymap.geometry.ortho import FancyOrthoDomain
-from polymap.geometry.layout import Layout, get_candidate_surface_neighbors, filter_candidate_neighbors
+from polymap.layout.interfaces import Layout
+from polymap.layout.neighbors import get_candidate_surface_neighbors, filter_candidate_neighbors
 from rich import print
 
 def create_stacked_domains():

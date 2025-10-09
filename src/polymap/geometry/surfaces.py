@@ -36,6 +36,14 @@ class FancyRange(Range):
     def as_tuple(self):
         return (self.min, self.max)
 
+    @property
+    def size(self):
+        return self.max - self.min
+
+    @property
+    def midpoint(self):
+        return (self.min + self.max) / 2
+
 
 def coords_to_range(coords: PairedCoord, ax: Axes):
     if ax == "X":
@@ -64,6 +72,7 @@ class Surface:
                 (self.direction == other.direction)
                 and (self.coords == other.coords)
                 and (self.domain_name == other.domain_name)
+                and (self.direction_ix == other.direction_ix)
             )
         raise Exception(f"Invalid object of type {type(other)}")
 
@@ -81,20 +90,29 @@ class Surface:
         return f"{self.domain_name}-{self.direction.name}_{self.direction_ix}"
 
     @property
-    def axis(self):
+    def aligned_axis(self):
         return self.direction.normal_axis
 
     @property
-    def normal_axis(self):
+    def direction_axis(self):
         return self.direction.aligned_axis
 
     @property
     def range(self):
-        return coords_to_range(self.coords, self.axis)
+        return coords_to_range(self.coords, self.aligned_axis)
 
     @property
     def location(self) -> float:
-        return coords_to_location(self.coords, self.axis)
+        return coords_to_location(self.coords, self.aligned_axis)
+
+    @property
+    def centroid(self):
+        if self.aligned_axis == "X":
+            return Coord(self.range.midpoint, self.location)
+        return Coord(
+            self.location,
+            self.range.midpoint,
+        )
 
     def update_ix(self, ix: int):
         self.direction_ix = ix
