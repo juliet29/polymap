@@ -43,9 +43,8 @@ def test_orthogonal():
 
 
 def test_is_not_orthogonal():
-    domain = create_ortho_domain("NON_ORTHO")
     with pytest.raises(AssertionError):
-        assert domain.is_orthogonal
+        create_ortho_domain("NON_ORTHO")
 
 
 if __name__ == "__main__":

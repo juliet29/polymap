@@ -373,6 +373,7 @@ source = { editable = "." }
 dependencies = [
     { name = "geom" },
     { name = "matplotlib" },
+    { name = "numpy" },
     { name = "pipe" },
     { name = "pytest" },
     { name = "shapely" },
@@ -382,6 +383,7 @@ dependencies = [
 requires-dist = [
     { name = "geom", specifier = ">=0.3.0" },
     { name = "matplotlib", specifier = ">=3.10.6" },
+    { name = "numpy", specifier = ">=2.3.3" },
     { name = "pipe", specifier = ">=2.2" },
     { name = "pytest", specifier = ">=8.4.2" },
     { name = "shapely", specifier = ">=2.1.2" },

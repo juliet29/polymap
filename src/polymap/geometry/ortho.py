@@ -1,17 +1,19 @@
-from utils4plans.geom import OrthoDomain, Coord
 from dataclasses import dataclass
-import shapely as sp
-from utils4plans.lists import pairwise, get_unique_one
-from rich import print
 from itertools import cycle
 
+import shapely as sp
+from rich import print
+from utils4plans.geom import Coord, OrthoDomain, ShapelyBounds
+from utils4plans.lists import get_unique_one, pairwise
+
+from polymap.geometry.surfaces import create_surface, index_surfaces, FancyRange
 from polymap.geometry.vectors import (
-    vector_from_coords,
-    is_perp_to_basis_vectors,
+    Axes,
     DirectionNames,
+    is_perp_to_basis_vectors,
+    vector_from_coords,
 )
 from polymap.interfaces import PairedCoord
-from polymap.geometry.surfaces import create_surface, index_surfaces
 
 
 def create_paired_coords(coords: list[Coord]):
@@ -34,7 +36,18 @@ def create_paired_coords(coords: list[Coord]):
 class FancyOrthoDomain(OrthoDomain):
     name: str = ""
 
-    # TODO want to do some checks, make sure is closed and valid..
+    def __post_init__(self):
+        assert self.is_orthogonal
+
+    @classmethod
+    def from_bounds(
+        cls, minx: float, maxx: float, miny: float, maxy: float, name: str = ""
+    ):
+        coords = [(minx, miny), (maxx, miny), (maxx, maxy), (minx, maxy)]
+        new_domain = cls([Coord(*i) for i in coords])
+        new_domain.set_name(name)
+        return new_domain
+
     @property
     def num_coords(self):
         return len(self.coords)
@@ -76,10 +89,18 @@ class FancyOrthoDomain(OrthoDomain):
         ]
         return index_surfaces(surfaces)
 
+    def get_range_by_axis(self, axis: Axes):
+        bounds = ShapelyBounds(*self.shapely_polygon.bounds)
+        if axis == "X":
+            return FancyRange(bounds.minx, bounds.maxx)
+        else:
+            return FancyRange(bounds.miny, bounds.maxy)
+
     def get_surface(self, direction_name: DirectionNames, direction_ix: int):
         return get_unique_one(
             self.surfaces,
-            lambda x: (x.direction.name == direction_name) and (x.direction_ix == direction_ix),
+            lambda x: (x.direction.name == direction_name)
+            and (x.direction_ix == direction_ix),
         )
 
     def set_name(self, name: str):

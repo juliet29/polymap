@@ -7,6 +7,8 @@ from utils4plans.lists import sort_and_group_objects
 from polymap.geometry.vectors import Direction, determine_normal_direction, Axes
 from polymap.interfaces import PairedCoord
 
+import numpy as np
+
 
 @dataclass(frozen=True)
 class FancyRange(Range):
@@ -15,7 +17,24 @@ class FancyRange(Range):
             if other.max <= self.min or other.min >= self.max:
                 return False
             return True
+        raise Exception(
+            f"Invalid comparison for object of type {type(other)}"
+        )  # TODO include picture for this?
+
+    def contains(self, other):
+        if isinstance(other, FancyRange):
+            if (other.min >= self.min) and (other.max <= self.max):
+                return True
+            return False
         raise Exception(f"Invalid comparison for object of type {type(other)}")
+
+    @property
+    def as_np_range(self):
+        return np.arange(self.min, self.max, 0.01)
+
+    @property
+    def as_tuple(self):
+        return (self.min, self.max)
 
 
 def coords_to_range(coords: PairedCoord, ax: Axes):
@@ -55,13 +74,19 @@ class Surface:
         yield "domain_name", self.domain_name
         yield "direction", self.direction.name
         yield "ix", self.direction_ix
+        yield "range", self.range
+        yield "location", self.location
 
     def __str__(self) -> str:
-        return f"{self.domain_name} | {self.direction.name}_{self.direction_ix}"
+        return f"{self.domain_name}-{self.direction.name}_{self.direction_ix}"
 
     @property
     def axis(self):
         return self.direction.normal_axis
+
+    @property
+    def normal_axis(self):
+        return self.direction.aligned_axis
 
     @property
     def range(self):
