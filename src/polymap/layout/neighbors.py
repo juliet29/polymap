@@ -12,6 +12,7 @@ from polymap.geometry.surfaces import Surface, FancyRange
 from polymap.layout.interfaces import create_layout_from_dict
 from polymap.layout.interfaces import Layout
 from polymap.geometry.vectors import Axes
+from polymap.geometry.ortho import FancyOrthoDomain
 
 
 def get_candidate_surface_neighbors(layout: Layout, surf: Surface):
@@ -39,23 +40,35 @@ def get_candidate_surface_neighbors(layout: Layout, surf: Surface):
 def filter_candidate_neighbors(
     layout: Layout, surf: Surface, other_surfs: list[Surface]
 ):
+    # NOTE: neighbor furthest away from the current surf is first
     sorted_surfs = sorted(
         other_surfs,
         key=lambda x: x.location,
-    )  # from lowest to highest.. -> from furthest away to closest to the current surf..
+    )
     bad_surfs = []
 
     for further_surf, closer_surf in pairwise(sorted_surfs):
         closer_domain = layout.get_domain(closer_surf.domain_name)
-        domain_range = closer_domain.get_range_by_axis(closer_surf.direction_axis)
 
-        surf_range = FancyRange(further_surf.location, surf.location)
-        if surf_range.contains(domain_range):
+        distance_range = FancyRange(further_surf.location, surf.location)
+        axis_aligned_range = min(surf.range, further_surf.range)
+
+        if surf.aligned_axis == "X":
+            virtual_domain = FancyOrthoDomain.from_bounds(
+                *axis_aligned_range.as_tuple, *distance_range.as_tuple
+            )
+        else:
+            virtual_domain = FancyOrthoDomain.from_bounds(
+                *distance_range.as_tuple, *axis_aligned_range.as_tuple
+            )
+
+        if virtual_domain.shapely_polygon.intersects(closer_domain.shapely_polygon):
             # TODO log
             #     f"`{closer_domain.name}` is contained in the distance betwen the current surf `{surf}` and the further surf on `{further_surf.domain_name}`. Removing the further surf"
             # )
             bad_surfs.append(further_surf)
     remaining = set_difference(other_surfs, bad_surfs)
+    print(f"{str(surf)}: {[i.domain_name for i in bad_surfs]}")
     return remaining
 
 

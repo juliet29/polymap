@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 import geom
+import shapely as sp
 from utils4plans.geom import Coord, Range
 from utils4plans.lists import sort_and_group_objects
 
@@ -12,6 +13,30 @@ import numpy as np
 
 @dataclass(frozen=True)
 class FancyRange(Range):
+    def __lt__(self, other):
+        if isinstance(other, FancyRange):
+            return self.size < other.size
+        raise Exception(
+            f"Invalid comparison for object of type {type(other)}"
+        )  # TODO include picture for this?
+    
+    @property
+    def as_np_range(self):
+        return np.arange(self.min, self.max, 0.01)
+
+    @property
+    def as_tuple(self):
+        return (self.min, self.max)
+
+    @property
+    def size(self):
+        return self.max - self.min
+
+    @property
+    def midpoint(self):
+        return (self.min + self.max) / 2
+
+
     def is_coincident(self, other):
         if isinstance(other, FancyRange):
             if other.max <= self.min or other.min >= self.max:
@@ -28,21 +53,6 @@ class FancyRange(Range):
             return False
         raise Exception(f"Invalid comparison for object of type {type(other)}")
 
-    @property
-    def as_np_range(self):
-        return np.arange(self.min, self.max, 0.01)
-
-    @property
-    def as_tuple(self):
-        return (self.min, self.max)
-
-    @property
-    def size(self):
-        return self.max - self.min
-
-    @property
-    def midpoint(self):
-        return (self.min + self.max) / 2
 
 
 def coords_to_range(coords: PairedCoord, ax: Axes):
@@ -107,6 +117,7 @@ class Surface:
 
     @property
     def centroid(self):
+        # TODO there is an easier way to do this with coords?
         if self.aligned_axis == "X":
             return Coord(self.range.midpoint, self.location)
         return Coord(
@@ -116,6 +127,10 @@ class Surface:
 
     def update_ix(self, ix: int):
         self.direction_ix = ix
+    
+    # def is_crossing(self, shape: sp.Polygon):
+    #     line = self.coords.shapely_line
+    #     return line.crosses(shape) 
 
 
 def index_surfaces(surfaces: list[Surface]):

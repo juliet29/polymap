@@ -38,6 +38,7 @@ nbs_group: list[tuple[str, set]] = [
     ("yellow-south_0", {"blue-north_0"}),
     ("green-south_0", {"blue-north_0"}),
     ("pink-south_0", {"green-north_0"}),
+    # TODO add x
 ]
 
 @pytest.fixture

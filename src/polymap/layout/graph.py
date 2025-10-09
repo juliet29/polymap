@@ -26,6 +26,7 @@ def create_graph_for_all_surfaces_along_axis(layout: Layout, axis: Axes) -> nx.D
         create_graph_for_surface(layout, i)
         for i in layout.surfaces
         if i.direction_axis == axis
+        and i.direction.name == "south" # TODO this should depend on the axis.. 
     ]
     G = nx.compose_all(graphs)
     return G

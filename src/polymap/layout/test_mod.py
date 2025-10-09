@@ -26,7 +26,8 @@ if __name__ == "__main__":
     layout = create_layout_from_dict(sample_layout)
     # Gx = create_graph_for_all_surfaces_along_axis(layout, "X")
     Gy = create_graph_for_all_surfaces_along_axis(layout, "Y")
-    collect_node_nbs(Gy)
+    c = collect_node_nbs(Gy)
+    print(c)
     # print(list(Gy.neighbors("blue-north_0")))
     # plot_graph2(layout, Gx, Gy)
     # print(
