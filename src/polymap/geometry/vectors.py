@@ -81,10 +81,9 @@ def vector3D_from_coord(c: Coord):
 
 def is_perp_to_basis_vectors(v: geom.Vector):
     # TODO assert is 3D
-    assert v.dot(BasisVectors.e0) == 0 or v.dot(BasisVectors.e1) == 0, (
-        f"{v} is not orthogonal to the basis vectors!"
-    )
-    return True
+    if v.dot(BasisVectors.e0) == 0 or v.dot(BasisVectors.e1) == 0:
+        return True
+    return False
 
 
 def compute_outward_normal_assuming_cw(v_: geom.Vector):

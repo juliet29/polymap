@@ -7,6 +7,9 @@ from polymap.visuals import plot_polygon
 import shapely as sp
 from utils4plans.lists import chain_flatten, get_unique_one
 from utils4plans.sets import set_difference
+from utils4plans.io import read_json
+from pathlib import Path
+from polymap.paths import MSD_PATHS
 
 
 from dataclasses import dataclass
@@ -30,8 +33,8 @@ class Layout:
 
     def get_other_surfaces(self, surf: Surface):
         return set_difference(self.surfaces, [surf])
-    
-    def get_surface_by_name(self, surf_name:str):
+
+    def get_surface_by_name(self, surf_name: str):
         return get_unique_one(self.surfaces, lambda x: str(x) == surf_name)
 
 
@@ -40,6 +43,17 @@ def create_layout_from_dict(
 ):  # TODO: CoordsType is a misnomer
     domains: list[FancyOrthoDomain] = []
     for k, v in layout.items():
+        domain = FancyOrthoDomain.from_tuple_list(v)
+        domain.set_name(k)
+        domains.append(domain)
+
+    return Layout(domains)
+
+
+def create_layout_from_json(file_name: str, folder_path: Path = MSD_PATHS):
+    data: dict[str, CoordsType] = read_json(folder_path, file_name)
+    domains: list[FancyOrthoDomain] = []
+    for k, v in data.items():
         domain = FancyOrthoDomain.from_tuple_list(v)
         domain.set_name(k)
         domains.append(domain)

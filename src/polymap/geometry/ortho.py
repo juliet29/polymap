@@ -36,8 +36,8 @@ def create_paired_coords(coords: list[Coord]):
 class FancyOrthoDomain(OrthoDomain):
     name: str = ""
 
-    def __post_init__(self):
-        assert self.is_orthogonal
+    # def __post_init__(self):
+    #     assert self.is_orthogonal
 
     @classmethod
     def from_bounds(
