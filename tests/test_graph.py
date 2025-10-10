@@ -1,5 +1,6 @@
 import networkx as nx
 from polymap.layout.graph import AxGraph
+from polymap.layout.interfaces import Layout
 
 
 def create_Gx():
@@ -12,13 +13,12 @@ def create_Gx():
             (4, 6, {"data": "d"}),
         ]
     )
-    return AxGraph(g, "X")
+    return AxGraph(g, "X", Layout([]))
 
 
 def test_graph():
     Gx = create_Gx()
-    assert set(Gx.roots) == set([1,4])
-
+    assert set(Gx.roots) == set([1, 4])
 
 
 if __name__ == "__main__":

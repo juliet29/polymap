@@ -9,12 +9,14 @@ from polymap.geometry.vectors import Axes
 from pipe import where
 from dataclasses import dataclass
 from copy import deepcopy
+from utils4plans.lists import chain_flatten
 
 
 @dataclass
 class AxGraph:
     G: nx.DiGraph
     ax: Axes
+    layout: Layout
 
     @property
     def roots(self):
@@ -26,17 +28,26 @@ class AxGraph:
     def calc_delta(self, n1, n2):
         return self.G.edges[(n1, n2)]["delta"]
 
-    def update_layout(self, layout_: Layout):
-        layout = deepcopy(layout_)
-        for node in self.roots:
-            # TODO check if these are actually names..
-            nbs = self.get_neighbors(node)
-            for nb in nbs:
-                delta = self.calc_delta(node, nb)
-                surface = layout.get_surface_by_name(nb)
-                domain = layout.get_domain(surface.domain_name)
+    def collect_domain_updates_for_node(self, node: str):
+        def create_new_domain_for_nb(
+            nb: str,
+        ):
+            delta = self.calc_delta(node, nb)
+            surface = self.layout.get_surface_by_name(nb)
+            domain = self.layout.get_domain(surface.domain_name)
+            return domain.update_surface(surface, delta)
 
-                domain.update_surface(surface, delta)
+        return [create_new_domain_for_nb(i) for i in self.get_neighbors(node)]
+
+    @property
+    def updated_domains(self):
+        return chain_flatten(
+            [self.collect_domain_updates_for_node(i) for i in self.roots]
+        )
+
+    @property
+    def updated_layout(self):
+        return self.layout.update_layout(self.updated_domains)
 
 
 def create_graph_for_surface(
@@ -52,7 +63,7 @@ def create_graph_for_surface(
     return G
 
 
-def create_graph_for_all_surfaces_along_axis(layout: Layout, axis: Axes) -> nx.DiGraph:
+def create_graph_for_all_surfaces_along_axis(layout: Layout, axis: Axes):
     surfaces = list(
         layout.surfaces
         | where(lambda x: x.direction_axis == axis)
@@ -64,16 +75,18 @@ def create_graph_for_all_surfaces_along_axis(layout: Layout, axis: Axes) -> nx.D
         for i in surfaces  # TODO this should depend on the axis..
     ]
     G = nx.compose_all(graphs)
-    return G
+    return AxGraph(G, axis, layout)
 
 
 # TODO -> potential for creating a dataclass...
 # graph should return its axis maybe
 
 
-def creat_graph_for_layout(layout: Layout):
+def create_graph_for_layout(layout: Layout):
     Gx = create_graph_for_all_surfaces_along_axis(layout, "X")
+    Gx.updated_layout.plot_layout()
     Gy = create_graph_for_all_surfaces_along_axis(layout, "Y")
+
     return Gx, Gy
 
 

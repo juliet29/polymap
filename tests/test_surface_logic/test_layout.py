@@ -49,7 +49,7 @@ def get_nbs_dict():
     layout = create_layout_from_dict(sample_layout)
     Gx = create_graph_for_all_surfaces_along_axis(layout, "X")
     Gy = create_graph_for_all_surfaces_along_axis(layout, "Y")
-    return collect_node_nbs(Gx), collect_node_nbs(Gy)
+    return collect_node_nbs(Gx.G), collect_node_nbs(Gy.G)
 
 
 @pytest.mark.parametrize("ax, node, nbs", nbs_group)

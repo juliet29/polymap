@@ -1,6 +1,4 @@
-from polymap.layout.interfaces import (
-    create_layout_from_dict, create_layout_from_json
-)
+from polymap.layout.interfaces import create_layout_from_dict, create_layout_from_json
 from polymap.layout.neighbors import get_candidate_surface_neighbors, get_nbs_for_surf
 from polymap.examples.layout import layout as sample_layout
 from rich import print
@@ -24,19 +22,21 @@ def plot_graph2(layout, Gx, Gy):
 
 
 if __name__ == "__main__":
-    # layout = create_layout_from_dict(sample_layout)
-    layout = create_layout_from_json("48205")
-    layout.plot_layout()
-    print(layout)
-
-
+    layout = create_layout_from_dict(sample_layout)
+    # layout = create_layout_from_json("48205")
+    # layout.plot_layout()
+    # print(layout)
 
     Gx = create_graph_for_all_surfaces_along_axis(layout, "X")
-    Gy = create_graph_for_all_surfaces_along_axis(layout, "Y")
-    # c = collect_node_nbs(Gy)
-    # print(c)
-    # # print(list(Gy.neighbors("blue-north_0")))
-    plot_graph2(layout, Gx, Gy)
+    print(Gx.updated_layout)
+    Gy = create_graph_for_all_surfaces_along_axis(Gx.updated_layout, "Y")
+    Gy.updated_layout.plot_layout()
+
+    # Gy = create_graph_for_all_surfaces_along_axis(layout, "Y")
+    # # c = collect_node_nbs(Gy)
+    # # print(c)
+    # # # print(list(Gy.neighbors("blue-north_0")))
+    # plot_graph2(layout, Gx, Gy)
     # print(
     #     {(u, v): round(data["difference"], 2) for (u, v, data) in Gy.edges(data=True)}
     # )

@@ -83,6 +83,17 @@ def coords_from_range_and_location(range: FancyRange, location: float, ax: Axes)
     return PairedCoord(Coord(*c1), Coord(*c2))
 
 
+def update_paired_coords_location(coords: PairedCoord, location: float, ax: Axes):
+    c1, c2 = coords
+    if ax == "X":
+        c11 = (c1.x, c1.y + location)
+        c12 = (c2.x, c2.y + location)
+    else:
+        c11 = (c1.x + location, c1.y)
+        c12 = (c2.x + location, c2.y)
+    return PairedCoord(Coord(*c11), Coord(*c12))
+
+
 @dataclass
 class Surface:
     direction: Direction
@@ -143,10 +154,8 @@ class Surface:
         self.direction_ix = ix
 
     def update_surface_location(self, num: float):
-        new_loc = self.location + num
-        new_coords = coords_from_range_and_location(
-            self.range, new_loc, self.aligned_axis
-        )
+        # new_loc = self.location + num
+        new_coords = update_paired_coords_location(self.coords, num, self.aligned_axis)
         return Surface(self.direction, new_coords, self.domain_name, self.direction_ix)
 
     # def is_crossing(self, shape: sp.Polygon):

@@ -84,6 +84,7 @@ def test_update_surface():
             ]
         ],
     )
+    assert new_dom.is_orthogonal
 
 
 if __name__ == "__main__":

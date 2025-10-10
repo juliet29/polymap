@@ -52,9 +52,19 @@ def find_and_replace_coords_in_list(
     old_paired_coords: PairedCoord,
     new_paired_coords: PairedCoord,
 ):
-    return find_and_replace_in_list(
+    coords = find_and_replace_in_list(
         original_coords, old_paired_coords.as_list, new_paired_coords.as_list
     )
+    coord_tuple = [i.as_tuple for i in coords]
+    p = sp.Polygon(coord_tuple)
+    if not p.is_valid:
+        coords = find_and_replace_in_list(
+            original_coords,
+            old_paired_coords.as_list,
+            list(reversed(new_paired_coords.as_list)),
+        )
+        return coords
+    return coords
 
 
 # def find_and_replace_coords_in_list(
@@ -105,7 +115,9 @@ class FancyOrthoDomain(OrthoDomain):
     def shapely_polygon(self):
         p = sp.Polygon(self.tuple_list)
         assert len(p.interiors) == 0, f"More than one interior: {p.interiors}"
-        assert p.is_valid, "Polygon not valid"
+        assert p.is_valid, (
+            f"Polygon not valid | name: {self.name} coords: {self.coords}"
+        )
         return p
 
     @property
@@ -153,11 +165,22 @@ class FancyOrthoDomain(OrthoDomain):
         new_coords = find_and_replace_coords_in_list(
             self.normalized_coords[0:-1], surf.coords, new_surf.coords
         )
-        return FancyOrthoDomain(new_coords, self.name)
 
-    def update_surface_by_name(self, surf_name: str, location_delta: float):
-        surf = self.get_surface_by_name(surf_name)
-        return self.update_surface(surf, location_delta)
+        d = FancyOrthoDomain(new_coords, self.name)
+
+        try:
+            assert d.shapely_polygon.is_valid
+        except AssertionError:
+            f"{surf.domain_name} is not valid after applying delta of {location_delta} to {surf}. New Coords: {d.coords}  | Old Coords: {self.normalized_coords}  "
+        assert d.is_orthogonal, (
+            f"{surf.domain_name} is not orthogonal after applying delta of {location_delta} to {surf}. New Coords: {d.coords}  | Old Coords: {self.normalized_coords}  "
+        )
+
+        return d
+
+    # def update_surface_by_name(self, surf_name: str, location_delta: float):
+    #     surf = self.get_surface_by_name(surf_name)
+    #     return self.update_surface(surf, location_delta)
 
     def update_surface_by_direction(
         self,
