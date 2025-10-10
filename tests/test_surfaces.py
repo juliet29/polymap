@@ -70,5 +70,11 @@ def test_coords_set():
     assert len(res) == len(surfs)
 
 
+def test_update_surface():
+    a = Surface(CD.NORTH, sample_paired_coords, "")
+    new_surf = a.update_surface_location(3)
+    assert new_surf.location == a.coords[0].y + 3
+
+
 if __name__ == "__main__":
     test_coords_set()

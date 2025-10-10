@@ -6,7 +6,7 @@ from rich import print
 from utils4plans.geom import Coord, OrthoDomain, ShapelyBounds
 from utils4plans.lists import get_unique_one, pairwise
 
-from polymap.geometry.surfaces import create_surface, index_surfaces, FancyRange
+from polymap.geometry.surfaces import create_surface, index_surfaces, Surface
 from polymap.geometry.vectors import (
     Axes,
     DirectionNames,
@@ -15,6 +15,9 @@ from polymap.geometry.vectors import (
 )
 from polymap.interfaces import PairedCoord
 
+# from pipe import where, enumerate, map
+from copy import deepcopy
+
 
 def create_paired_coords(coords: list[Coord]):
     num_coords = len(coords)
@@ -22,7 +25,6 @@ def create_paired_coords(coords: list[Coord]):
     paired_coords: list[PairedCoord] = []
     for i, j in pairwise(cycle(coords)):
         paired_coords.append(PairedCoord(i, j))
-        # print(f"{count}: {i}, {j}")
 
         count += 1
         if count > num_coords - 2:
@@ -30,6 +32,44 @@ def create_paired_coords(coords: list[Coord]):
     assert paired_coords[0].a == paired_coords[-1].b
 
     return paired_coords
+
+
+# TODO => utils4plans
+def find_and_replace_in_list(lst_: list, old: list, new: list):
+    lst = deepcopy(lst_)
+    assert len(new) == len(old)
+    count = 0
+    for ix, item in enumerate(lst):
+        if item in old:
+            lst[ix] = new[count]
+            count += 1
+
+    return lst
+
+
+def find_and_replace_coords_in_list(
+    original_coords: list[Coord],
+    old_paired_coords: PairedCoord,
+    new_paired_coords: PairedCoord,
+):
+    return find_and_replace_in_list(
+        original_coords, old_paired_coords.as_list, new_paired_coords.as_list
+    )
+
+
+# def find_and_replace_coords_in_list(
+#     original_coords: list[Coord],
+#     old_paired_coords: list[Coord],
+#     new_paired_coords: list[Coord],
+# ):
+#     oc = deepcopy(original_coords)
+#     pass
+#     # list(
+#     #     original_coords
+#     #     | where(lambda x: x in old_paired_coords)
+#     #     | enumerate
+#     #     | map(lambda x: a[x[0]])
+#     # )
 
 
 @dataclass
@@ -75,7 +115,7 @@ class FancyOrthoDomain(OrthoDomain):
     @property
     def is_orthogonal(self):
         res = [is_perp_to_basis_vectors(i) for i in self.vectors]
-        return all(res)  # TODO: on post init...
+        return all(res)
 
     @property
     def surfaces(self):
@@ -89,19 +129,38 @@ class FancyOrthoDomain(OrthoDomain):
         ]
         return index_surfaces(surfaces)
 
-    def get_range_by_axis(self, axis: Axes):
-        bounds = ShapelyBounds(*self.shapely_polygon.bounds)
-        if axis == "X":
-            return FancyRange(bounds.minx, bounds.maxx)
-        else:
-            return FancyRange(bounds.miny, bounds.maxy)
-
-    def get_surface(self, direction_name: DirectionNames, direction_ix: int):
+    def get_surface(self, direction_name: DirectionNames, direction_ix: int=0):
         return get_unique_one(
             self.surfaces,
             lambda x: (x.direction.name == direction_name)
             and (x.direction_ix == direction_ix),
         )
 
+    def get_surface_by_name(self, surf_name: str):
+        return get_unique_one(self.surfaces, lambda x: str(x) == surf_name)
+
+    def update_surface(self, surf: Surface, location_delta: float):
+        new_surf = surf.update_surface_location(location_delta)
+        new_coords = find_and_replace_coords_in_list(
+            self.normalized_coords, surf.coords, new_surf.coords
+        )
+        return FancyOrthoDomain(new_coords, self.name)
+
+    def update_surface_by_name(self, surf_name: str, location_delta: float):
+        surf = self.get_surface_by_name(surf_name)
+        return self.update_surface(surf, location_delta)
+    
+    def update_surface_by_direction(self, direction_name: DirectionNames, direction_ix: int=0, location_delta: float=0):
+        surf = self.get_surface(direction_name, direction_ix)
+        return self.update_surface(surf, location_delta)
+
+
     def set_name(self, name: str):
         self.name = name
+
+    # def get_range_by_axis(self, axis: Axes):
+    #     bounds = ShapelyBounds(*self.shapely_polygon.bounds)
+    #     if axis == "X":
+    #         return FancyRange(bounds.minx, bounds.maxx)
+    #     else:
+    #         return FancyRange(bounds.miny, bounds.maxy)
