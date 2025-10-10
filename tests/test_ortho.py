@@ -6,6 +6,19 @@ from utils4plans.geom import Coord
 from polymap.geometry.ortho import find_and_replace_in_list
 
 
+def test_equality():
+    d1 = create_ortho_domain()
+    d2 = create_ortho_domain()
+    assert d1 == d2
+
+
+def test_inequality():
+    d1 = create_ortho_domain()
+    d2 = create_ortho_domain()
+    d2.name = "new"
+    assert d1 != d2
+
+
 def test_create_shapely():
     domain = create_ortho_domain()
     p = domain.shapely_polygon

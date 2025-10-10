@@ -1,4 +1,4 @@
-from polymap.geometry.ortho import FancyOrthoDomain
+from polymap.geometry.ortho import FancyOrthoDomain, find_and_replace_in_list
 from polymap.geometry.surfaces import Surface
 from polymap.interfaces import CoordsType
 from polymap.visuals import plot_polygon
@@ -10,9 +10,18 @@ from utils4plans.sets import set_difference
 from utils4plans.io import read_json
 from pathlib import Path
 from polymap.paths import MSD_PATHS
+from typing import TypeVar
 
 
 from dataclasses import dataclass
+
+T = TypeVar("T")
+
+
+# # TODO add to utils4plans
+# def set_update(existing: list[T], new: list[T]):
+#     diff = set_difference(existing, new)
+#     return list(set(diff).union(set(new)))
 
 
 @dataclass
@@ -36,6 +45,15 @@ class Layout:
 
     def get_surface_by_name(self, surf_name: str):
         return get_unique_one(self.surfaces, lambda x: str(x) == surf_name)
+
+    def update_layout(self, new_domains: list[FancyOrthoDomain]):
+        domains_to_replace = [self.get_domain(i.name) for i in new_domains]
+        updated_domains = find_and_replace_in_list(
+            self.domains, domains_to_replace, new_domains
+        )
+        return Layout(updated_domains)
+        # updated_domains = set_update(self.domains, new_domains)
+        # return Layout(updated_domains)
 
 
 def create_layout_from_dict(

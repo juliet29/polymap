@@ -76,6 +76,15 @@ def find_and_replace_coords_in_list(
 class FancyOrthoDomain(OrthoDomain):
     name: str = ""
 
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, FancyOrthoDomain):
+            return (self.coords == other.coords) and (self.name == other.name)
+
+        raise Exception(f"Invalid object of type {type(other)}")
+
+    def __hash__(self) -> int:
+        return hash(self.name) + hash(self.coords)
+
     # def __post_init__(self):
     #     assert self.is_orthogonal
 
@@ -129,7 +138,7 @@ class FancyOrthoDomain(OrthoDomain):
         ]
         return index_surfaces(surfaces)
 
-    def get_surface(self, direction_name: DirectionNames, direction_ix: int=0):
+    def get_surface(self, direction_name: DirectionNames, direction_ix: int = 0):
         return get_unique_one(
             self.surfaces,
             lambda x: (x.direction.name == direction_name)
@@ -142,18 +151,22 @@ class FancyOrthoDomain(OrthoDomain):
     def update_surface(self, surf: Surface, location_delta: float):
         new_surf = surf.update_surface_location(location_delta)
         new_coords = find_and_replace_coords_in_list(
-            self.normalized_coords, surf.coords, new_surf.coords
+            self.normalized_coords[0:-1], surf.coords, new_surf.coords
         )
         return FancyOrthoDomain(new_coords, self.name)
 
     def update_surface_by_name(self, surf_name: str, location_delta: float):
         surf = self.get_surface_by_name(surf_name)
         return self.update_surface(surf, location_delta)
-    
-    def update_surface_by_direction(self, direction_name: DirectionNames, direction_ix: int=0, location_delta: float=0):
+
+    def update_surface_by_direction(
+        self,
+        direction_name: DirectionNames,
+        direction_ix: int = 0,
+        location_delta: float = 0,
+    ):
         surf = self.get_surface(direction_name, direction_ix)
         return self.update_surface(surf, location_delta)
-
 
     def set_name(self, name: str):
         self.name = name
