@@ -6,6 +6,8 @@ from polymap.visuals import plot_line
 import geom
 
 ORIGIN = (0, 0)
+
+# TODO turn to class
 X1 = (1, 0)
 Y1 = (0, 1)
 nX1 = (-1, 0)
@@ -23,14 +25,14 @@ class LineVector(NamedTuple):
 
 
 class LinearGeoms(NamedTuple):
-    a10: LineVector
-    a15: LineVector
-    a20: LineVector
-    a45: LineVector
-    n_a10: LineVector
-    n_a15: LineVector
-    n_a20: LineVector
-    n_a45: LineVector
+    a10: geom.Vector
+    a15: geom.Vector
+    a20: geom.Vector
+    a45: geom.Vector
+    n_a10: geom.Vector
+    n_a15: geom.Vector
+    n_a20: geom.Vector
+    n_a45: geom.Vector
 
 
 class BaseGeoms(NamedTuple):
@@ -46,24 +48,21 @@ class RotatedLinearGeoms(NamedTuple):
     n_e0: LinearGeoms
     n_e1: LinearGeoms
 
+    @classmethod
+    def gen(cls):
+        def create_data_for_base_vector(e: sp.LineString):
+            e_lines = [sp.affinity.rotate(e, angle, origin=ORIGIN) for angle in angles]
+            return LinearGeoms(*[sp_line_to_vector(i) for i in e_lines])
+
+        angles_base = [10, 15, 20, 45]
+        angles = angles_base + [-1 * i for i in angles_base]
+
+        return cls(*[create_data_for_base_vector(i) for i in base_line_strings])
+
 
 def create_base_lines():
     vectors = [sp_line_to_vector(i) for i in base_line_strings]
     return BaseGeoms(*[LineVector(i, j) for i, j in zip(base_line_strings, vectors)])
-
-
-def create_test_lines():
-    def create_data_for_base_vector(e: sp.LineString):
-        e_lines = [sp.affinity.rotate(e, angle, origin=ORIGIN) for angle in angles]
-        e_vectors = [sp_line_to_vector(i) for i in e_lines]
-        return LinearGeoms(*[LineVector(i, j) for i, j in zip(e_lines, e_vectors)])
-
-    angles_base = [10, 15, 20, 45]
-    angles = angles_base + [-1 * i for i in angles_base]
-
-    return RotatedLinearGeoms(
-        *[create_data_for_base_vector(i) for i in base_line_strings]
-    )
 
 
 def plot_lines(lg: LinearGeoms):

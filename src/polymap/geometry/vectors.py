@@ -4,7 +4,7 @@ from utils4plans.lists import get_unique_one
 import geom
 from enum import Enum
 from dataclasses import dataclass
-from typing import Literal, Iterable
+from typing import Literal, Iterable, NamedTuple
 from typing import TypeVar, Callable
 import numpy as np
 
@@ -18,6 +18,17 @@ class BasisVectors:
     e0 = geom.Vector([1, 0, 0])
     e1 = geom.Vector([0, 1, 0])
     e2 = geom.Vector([0, 0, 1])
+
+
+BaseVectorNames = Literal["e0", "e1", "n_e0", "n_e1"]
+
+
+class BasisVectors2D:
+    e0 = geom.Vector([1, 0, 0])
+    e1 = geom.Vector([0, 1, 0])
+    vectors = [e0, e1, -e0, -e1]
+    vector_names: list[BaseVectorNames] = ["e0", "e1", "n_e0", "n_e1"]
+
 
 
 DirectionNames = Literal["north", "south", "east", "west"]

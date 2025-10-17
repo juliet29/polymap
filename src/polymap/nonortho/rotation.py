@@ -29,7 +29,7 @@ def calc_angle_between_vectors(v1: geom.Vector, v2: geom.Vector, deg=False):
     return theta  # TODO want to round this ideally..
 
 
-BaseVectorNames = Literal["e0", "e1", "n_e0", "n_e1"]
+
 
 
 class VectorAngle(NamedTuple):
