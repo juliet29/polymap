@@ -1,3 +1,4 @@
+import shapely as sp
 from utils4plans.geom import Coord
 from utils4plans.lists import get_unique_one
 import geom
@@ -5,7 +6,7 @@ from enum import Enum
 from dataclasses import dataclass
 from typing import Literal, Iterable
 from typing import TypeVar, Callable
-
+import numpy as np
 
 T = TypeVar("T")
 
@@ -86,6 +87,13 @@ def is_perp_to_basis_vectors(v: geom.Vector):
     return False
 
 
+def is_near_perp_to_basis_vectors(v: geom.Vector):
+    # TODO assert is 3D
+    if np.isclose(v.dot(BasisVectors.e0), 0) or np.isclose(v.dot(BasisVectors.e1), 0):
+        return True
+    return False
+
+
 def compute_outward_normal_assuming_cw(v_: geom.Vector):
     v = v_.norm()
     assert is_perp_to_basis_vectors(v)
@@ -98,3 +106,16 @@ def compute_outward_normal_assuming_cw(v_: geom.Vector):
 def determine_normal_direction(v: geom.Vector):
     normal_vector = compute_outward_normal_assuming_cw(v)
     return CardinalDirections().get_drn_by_vector(normal_vector)
+
+
+def sp_line_to_vector(line: sp.LineString):
+    coords = [Coord(*i) for i in line.coords]
+    return vector_from_coords(*coords, _2D=False)
+
+
+def vector_to_sp_line(v: geom.Vector):
+    if len(v) == 3:
+        assert v[2] == 0
+
+    end_coord = (float(v[0]), float(v[1]))  # type: ignore
+    return sp.LineString([(0, 0), end_coord])
