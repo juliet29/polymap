@@ -2,7 +2,7 @@ from polymap.interfaces import CoordsType
 from polymap.geometry.ortho import FancyOrthoDomain
 
 green_north = 3.9
-pink_north = 3.9
+pink_north = 3.8
 layout: dict[str, CoordsType] = {
     "blue": [(1, 1), (4, 1), (4, 2), (1, 2)],
     "yellow": [(1, 2.1), (2, 2.1), (2, 3), (1, 3)],

@@ -11,8 +11,10 @@ from polymap.layout.graph import (
 import matplotlib.pyplot as plt
 from polymap.visuals import plot_polygon
 
+import networkx as nx
 
-def plot_graph2(layout, Gx, Gy):
+
+def plot_graph2(layout, Gx: nx.DiGraph, Gy: nx.DiGraph):
     fig, (ax1, ax2) = plt.subplots(ncols=2, layout="tight", figsize=(12, 7))
     ax1.set_title("Gx")
     ax2.set_title("Gy")
@@ -22,15 +24,17 @@ def plot_graph2(layout, Gx, Gy):
 
 
 if __name__ == "__main__":
-    layout = create_layout_from_dict(sample_layout)
-    # layout = create_layout_from_json("48205")
+    # layout = create_layout_from_dict(sample_layout)
+    layout = create_layout_from_json("48205")
     # layout.plot_layout()
     # print(layout)
 
     Gx = create_graph_for_all_surfaces_along_axis(layout, "X")
     print(Gx.updated_layout)
     Gy = create_graph_for_all_surfaces_along_axis(Gx.updated_layout, "Y")
-    Gy.updated_layout.plot_layout()
+    print(Gy.nbs_dict)
+    # Gy.updated_layout.plot_layout()
+    # plot_graph2(Gy.updated_layout, Gx.G, Gy.G)
 
     # Gy = create_graph_for_all_surfaces_along_axis(layout, "Y")
     # # c = collect_node_nbs(Gy)

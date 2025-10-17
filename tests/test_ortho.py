@@ -68,7 +68,7 @@ def test_find_and_replace_in_list():
     new = [20, 30]
     expected = [1, 20, 30, 4, 5]
     assert find_and_replace_in_list(lst, old, new) == expected
-
+    
 
 def test_update_surface():
     d = create_ortho_domain("SQUARE")
@@ -85,6 +85,13 @@ def test_update_surface():
         ],
     )
     assert new_dom.is_orthogonal
+
+
+# TODO better test of orthogonality + validity after move surfac..
+def test_update_surface_param():
+    d = create_ortho_domain("BOTTOM_UP_L")
+    new_dom = d.update_surface_by_direction("north", location_delta=2)
+
 
 
 if __name__ == "__main__":

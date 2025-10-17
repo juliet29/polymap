@@ -49,6 +49,10 @@ class AxGraph:
     def updated_layout(self):
         return self.layout.update_layout(self.updated_domains)
 
+    @property
+    def nbs_dict(self):
+        return collect_node_nbs(self.G)
+
 
 def create_graph_for_surface(
     layout: Layout,
