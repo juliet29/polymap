@@ -19,9 +19,9 @@ n_e1 = sp.LineString([ORIGIN, nY1])
 base_line_strings = [e0, e1, n_e0, n_e1]
 
 
-class LineVector(NamedTuple):
-    line: sp.LineString
-    v: geom.Vector
+# class LineVector(NamedTuple):
+#     line: sp.LineString
+#     v: geom.Vector
 
 
 class LinearGeoms(NamedTuple):
@@ -35,11 +35,11 @@ class LinearGeoms(NamedTuple):
     n_a45: geom.Vector
 
 
-class BaseGeoms(NamedTuple):
-    e0: LineVector
-    e1: LineVector
-    n_e0: LineVector
-    n_e1: LineVector
+# class BaseGeoms(NamedTuple):
+#     e0: LineVector
+#     e1: LineVector
+#     n_e0: LineVector
+#     n_e1: LineVector
 
 
 class RotatedLinearGeoms(NamedTuple):
@@ -60,10 +60,10 @@ class RotatedLinearGeoms(NamedTuple):
         return cls(*[create_data_for_base_vector(i) for i in base_line_strings])
 
 
-def create_base_lines():
-    vectors = [sp_line_to_vector(i) for i in base_line_strings]
-    return BaseGeoms(*[LineVector(i, j) for i, j in zip(base_line_strings, vectors)])
+# def create_base_lines():
+#     vectors = [sp_line_to_vector(i) for i in base_line_strings]
+#     return BaseGeoms(*[LineVector(i, j) for i, j in zip(base_line_strings, vectors)])
 
 
-def plot_lines(lg: LinearGeoms):
-    plot_line(sp.MultiLineString([i.line for i in lg]))
+# def plot_lines(lg: LinearGeoms):
+#     plot_line(sp.MultiLineString([i.line for i in lg]))

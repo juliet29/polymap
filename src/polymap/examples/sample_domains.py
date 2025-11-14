@@ -2,7 +2,7 @@ from polymap.interfaces import CoordsType
 from polymap.geometry.ortho import FancyOrthoDomain
 from typing import Literal
 
-OrthoNames = Literal["L", "BOTTOM_UP_L", "NON_ORTHO", "SQUARE"]
+OrthoNames = Literal["L", "BOTTOM_UP_L", "NON_ORTHO", "SQUARE", "NON_ORTHO_SQUARE"]
 
 ortho_coords: dict[OrthoNames, CoordsType] = {
     "L": [],
@@ -14,6 +14,7 @@ ortho_coords: dict[OrthoNames, CoordsType] = {
         (1, 1),
         (0, 1),
     ],
+    "NON_ORTHO_SQUARE": [(0, 0), (1, 0.1), (0.8, 1), (0, 1)],
 }
 
 

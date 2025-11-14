@@ -65,7 +65,7 @@ def filter_candidate_neighbors(
         if virtual_domain.shapely_polygon.intersects(closer_domain.shapely_polygon):
             bad_surfs.append(further_surf)
     remaining = set_difference(other_surfs, bad_surfs)
-    print(f"{str(surf)}: {[i.domain_name for i in bad_surfs]}")
+    # print(f"{str(surf)}: {[i.domain_name for i in bad_surfs]}")
     return remaining
 
 

@@ -115,9 +115,9 @@ class FancyOrthoDomain(OrthoDomain):
     def shapely_polygon(self):
         p = sp.Polygon(self.tuple_list)
         assert len(p.interiors) == 0, f"More than one interior: {p.interiors}"
-        assert p.is_valid, (
-            f"Polygon not valid | name: {self.name} coords: {self.coords}"
-        )
+        # assert p.is_valid, (
+        #     f"Polygon not valid | name: {self.name} coords: {self.coords}"
+        # )
         return p
 
     @property
@@ -168,13 +168,13 @@ class FancyOrthoDomain(OrthoDomain):
 
         d = FancyOrthoDomain(new_coords, self.name)
 
-        try:
-            assert d.shapely_polygon.is_valid
-        except AssertionError:
-            f"{surf.domain_name} is not valid after applying delta of {location_delta} to {surf}. New Coords: {d.coords}  | Old Coords: {self.normalized_coords}  "
-        assert d.is_orthogonal, (
-            f"{surf.domain_name} is not orthogonal after applying delta of {location_delta} to {surf}. New Coords: {d.coords}  | Old Coords: {self.normalized_coords}  "
-        )
+        # try:
+        #     assert d.shapely_polygon.is_valid
+        # except AssertionError:
+        #     f"{surf.domain_name} is not valid after applying delta of {location_delta} to {surf}. New Coords: {d.coords}  | Old Coords: {self.normalized_coords}  "
+        # assert d.is_orthogonal, (
+        #     f"{surf.domain_name} is not orthogonal after applying delta of {location_delta} to {surf}. New Coords: {d.coords}  | Old Coords: {self.normalized_coords}  "
+        # )
 
         return d
 

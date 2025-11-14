@@ -25,14 +25,14 @@ class AxGraph:
     def get_neighbors(self, node):
         return list(self.G.neighbors(node))
 
-    def calc_delta(self, n1, n2):
+    def get_delta(self, n1, n2):
         return self.G.edges[(n1, n2)]["delta"]
 
     def collect_domain_updates_for_node(self, node: str):
         def create_new_domain_for_nb(
             nb: str,
         ):
-            delta = self.calc_delta(node, nb)
+            delta = self.get_delta(node, nb)
             surface = self.layout.get_surface_by_name(nb)
             domain = self.layout.get_domain(surface.domain_name)
             return domain.update_surface(surface, delta)
@@ -44,7 +44,7 @@ class AxGraph:
         return chain_flatten(
             [self.collect_domain_updates_for_node(i) for i in self.roots]
         )
-
+# these two could be merged.. 
     @property
     def updated_layout(self):
         return self.layout.update_layout(self.updated_domains)
@@ -104,6 +104,7 @@ def plot_graph(layout: Layout, G: nx.DiGraph, ax: MPLAxes):
     edge_labels = {
         (u, v): round(data["delta"], 2) for (u, v, data) in G.edges(data=True)
     }
+
     nx.draw_networkx_edge_labels(G, pos, edge_labels, ax=ax)
     return ax
 
