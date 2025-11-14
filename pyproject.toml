@@ -9,14 +9,18 @@ authors = [
 requires-python = ">=3.13"
 dependencies = [
     "bpython>=0.25",
+    "expression>=5.6.0",
     "geom>=0.3.0",
     "matplotlib>=3.10.6",
     "networkx>=3.5",
     "numpy>=2.3.3",
     "pipe>=2.2",
+    "ptpython>=3.0.31",
     "pyprojroot>=0.3.0",
     "pytest>=8.4.2",
     "shapely>=2.1.2",
+    "tomli-w>=1.2.0",
+    "whenever>=0.9.3",
 ]
 
 [project.scripts]

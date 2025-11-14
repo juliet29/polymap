@@ -2,13 +2,11 @@ from dataclasses import dataclass
 from itertools import cycle
 
 import shapely as sp
-from rich import print
-from utils4plans.geom import Coord, OrthoDomain, ShapelyBounds
+from utils4plans.geom import Coord, OrthoDomain
 from utils4plans.lists import get_unique_one, pairwise
 
 from polymap.geometry.surfaces import create_surface, index_surfaces, Surface
 from polymap.geometry.vectors import (
-    Axes,
     DirectionNames,
     is_perp_to_basis_vectors,
     vector_from_coords,
@@ -29,7 +27,7 @@ def create_paired_coords(coords: list[Coord]):
         count += 1
         if count > num_coords - 2:
             break
-    assert paired_coords[0].a == paired_coords[-1].b
+    assert paired_coords[0].first == paired_coords[-1].last
 
     return paired_coords
 

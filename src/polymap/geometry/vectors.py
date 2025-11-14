@@ -2,10 +2,9 @@ import shapely as sp
 from utils4plans.geom import Coord
 from utils4plans.lists import get_unique_one
 import geom
-from enum import Enum
 from dataclasses import dataclass
-from typing import Literal, Iterable, NamedTuple
-from typing import TypeVar, Callable
+from typing import Literal
+from typing import TypeVar
 import numpy as np
 
 T = TypeVar("T")
@@ -28,7 +27,6 @@ class BasisVectors2D:
     e1 = geom.Vector([0, 1, 0])
     vectors = [e0, e1, -e0, -e1]
     vector_names: list[BaseVectorNames] = ["e0", "e1", "n_e0", "n_e1"]
-
 
 
 DirectionNames = Literal["north", "south", "east", "west"]
@@ -130,3 +128,11 @@ def vector_to_sp_line(v: geom.Vector):
 
     end_coord = (float(v[0]), float(v[1]))  # type: ignore
     return sp.LineString([(0, 0), end_coord])
+
+
+# def coord_as_vector(coord: Coord):
+#     return geom.Vector([coord.x, coord.y])
+
+
+def vector_as_coord(v: geom.Vector):
+    return Coord(float(v[0]), float(v[1]))  # type: ignore
