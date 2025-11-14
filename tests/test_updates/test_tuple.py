@@ -1,34 +1,17 @@
 from utils4plans.geom import Coord
-from utils4plans.sets import set_difference, set_equality
 from polymap.examples.sample_domains import create_ortho_domain
 import geom
 
-from polymap.geometry.update import create_update_coords_tuple
+from polymap.geometry.update import (
+    UpdateCoordsInfo,
+    create_update_coords_tuple,
+    UpdateCoordsTuple,
+)
 from polymap.interfaces import PairedCoord
-from rich import print
 
 PairedCoordUpdateResult = tuple[PairedCoord, PairedCoord, PairedCoord]
 l_dom = create_ortho_domain("BOTTOM_UP_L")
 square = create_ortho_domain("SQUARE")
-
-
-def check_updated_coords_match(
-    paired_coords: list[PairedCoord],
-    target: PairedCoord,
-    v: geom.Vector,
-    expected_coords: PairedCoordUpdateResult,
-):
-    res = create_update_coords_tuple(paired_coords, target, v)
-
-    removed = set_difference(paired_coords, res)
-    new = set_difference(res, paired_coords)
-
-    print(new)
-
-    assert len(removed) == len(new)
-    assert set_equality(new, list(expected_coords))
-
-    return res
 
 
 def check_indices_are_aligned(
@@ -43,9 +26,28 @@ def check_indices_are_aligned(
     assert res[slice_to_match] == expected_new
 
 
-def check_ok(paired_coords, target, v, expected_new):
-    res = check_updated_coords_match(paired_coords, target, v, expected_new)
-    check_indices_are_aligned(res, expected_new)
+def check_updated_coords_match(
+    paired_coords: list[PairedCoord],
+    target: PairedCoord,
+    v: geom.Vector,
+    expected_coords: UpdateCoordsTuple,
+):
+
+    res = create_update_coords_tuple(paired_coords, target, v)
+    assert res == expected_coords
+    print(res)
+    print(expected_coords)
+
+
+def check_ok(
+    paired_coords, target, v, expected_new: PairedCoordUpdateResult, start_ix: int
+):
+    info_list = [
+        UpdateCoordsInfo(coord, ix + start_ix) for ix, coord in enumerate(expected_new)
+    ]
+    expected_tuple = UpdateCoordsTuple(*info_list)
+    res = check_updated_coords_match(paired_coords, target, v, expected_tuple)
+    # check_indices_are_aligned(res, expected_new)
 
 
 class TestUpdatingBottomL:
@@ -68,8 +70,9 @@ class TestUpdatingBottomL:
             PairedCoord(Coord(5, 2), Coord(5, 1)),
             PairedCoord(Coord(5, 1), Coord(1, 1)),
         )
+        start_ix = 3
 
-        check_ok(self.paired_coords, target, v, expected_new)
+        check_ok(self.paired_coords, target, v, expected_new, start_ix)
 
     def test_moving_east1_in(self):
         v = geom.Vector([-1, 0])
@@ -80,8 +83,9 @@ class TestUpdatingBottomL:
             PairedCoord(Coord(2, 3), Coord(2, 2)),
             PairedCoord(Coord(2, 2), Coord(2, 2)),
         )
+        start_ix = 1
 
-        check_ok(self.paired_coords, target, v, expected_new)
+        check_ok(self.paired_coords, target, v, expected_new, start_ix)
 
     def test_moving_north0_out(self):
         v = geom.Vector([0, 1])
@@ -92,8 +96,9 @@ class TestUpdatingBottomL:
             PairedCoord(Coord(1, 4), Coord(3, 4)),
             PairedCoord(Coord(3, 4), Coord(3, 2)),
         )
+        start_ix = 0
 
-        check_ok(self.paired_coords, target, v, expected_new)
+        check_ok(self.paired_coords, target, v, expected_new, start_ix)
 
     def test_moving_west0_in(self):
         v = geom.Vector([0, -1])
@@ -104,8 +109,9 @@ class TestUpdatingBottomL:
             PairedCoord(Coord(0, 1), Coord(0, 3)),
             PairedCoord(Coord(0, 3), Coord(3, 3)),
         )
+        start_ix = -1
 
-        check_ok(self.paired_coords, target, v, expected_new)
+        check_ok(self.paired_coords, target, v, expected_new, start_ix)
 
 
 if __name__ == "__main__":
