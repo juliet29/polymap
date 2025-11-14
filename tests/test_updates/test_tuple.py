@@ -43,8 +43,10 @@ def check_updated_coords_match(
 def check_ok(
     paired_coords, target, v, expected_new: PairedCoordUpdateResult, start_ix: int
 ):
+    n_coords = len(paired_coords)
     info_list = [
-        UpdateCoordsInfo(coord, ix + start_ix) for ix, coord in enumerate(expected_new)
+        UpdateCoordsInfo(coord, (ix + start_ix) % n_coords)
+        for ix, coord in enumerate(expected_new)
     ]
     expected_tuple = UpdateCoordsTuple(*info_list)
     res = check_updated_coords_match(paired_coords, target, v, expected_tuple)
@@ -59,7 +61,10 @@ class TestUpdatingBottomL:
     east_0 = domain.get_surface("east", 0).coords
     east_1 = domain.get_surface("east", 1).coords
     north_0 = domain.get_surface("north", 0).coords
+    # NOTE: special case -> first edge
     west_0 = domain.get_surface("west", 0).coords
+    # NOTE: special case -> last edge
+    south_0 = domain.get_surface("south", 0).coords
 
     def test_moving_east0_out(self):
         v = geom.Vector([3, 0])
@@ -115,7 +120,21 @@ class TestUpdatingBottomL:
 
         check_ok(self.paired_coords, target, v, expected_new, start_ix)
 
+    def test_moving_south0_out(self):
+        v = geom.Vector([0, -1])
+        target = self.south_0
+        print(f"{str(target)=}")
+
+        expected_new = (
+            PairedCoord(Coord(2, 2), Coord(2, 0)),
+            PairedCoord(Coord(2, 0), Coord(1, 0)),
+            PairedCoord(Coord(1, 0), Coord(1, 3)),
+        )
+        start_ix = 4
+
+        check_ok(self.paired_coords, target, v, expected_new, start_ix)
+
 
 if __name__ == "__main__":
     t = TestUpdatingBottomL()
-    t.test_moving_west0_in()
+    t.test_moving_south0_out()
