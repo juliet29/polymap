@@ -8,6 +8,7 @@ from polymap.geometry.update import (
     UpdateCoordsTuple,
 )
 from polymap.interfaces import PairedCoord
+from rich import print  # type:ignore
 
 PairedCoordUpdateResult = tuple[PairedCoord, PairedCoord, PairedCoord]
 l_dom = create_ortho_domain("BOTTOM_UP_L")
@@ -34,9 +35,9 @@ def check_updated_coords_match(
 ):
 
     res = create_update_coords_tuple(paired_coords, target, v)
-    assert res == expected_coords
     print(res)
     print(expected_coords)
+    assert res == expected_coords
 
 
 def check_ok(
@@ -101,8 +102,9 @@ class TestUpdatingBottomL:
         check_ok(self.paired_coords, target, v, expected_new, start_ix)
 
     def test_moving_west0_in(self):
-        v = geom.Vector([0, -1])
+        v = geom.Vector([-1, 0])
         target = self.west_0
+        print(f"{target=}")
 
         expected_new = (
             PairedCoord(Coord(2, 1), Coord(0, 1)),

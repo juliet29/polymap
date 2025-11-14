@@ -12,7 +12,7 @@ class PairedCoord(NamedTuple):
     last: Coord
 
     def __str__(self):
-        return f"PC[{self.first}, {self.last}]"
+        return f"PairedCoord[{self.first}, {self.last}]"
 
     def __eq__(self, other: object, /) -> bool:
         if isinstance(other, PairedCoord):

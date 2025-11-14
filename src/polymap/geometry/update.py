@@ -30,14 +30,15 @@ class UpdateCoordsTuple(NamedTuple):
     alpha: UpdateCoordsInfo
     target: UpdateCoordsInfo
     beta: UpdateCoordsInfo
+
     #
     # def __eq__(self, other: object) -> bool:
     #     if isinstance(other, UpdateCoordsTuple):
     #         return
     #     raise ValueError("Invalid comparison")
 
-    # def __repr__(self):
-    #     return
+    def __repr__(self):
+        return f"{self._asdict()}"
 
 
 def apply_vector_to_paired_coord(pc: PairedCoord, vector: geom.Vector):
