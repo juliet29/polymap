@@ -9,7 +9,7 @@ from utils4plans.lists import chain_flatten, get_unique_one
 from utils4plans.sets import set_difference
 from utils4plans.io import read_json
 from pathlib import Path
-from polymap.paths import MSD_PATHS
+from polymap.paths import DynamicPaths
 from typing import TypeVar
 
 
@@ -68,7 +68,7 @@ def create_layout_from_dict(
     return Layout(domains)
 
 
-def create_layout_from_json(file_name: str, folder_path: Path = MSD_PATHS):
+def create_layout_from_json(file_name: str, folder_path: Path = DynamicPaths.MSD_PATHS):
     data: dict[str, CoordsType] = read_json(folder_path, file_name)
     domains: list[FancyOrthoDomain] = []
     for k, v in data.items():

@@ -80,13 +80,17 @@ def update_paired_coords(
 
 # TODO: put this shapely validation stuff in a different file
 class InvalidPolygonError(Exception):
-    def __init__(self, p: sp.Polygon, domain_name: str, reason: str) -> None:
+    def __init__(
+        self, p: sp.Polygon, domain_name: str, reason: str, debug: bool = True
+    ) -> None:
         self.p = p
         self.domain_name = domain_name
         self.reason = reason
 
         self.message()
-        self.plot()
+
+        if debug:
+            self.plot()
 
     def message(self):
         return f"{self.domain_name} is invalid! Reason: {self.reason}"
@@ -98,15 +102,17 @@ class InvalidPolygonError(Exception):
         plt.show()
 
 
-def validate_polygon(p: sp.Polygon, domain_name: str):
+def validate_polygon(p: sp.Polygon, domain_name: str, debug=False):
     if len(p.interiors) != 0:
         raise InvalidPolygonError(p, domain_name, "Num interiors != 0")
     if not p.is_valid:
         reason = sp.is_valid_reason(p)
-        raise InvalidPolygonError(p, domain_name, reason)
+        raise InvalidPolygonError(p, domain_name, reason, debug)
 
 
-def update_domain(domain: FancyOrthoDomain, surface: Surface, location_delta: float):
+def update_domain(
+    domain: FancyOrthoDomain, surface: Surface, location_delta: float, debug=False
+):
     # NOTE: not sure this is correct, but lets just try the aligned vecto and see what happens
     vector = make_vector_2D(surface.direction.aligned_vector) * location_delta
     # NOTE: the aligned vector already has a direction! would be nice if can fix so that south rooms can only move south.. but think the graph will determine this ..
@@ -118,6 +124,6 @@ def update_domain(domain: FancyOrthoDomain, surface: Surface, location_delta: fl
     coords = coords_from_paired_coords_list(updated_paired_coords)
 
     test_poly = sp.Polygon(tuple_list_from_list_of_coords(coords))
-    validate_polygon(test_poly, domain.name)
+    validate_polygon(test_poly, domain.name, debug)
 
     return FancyOrthoDomain(coords=coords, name=domain.name)
