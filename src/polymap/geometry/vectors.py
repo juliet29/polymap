@@ -89,16 +89,25 @@ def vector3D_from_coord(c: Coord):
     return geom.Vector([*c.as_tuple, 0])
 
 
+def is_perpendicular(v1: geom.Vector, v2: geom.Vector):
+    return v1.dot(v2) == 0
+
+
 def is_perp_to_basis_vectors(v: geom.Vector):
     # TODO assert is 3D
-    if v.dot(BasisVectors.e0) == 0 or v.dot(BasisVectors.e1) == 0:
+    if is_perpendicular(v, BasisVectors.e0) or is_perpendicular(v, BasisVectors.e1):
         return True
     return False
 
 
+def is_near_perpendicular(v1: geom.Vector, v2: geom.Vector):
+    return np.isclose(v1.dot(v2), 0)
+
+
 def is_near_perp_to_basis_vectors(v: geom.Vector):
-    # TODO assert is 3D
-    if np.isclose(v.dot(BasisVectors.e0), 0) or np.isclose(v.dot(BasisVectors.e1), 0):
+    if is_near_perpendicular(v, BasisVectors.e0) or is_near_perpendicular(
+        v, BasisVectors.e1
+    ):
         return True
     return False
 
@@ -128,10 +137,6 @@ def vector_to_sp_line(v: geom.Vector):
 
     end_coord = (float(v[0]), float(v[1]))  # type: ignore
     return sp.LineString([(0, 0), end_coord])
-
-
-# def coord_as_vector(coord: Coord):
-#     return geom.Vector([coord.x, coord.y])
 
 
 def vector_as_coord(v: geom.Vector):

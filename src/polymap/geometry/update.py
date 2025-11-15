@@ -1,7 +1,12 @@
 from copy import deepcopy
 from typing import NamedTuple
 from utils4plans.geom import Coord
-from polymap.geometry.vectors import vector2D_from_coord, vector_as_coord
+from polymap.geometry.vectors import (
+    is_perpendicular,
+    vector2D_from_coord,
+    vector_as_coord,
+    vector_from_coords,
+)
 from polymap.interfaces import PairedCoord
 import geom
 
@@ -38,18 +43,23 @@ def apply_vector_to_paired_coord(pc: PairedCoord, vector: geom.Vector):
     return PairedCoord(*[apply(i) for i in pc])
 
 
+def is_vector_orthogonal(target: PairedCoord, vector: geom.Vector):
+    target_v = vector_from_coords(*target, _2D=True)
+    return is_perpendicular(target_v, vector)
+
+
 def create_update_coords_tuple(
     paired_coords_: list[PairedCoord], target: PairedCoord, vector: geom.Vector
 ):
+    assert is_vector_orthogonal(target, vector)
     paired_coords = deepcopy(paired_coords_)
     target_ix = paired_coords.index(target)
 
-    alpha_ix = target_ix - 1
+    alpha_ix = (target_ix - 1) % len(paired_coords)
 
     beta_ix = (target_ix + 1) % len(paired_coords)
 
     alpha, beta = paired_coords[alpha_ix], paired_coords[beta_ix]
-    # TODO: what if this the first or last item?? -> can use cycle or can do manually.., see if there is a python fx in itertools that is soley for wrap around indexing..
 
     new_target = apply_vector_to_paired_coord(target, vector)
     target_info = UpdateCoordsInfo(new_target, target_ix)

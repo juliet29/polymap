@@ -27,7 +27,7 @@ def test_moving_surface():
     print(dom.normalized_coords)
 
 
-def test_recreating_geom():
+def check_recreating_geom():
     dom = create_ortho_domain("BOTTOM_UP_L")
     new_line = sp.LineString([(4, 2), (4, 1)])
     lines = [

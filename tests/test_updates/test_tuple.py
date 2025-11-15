@@ -1,4 +1,5 @@
 from utils4plans.geom import Coord
+import pytest
 from polymap.examples.sample_domains import create_ortho_domain
 import geom
 
@@ -11,8 +12,6 @@ from polymap.interfaces import PairedCoord
 from rich import print  # type:ignore
 
 PairedCoordUpdateResult = tuple[PairedCoord, PairedCoord, PairedCoord]
-l_dom = create_ortho_domain("BOTTOM_UP_L")
-square = create_ortho_domain("SQUARE")
 
 
 def check_indices_are_aligned(
@@ -35,8 +34,8 @@ def check_updated_coords_match(
 ):
 
     res = create_update_coords_tuple(paired_coords, target, v)
-    print(res)
-    print(expected_coords)
+    print(f"{res=}")
+    print(f"{expected_coords=}")
     assert res == expected_coords
 
 
@@ -116,7 +115,7 @@ class TestUpdatingBottomL:
             PairedCoord(Coord(0, 1), Coord(0, 3)),
             PairedCoord(Coord(0, 3), Coord(3, 3)),
         )
-        start_ix = -1
+        start_ix = 5
 
         check_ok(self.paired_coords, target, v, expected_new, start_ix)
 
@@ -134,7 +133,13 @@ class TestUpdatingBottomL:
 
         check_ok(self.paired_coords, target, v, expected_new, start_ix)
 
+    def test_non_orthog_vector(self):
+        v = geom.Vector([1, 0])
+        target = self.south_0
+        with pytest.raises(AssertionError):
+            create_update_coords_tuple(self.paired_coords, target, v)
+
 
 if __name__ == "__main__":
     t = TestUpdatingBottomL()
-    t.test_moving_south0_out()
+    t.test_moving_west0_in()
