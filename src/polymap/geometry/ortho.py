@@ -1,20 +1,21 @@
+# from pipe import where, enumerate, map
+from copy import deepcopy
 from dataclasses import dataclass
 from itertools import cycle
 
+import matplotlib.pyplot as plt
 import shapely as sp
 from utils4plans.geom import Coord, OrthoDomain
 from utils4plans.lists import get_unique_one, pairwise
 
-from polymap.geometry.surfaces import create_surface, index_surfaces, Surface
+from polymap.geometry.surfaces import Surface, create_surface, index_surfaces
 from polymap.geometry.vectors import (
     DirectionNames,
     is_perp_to_basis_vectors,
     vector_from_coords,
 )
 from polymap.interfaces import PairedCoord
-
-# from pipe import where, enumerate, map
-from copy import deepcopy
+from polymap.visuals import plot_polygon
 
 
 def create_paired_coords(coords: list[Coord]):
@@ -110,7 +111,7 @@ class FancyOrthoDomain(OrthoDomain):
         return len(self.coords)
 
     @property
-    def shapely_polygon(self):
+    def polygon(self):
         p = sp.Polygon(self.tuple_list)
         assert len(p.interiors) == 0, f"More than one interior: {p.interiors}"
         # assert p.is_valid, (
@@ -121,7 +122,7 @@ class FancyOrthoDomain(OrthoDomain):
     @property
     def normalized_coords(self):
         # NOTE: shapely will return coords in CW direction starting from the bottom left
-        return [Coord(*i) for i in self.shapely_polygon.exterior.normalize().coords]
+        return [Coord(*i) for i in self.polygon.exterior.normalize().coords]
 
     @property
     def paired_coords(self):
@@ -198,3 +199,9 @@ class FancyOrthoDomain(OrthoDomain):
     #         return FancyRange(bounds.minx, bounds.maxx)
     #     else:
     #         return FancyRange(bounds.miny, bounds.maxy)
+    #
+    def plot(self):
+        fig, ax = plt.subplots()
+        plot_polygon(self.polygon, ax=ax)
+        ax.set_title(f" {self.name}")
+        plt.show()

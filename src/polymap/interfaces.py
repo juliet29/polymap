@@ -33,3 +33,9 @@ class PairedCoord(NamedTuple):
     # @property
     # def shapely_line(self):
     #     return sp.LineString([self.a.as_tuple, self.b.as_tuple])
+    #
+    #
+
+
+def coords_from_paired_coords_list(pcs: list[PairedCoord]):
+    return [i.last for i in pcs]

@@ -1,8 +1,8 @@
 from utils4plans.geom import Coord
 import pytest
-from polymap.examples.sample_domains import create_ortho_domain
 import geom
 
+from polymap.examples.sample_updates import BottomLData
 from polymap.geometry.update import (
     UpdateCoordsInfo,
     create_update_coords_tuple,
@@ -52,22 +52,11 @@ def check_ok(
     # check_indices_are_aligned(res, expected_new)
 
 
-class TestUpdatingBottomL:
-    domain = create_ortho_domain("BOTTOM_UP_L")
-    paired_coords = domain.paired_coords
-
-    # targets
-    east_0 = domain.get_surface("east", 0).coords
-    east_1 = domain.get_surface("east", 1).coords
-    north_0 = domain.get_surface("north", 0).coords
-    # NOTE: special case -> first edge
-    west_0 = domain.get_surface("west", 0).coords
-    # NOTE: special case -> last edge
-    south_0 = domain.get_surface("south", 0).coords
+class TestUpdatingPairedCoords(BottomLData):
 
     def test_moving_east0_out(self):
         v = geom.Vector([3, 0])
-        target = self.east_0
+        target = self.east_0.coords
 
         # these are given in order of appearance!
         expected_new = (
@@ -81,7 +70,7 @@ class TestUpdatingBottomL:
 
     def test_moving_east1_in(self):
         v = geom.Vector([-1, 0])
-        target = self.east_1
+        target = self.east_1.coords
 
         expected_new = (
             PairedCoord(Coord(1, 3), Coord(2, 3)),
@@ -94,7 +83,7 @@ class TestUpdatingBottomL:
 
     def test_moving_north0_out(self):
         v = geom.Vector([0, 1])
-        target = self.north_0
+        target = self.north_0.coords
 
         expected_new = (
             PairedCoord(Coord(1, 1), Coord(1, 4)),
@@ -107,7 +96,7 @@ class TestUpdatingBottomL:
 
     def test_moving_west0_in(self):
         v = geom.Vector([-1, 0])
-        target = self.west_0
+        target = self.west_0.coords
         print(f"{target=}")
 
         expected_new = (
@@ -121,7 +110,7 @@ class TestUpdatingBottomL:
 
     def test_moving_south0_out(self):
         v = geom.Vector([0, -1])
-        target = self.south_0
+        target = self.south_0.coords
         print(f"{str(target)=}")
 
         expected_new = (
@@ -135,11 +124,11 @@ class TestUpdatingBottomL:
 
     def test_non_orthog_vector(self):
         v = geom.Vector([1, 0])
-        target = self.south_0
+        target = self.south_0.coords
         with pytest.raises(AssertionError):
             create_update_coords_tuple(self.paired_coords, target, v)
 
 
 if __name__ == "__main__":
-    t = TestUpdatingBottomL()
+    t = TestUpdatingPairedCoords()
     t.test_moving_west0_in()

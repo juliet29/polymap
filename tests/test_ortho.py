@@ -1,7 +1,6 @@
 from polymap.examples.sample_domains import create_ortho_domain
 from rich import print
 import geom
-import pytest
 from utils4plans.geom import Coord
 from polymap.geometry.ortho import find_and_replace_in_list
 
@@ -21,7 +20,7 @@ def test_inequality():
 
 def test_create_shapely():
     domain = create_ortho_domain()
-    p = domain.shapely_polygon
+    p = domain.polygon
     assert p.is_valid
 
 
@@ -68,7 +67,7 @@ def test_find_and_replace_in_list():
     new = [20, 30]
     expected = [1, 20, 30, 4, 5]
     assert find_and_replace_in_list(lst, old, new) == expected
-    
+
 
 def test_update_surface():
     d = create_ortho_domain("SQUARE")
@@ -91,7 +90,6 @@ def test_update_surface():
 def test_update_surface_param():
     d = create_ortho_domain("BOTTOM_UP_L")
     new_dom = d.update_surface_by_direction("north", location_delta=2)
-
 
 
 if __name__ == "__main__":

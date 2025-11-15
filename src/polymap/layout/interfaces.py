@@ -30,7 +30,7 @@ class Layout:
     # post init -> assert names are unique!
 
     def plot_layout(self):
-        polygons = sp.MultiPolygon([i.shapely_polygon for i in self.domains])
+        polygons = sp.MultiPolygon([i.polygon for i in self.domains])
         plot_polygon(polygons)
 
     def get_domain(self, name):

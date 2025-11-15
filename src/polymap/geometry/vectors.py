@@ -141,3 +141,9 @@ def vector_to_sp_line(v: geom.Vector):
 
 def vector_as_coord(v: geom.Vector):
     return Coord(float(v[0]), float(v[1]))  # type: ignore
+
+
+def make_vector_2D(v: geom.Vector):
+    if len(v) == 3:
+        assert v[2] == 0
+    return geom.Vector([v[0], v[1]])

@@ -1,4 +1,3 @@
-from rich import print
 from pipe import where
 
 from utils4plans.lists import (
@@ -11,7 +10,6 @@ from polymap.examples.layout import layout as sample_layout
 from polymap.geometry.surfaces import Surface, FancyRange
 from polymap.layout.interfaces import create_layout_from_dict
 from polymap.layout.interfaces import Layout
-from polymap.geometry.vectors import Axes
 from polymap.geometry.ortho import FancyOrthoDomain
 
 
@@ -62,7 +60,7 @@ def filter_candidate_neighbors(
                 *distance_range.as_tuple, *axis_aligned_range.as_tuple
             )
 
-        if virtual_domain.shapely_polygon.intersects(closer_domain.shapely_polygon):
+        if virtual_domain.polygon.intersects(closer_domain.polygon):
             bad_surfs.append(further_surf)
     remaining = set_difference(other_surfs, bad_surfs)
     # print(f"{str(surf)}: {[i.domain_name for i in bad_surfs]}")
@@ -79,5 +77,3 @@ if __name__ == "__main__":
     surf = layout.get_domain("red").get_surface("south", 1)
     os = get_candidate_surface_neighbors(layout, surf)
     filter_candidate_neighbors(layout, surf, os)
-
-

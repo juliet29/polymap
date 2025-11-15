@@ -49,7 +49,7 @@ def check_recreating_geom():
 
     coords = [i.last for i in new_coords]
     dom2 = FancyOrthoDomain(coords)
-    pol2 = dom2.shapely_polygon
+    pol2 = dom2.polygon
 
     res = sp.make_valid(pol2, method="structure")
     print(res)

@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 import geom
-import shapely as sp
 from utils4plans.geom import Coord, Range
 from utils4plans.lists import sort_and_group_objects
 
@@ -126,10 +125,12 @@ class Surface:
 
     @property
     def aligned_axis(self):
+        # NOTE: this is the axis that describes how the surface is oriented
         return self.direction.normal_axis
 
     @property
     def direction_axis(self):
+        # NOTE: this is the axis along which the surface can move
         return self.direction.aligned_axis
 
     @property
