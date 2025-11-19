@@ -1,14 +1,13 @@
 import networkx as nx
 from polymap.geometry.surfaces import Surface
-from rich import print
 from polymap.geometry.surfaces import FancyRange
+from polymap.geometry.update import update_domain
 from polymap.layout.interfaces import Layout
 from polymap.layout.neighbors import get_nbs_for_surf
 from matplotlib.axes import Axes as MPLAxes
 from polymap.geometry.vectors import Axes
 from pipe import where
 from dataclasses import dataclass
-from copy import deepcopy
 from utils4plans.lists import chain_flatten
 
 
@@ -35,7 +34,7 @@ class AxGraph:
             delta = self.get_delta(node, nb)
             surface = self.layout.get_surface_by_name(nb)
             domain = self.layout.get_domain(surface.domain_name)
-            return domain.update_surface(surface, delta)
+            return update_domain(domain, surface, delta, True)
 
         return [create_new_domain_for_nb(i) for i in self.get_neighbors(node)]
 
@@ -44,7 +43,8 @@ class AxGraph:
         return chain_flatten(
             [self.collect_domain_updates_for_node(i) for i in self.roots]
         )
-# these two could be merged.. 
+
+    # these two could be merged..
     @property
     def updated_layout(self):
         return self.layout.update_layout(self.updated_domains)

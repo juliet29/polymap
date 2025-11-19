@@ -33,7 +33,7 @@ def attempt_moving_domain(domain: FancyOrthoDomain):
     return updated_domain
 
 
-def test_moving_domains():
+def study_moving_domains():
     domains = profile_msd_domains()
     new_doms = []
     num_failing = 0
@@ -54,4 +54,4 @@ def test_moving_domains():
 
 
 if __name__ == "__main__":
-    test_moving_domains()
+    study_moving_domains()

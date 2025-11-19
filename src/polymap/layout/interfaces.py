@@ -1,10 +1,8 @@
 from polymap.geometry.ortho import FancyOrthoDomain, find_and_replace_in_list
 from polymap.geometry.surfaces import Surface
 from polymap.interfaces import CoordsType
-from polymap.visuals import plot_polygon
 
 
-import shapely as sp
 from utils4plans.lists import chain_flatten, get_unique_one
 from utils4plans.sets import set_difference
 from utils4plans.io import read_json
@@ -29,9 +27,9 @@ class Layout:
     domains: list[FancyOrthoDomain]
     # post init -> assert names are unique!
 
-    def plot_layout(self):
-        polygons = sp.MultiPolygon([i.polygon for i in self.domains])
-        plot_polygon(polygons)
+    # def plot_layout(self):
+    #     polygons = sp.MultiPolygon([i.polygon for i in self.domains])
+    #     plot_polygon(polygons)
 
     def get_domain(self, name):
         return get_unique_one(self.domains, lambda x: x.name == name)

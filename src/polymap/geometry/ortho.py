@@ -3,7 +3,6 @@ from copy import deepcopy
 from dataclasses import dataclass
 from itertools import cycle
 
-import matplotlib.pyplot as plt
 import shapely as sp
 from utils4plans.geom import Coord, OrthoDomain
 from utils4plans.lists import get_unique_one, pairwise
@@ -15,7 +14,6 @@ from polymap.geometry.vectors import (
     vector_from_coords,
 )
 from polymap.interfaces import PairedCoord
-from polymap.visuals import plot_polygon
 
 
 def create_paired_coords(coords: list[Coord]):
@@ -120,6 +118,12 @@ class FancyOrthoDomain(OrthoDomain):
         return p
 
     @property
+    def centroid(self):
+        centroid = self.polygon.centroid
+        coords = [Coord(*i) for i in centroid.coords][0]
+        return coords
+
+    @property
     def normalized_coords(self):
         # NOTE: shapely will return coords in CW direction starting from the bottom left
         return [Coord(*i) for i in self.polygon.exterior.normalize().coords]
@@ -200,8 +204,3 @@ class FancyOrthoDomain(OrthoDomain):
     #     else:
     #         return FancyRange(bounds.miny, bounds.maxy)
     #
-    def plot(self):
-        fig, ax = plt.subplots()
-        plot_polygon(self.polygon, ax=ax)
-        ax.set_title(f" {self.name}")
-        plt.show()
