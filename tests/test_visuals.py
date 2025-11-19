@@ -1,6 +1,6 @@
 from polymap.examples.msd import get_one_msd_layout
-import shapely as sp
-from polymap.visuals import plot_layout
+from polymap.layout.graph import collect_node_nbs, create_graph_for_layout
+from polymap.visuals import plot_graph_pairs_on_layout, plot_layout
 
 
 # test plotting a layout and seeing if can get the name labels
@@ -11,9 +11,11 @@ from polymap.visuals import plot_layout
 
 def test_plotting_layout_with_labels():
     id, layout = get_one_msd_layout()
+    Gx, Gy = create_graph_for_layout(layout)
+    gpairs_x = collect_node_nbs(Gx.G)
 
-    polygons = sp.MultiPolygon([i.polygon for i in layout.domains])
-    plot_layout(layout, layout_name=id)
+    ax = plot_layout(layout, layout_name=id, show=False)
+    ax = plot_graph_pairs_on_layout(layout, gpairs_x, ax, show=True)
 
     pass
 

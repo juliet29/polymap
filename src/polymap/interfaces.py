@@ -1,4 +1,5 @@
 from utils4plans.geom import Coord
+import shapely as sp
 
 
 from typing import NamedTuple
@@ -30,9 +31,10 @@ class PairedCoord(NamedTuple):
     def as_list(self):
         return [self.first, self.last]
 
-    # @property
-    # def shapely_line(self):
-    #     return sp.LineString([self.a.as_tuple, self.b.as_tuple])
+    @property
+    def shapely_line(self):
+        return sp.LineString([self.first.as_tuple, self.last.as_tuple])
+
     #
     #
 

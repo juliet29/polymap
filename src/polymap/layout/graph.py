@@ -1,14 +1,12 @@
 import networkx as nx
 from polymap.geometry.surfaces import Surface
 from polymap.geometry.surfaces import FancyRange
-from polymap.geometry.update import update_domain
 from polymap.layout.interfaces import Layout
 from polymap.layout.neighbors import get_nbs_for_surf
 from matplotlib.axes import Axes as MPLAxes
 from polymap.geometry.vectors import Axes
 from pipe import where
 from dataclasses import dataclass
-from utils4plans.lists import chain_flatten
 
 
 @dataclass
@@ -16,42 +14,6 @@ class AxGraph:
     G: nx.DiGraph
     ax: Axes
     layout: Layout
-
-    @property
-    def roots(self):
-        return [n[0] for n in self.G.in_degree if n[1] == 0]
-
-    def get_neighbors(self, node):
-        return list(self.G.neighbors(node))
-
-    def get_delta(self, n1, n2):
-        return self.G.edges[(n1, n2)]["delta"]
-
-    def collect_domain_updates_for_node(self, node: str):
-        def create_new_domain_for_nb(
-            nb: str,
-        ):
-            delta = self.get_delta(node, nb)
-            surface = self.layout.get_surface_by_name(nb)
-            domain = self.layout.get_domain(surface.domain_name)
-            return update_domain(domain, surface, delta, True)
-
-        return [create_new_domain_for_nb(i) for i in self.get_neighbors(node)]
-
-    @property
-    def updated_domains(self):
-        return chain_flatten(
-            [self.collect_domain_updates_for_node(i) for i in self.roots]
-        )
-
-    # these two could be merged..
-    @property
-    def updated_layout(self):
-        return self.layout.update_layout(self.updated_domains)
-
-    @property
-    def nbs_dict(self):
-        return collect_node_nbs(self.G)
 
 
 def create_graph_for_surface(
@@ -88,7 +50,6 @@ def create_graph_for_all_surfaces_along_axis(layout: Layout, axis: Axes):
 
 def create_graph_for_layout(layout: Layout):
     Gx = create_graph_for_all_surfaces_along_axis(layout, "X")
-    Gx.updated_layout.plot_layout()
     Gy = create_graph_for_all_surfaces_along_axis(layout, "Y")
 
     return Gx, Gy
@@ -109,10 +70,50 @@ def plot_graph(layout: Layout, G: nx.DiGraph, ax: MPLAxes):
     return ax
 
 
-def collect_node_nbs(G: nx.DiGraph):
+GraphPairs = dict[str, list[str]]
+
+
+def collect_node_nbs(G: nx.DiGraph) -> GraphPairs:
     nb_dict = {}
     for node in G.nodes:
         nbs = set(G.neighbors(node))
         if nbs:
-            nb_dict[node] = nbs
+            nb_dict[node] = list(nbs)
     return nb_dict
+
+
+# @property
+# def roots(self):
+#     return [n[0] for n in self.G.in_degree if n[1] == 0]
+#
+# def get_neighbors(self, node):
+#     return list(self.G.neighbors(node))
+#
+# def get_delta(self, n1, n2):
+#     return self.G.edges[(n1, n2)]["delta"]
+#
+# def collect_domain_updates_for_node(self, node: str):
+#     def create_new_domain_for_nb(
+#         nb: str,
+#     ):
+#         delta = self.get_delta(node, nb)
+#         surface = self.layout.get_surface_by_name(nb)
+#         domain = self.layout.get_domain(surface.domain_name)
+#         return update_domain(domain, surface, delta, True)
+#
+#     return [create_new_domain_for_nb(i) for i in self.get_neighbors(node)]
+#
+# @property
+# def updated_domains(self):
+#     return chain_flatten(
+#         [self.collect_domain_updates_for_node(i) for i in self.roots]
+#     )
+#
+# # these two could be merged..
+# @property
+# def updated_layout(self):
+#     return self.layout.update_layout(self.updated_domains)
+#
+# @property
+# def nbs_dict(self):
+#     return collect_node_nbs(self.G)
