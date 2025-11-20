@@ -5,7 +5,7 @@ from polymap.examples.msd import get_one_msd_layout
 from polymap.geometry.surfaces import print_surfaces
 from polymap.layout.neighbors import get_nbs_for_surf
 
-MSD_NUM = 106493
+MSD_NUM = "106493"
 
 
 class MSDPairs:

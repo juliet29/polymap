@@ -20,6 +20,7 @@ dependencies = [
     "pytest>=8.4.2",
     "shapely>=2.1.2",
     "tomli-w>=1.2.0",
+    "types-networkx>=3.5.0.20251106",
     "whenever>=0.9.3",
 ]
 

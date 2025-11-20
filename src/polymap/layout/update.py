@@ -1,7 +1,10 @@
+from typing import NamedTuple
+from utils4plans.lists import sort_and_group_objects
 from utils4plans.sets import set_difference
 from rich import print
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.update import update_domain
+from polymap.interfaces import GraphPairs
 from polymap.layout.graph import AxGraph
 from polymap.layout.interfaces import Layout
 
@@ -16,10 +19,10 @@ def get_unchanged_domains(layout: Layout, new_doms: list[FancyOrthoDomain]):
     return unchanged_doms
 
 
-def handle_nb(axgraph: AxGraph, root: str, nb: str):
+def handle_nb(axgraph: AxGraph, domain: FancyOrthoDomain, root: str, nb: str):
     layout = axgraph.layout
     surface = layout.get_surface_by_name(nb)
-    domain = layout.get_domain(surface.domain_name)
+    # domain = layout.get_domain(surface.domain_name)
     delta = axgraph.get_delta(root, nb)
     print(f"root={root} | going to move {surface} by {delta:.3f}")
     new_dom = update_domain(domain, surface, delta, debug=True)
@@ -44,3 +47,35 @@ def get_new_doms_for_graph(axgraph: AxGraph):
     unchanged_doms = get_unchanged_domains(axgraph.layout, new_doms)
 
     return Layout(unchanged_doms + new_doms)
+
+
+class SurfaceUpdates(NamedTuple):
+    name: str
+    delta: float
+
+
+def collect_domain_changes(axgraph: AxGraph, nb_pairs: GraphPairs):
+    # assumming all surfaces that are keys are for the same domain..
+    updates: list[SurfaceUpdates] = []
+    for surface, nbs in nb_pairs:
+        deltas = [axgraph.get_delta(surface, nb) for nb in nbs]
+        # going to take the largest collect_domain_changes
+        true_delta = max(deltas)
+        updates.append(SurfaceUpdates(surface, true_delta))
+    return updates
+
+
+def filter_nb_pairs(nb_pairs: GraphPairs, keys: list[str]) -> GraphPairs:
+    return {k: v for k, v in nb_pairs.items() if k in keys}
+
+
+def get_domain_nb_pairs(axgraph: AxGraph):
+    edges_for_domain = sort_and_group_objects(
+        axgraph.G.edge_data(), fx=lambda x: x.data.domain_name
+    )
+    domain_surfaces_to_change = [i.u for i in edges_for_domain]
+    nb_pairs_for_domain = [
+        filter_nb_pairs(axgraph.nb_pairs, i) for i in domain_surfaces_to_change
+    ]
+    updated_domains = [collect_domain_changes(axgraph, i) for i in nb_pairs_for_domain]
+    pass

@@ -1,10 +1,31 @@
+from typing import Literal
 from polymap.paths import static_paths
 from polymap.layout.interfaces import create_layout_from_json
 
 from polymap.paths import DynamicPaths
-from random import seed
 
-seed(1234567)
+MSD_IDs = Literal[
+    "106493",
+    "146903",
+    "146915",
+    "146965",
+    "19792",
+    "22940",
+    "27540",
+    "48204",
+    "48205",
+    "49943",
+    "56958",
+    "57231",
+    "58613",
+    "60529",
+    "60532",
+    "60553",
+    "67372",
+    "67408",
+    "71308",
+    "71318",
+]
 
 
 def get_msd_plan():
@@ -23,13 +44,13 @@ def get_all_msd_layouts():
     return layouts
 
 
-def get_one_msd_layout(id: int | None = None):
+def get_one_msd_layout(id: MSD_IDs | None = None):
     source_path = DynamicPaths.MSD_PATHS
 
     stems = sorted([i.stem for i in source_path.iterdir()])
 
     if id:
-        stem = str(id)
+        stem = id
         assert stem in stems
     else:
         stem = stems[0]

@@ -8,8 +8,26 @@ from matplotlib.axes import Axes as MPLAxes
 from polymap.geometry.vectors import Axes
 from pipe import where, sort
 from dataclasses import dataclass
+from typing import NamedTuple
 
 DELTA = "delta"
+
+
+class EdgeData(NamedTuple):
+    delta: float
+    domain_name: str
+
+
+class Edge(NamedTuple):
+    u: str
+    v: str
+    data: EdgeData
+
+
+class EdgeDataDiGraph(nx.DiGraph):
+    def edge_data(self):
+        res = list(self.edges(data=True))
+        return [Edge(i[0], i[1], i[2]["data"]) for i in res]
 
 
 def collect_node_nbs(G: nx.DiGraph) -> GraphPairs:
@@ -21,9 +39,21 @@ def collect_node_nbs(G: nx.DiGraph) -> GraphPairs:
     return nb_dict
 
 
+def better_collect_nbs(G: nx.DiGraph) -> GraphPairs:
+    nb_dict = {}
+    for e in G.edges:
+        e1, e2 = e
+        if e1 not in nb_dict.keys():
+            nb_dict[e1] = []
+        else:
+            nb_dict[e1].append(e2)
+
+    return nb_dict
+
+
 @dataclass
 class AxGraph:
-    G: nx.DiGraph
+    G: EdgeDataDiGraph
     ax: Axes
     layout: Layout
 
@@ -31,7 +61,7 @@ class AxGraph:
         for nb in [nb1, nb2]:
             assert nb in self.G.nodes
 
-        return self.G.edges[(nb1, nb2)][DELTA]
+        return self.G.edges[(nb1, nb2)]["data"].delta
 
     def get_neighors(self, node: str):
         return list(self.G.neighbors(node))
@@ -46,7 +76,7 @@ class AxGraph:
 
     @property
     def nb_pairs(self):
-        return collect_node_nbs(self.G)
+        return better_collect_nbs(self.G)
 
 
 def create_graph_for_surface(
@@ -54,10 +84,10 @@ def create_graph_for_surface(
     surf: Surface,
 ):
     nbs = get_nbs_for_surf(layout, surf)
-    G = nx.DiGraph()
+    G = EdgeDataDiGraph()  # nx.DiGraph()
     for nb in nbs:
         delta = FancyRange(surf.location, nb.location).size
-        G.add_edge(str(surf), str(nb), delta=delta)
+        G.add_edge(str(surf), str(nb), data=EdgeData(delta, surf.domain_name))
 
     return G
 
@@ -96,7 +126,7 @@ def create_graph_positions(layout: Layout):
 def plot_graph(layout: Layout, G: nx.DiGraph, ax: MPLAxes):
     pos = create_graph_positions(layout)
     nx.draw_networkx(G, pos, ax=ax)
-    edge_labels = {(u, v): round(data[DELTA], 2) for (u, v, data) in G.edges(data=True)}
+    edge_labels = {(u, v): f"{data.delta:.2f}" for (u, v, data) in G.edges(data=True)}  # type: ignore
 
     nx.draw_networkx_edge_labels(G, pos, edge_labels, ax=ax)
     return ax
