@@ -10,13 +10,13 @@ MSD_NUM = 106493
 
 class MSDPairs:
     _106493 = {
-        # "balcony_0-east_1": ["living_room_8-west_0"],
-        # "living_room_8-east_0": ["kitchen_7-west_1"],
-        # "living_room_8-east_2": ["kitchen_7-west_0"],
+        "balcony_0-east_1": ["living_room_8-west_0"],
+        "living_room_8-east_0": ["kitchen_7-west_1"],
+        "living_room_8-east_2": ["kitchen_7-west_0"],
         "living_room_8-east_1": ["kitchen_7-west_2", "corridor_2-west_2"],
         "bedroom_4-east_0": ["corridor_2-west_2"],
-        "bedroom_6-east_0": ["corridor_2-west_0, storeroom_1-west_0"],
-    }
+        "bedroom_6-east_0": ["corridor_2-west_0", "storeroom_1-west_0"],
+    }  # TODO: should check that these are all actualy in the layout, in case of typos..
 
 
 def make_graphs(inp: dict[str, list[str]]):

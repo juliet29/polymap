@@ -36,12 +36,22 @@ def get_candidate_surface_neighbors(layout: Layout, surf: Surface):
     return best_surface_for_each_domain(res)
 
 
+def sort_surfaces(surf: Surface, other_surfs: list[Surface]):
+    sorted_surfs = sorted(other_surfs, key=lambda x: x.location, reverse=True)
+    furthest, closest = sorted_surfs[0], sorted_surfs[-1]
+    max_range = FancyRange(surf.location, furthest.location)
+    min_range = FancyRange(surf.location, closest.location)
+    assert max_range.size >= min_range.size
+    return sorted_surfs
+
+
 def make_virtual_domain(
     surf: Surface,
     further_surf: Surface,
-    distance_range: FancyRange,
 ):
+    distance_range = FancyRange(surf.location, further_surf.location)
     axis_aligned_range = surf.range.intersection(further_surf.range, surf.aligned_axis)
+    print(f"{axis_aligned_range=}")
 
     if surf.aligned_axis == "X":
         virtual_domain = FancyOrthoDomain.from_bounds(
@@ -54,16 +64,6 @@ def make_virtual_domain(
     return virtual_domain
 
 
-def sort_surfaces(surf: Surface, other_surfs: list[Surface]):
-
-    sorted_surfs = sorted(other_surfs, key=lambda x: x.location, reverse=True)
-    furthest, closest = sorted_surfs[0], sorted_surfs[-1]
-    max_range = FancyRange(surf.location, furthest.location)
-    min_range = FancyRange(surf.location, closest.location)
-    assert max_range.size >= min_range.size
-    return sorted_surfs
-
-
 def is_bad_surf(
     layout: Layout,
     other_surfs: list[Surface],
@@ -73,10 +73,14 @@ def is_bad_surf(
     # NOTE: cant be a bad surf bc it is the closest, by virtue of being at the end of the list
     if further_surf_ix + 1 == len(other_surfs):
         return False
-    for surf in other_surfs[further_surf_ix:]:
+    for surf in other_surfs[further_surf_ix + 1 :]:
         closer_poly = layout.get_domain(surf.domain_name).polygon
         virtual_poly = virtual_domain.polygon
         if virtual_poly.intersects(closer_poly):
+            fs = other_surfs[further_surf_ix]
+            print(
+                f"{fs.name}'s virtual domain intersects {surf.domain_name}. Eliminating {fs.name}..."
+            )
             return True
 
 
@@ -94,9 +98,7 @@ def filter_candidate_neighbors(
         print(f"{further_surf_ix=}")
         # closer_domain = layout.get_domain(closer_surf.domain_name)
 
-        distance_range = FancyRange(surf.location, further_surf.location)
-
-        virtual_domain = make_virtual_domain(surf, further_surf, distance_range)
+        virtual_domain = make_virtual_domain(surf, further_surf)
 
         if is_bad_surf(layout, other_surfs, virtual_domain, further_surf_ix):
             bad_surfs.append(further_surf)
