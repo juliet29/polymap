@@ -45,6 +45,7 @@ def better_collect_nbs(G: nx.DiGraph) -> GraphPairs:
         e1, e2 = e
         if e1 not in nb_dict.keys():
             nb_dict[e1] = []
+            nb_dict[e1].append(e2)
         else:
             nb_dict[e1].append(e2)
 
