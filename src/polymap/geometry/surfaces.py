@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import shapely as sp
 
 import geom
 from utils4plans.geom import Coord, Range
@@ -8,6 +9,38 @@ from polymap.geometry.vectors import Direction, determine_normal_direction, Axes
 from polymap.interfaces import PairedCoord
 
 import numpy as np
+
+
+def coords_from_range_and_location(range: Range, location: float, ax: Axes):
+    if ax == "X":
+        c1 = (range.min, location)
+        c2 = (range.max, location)
+    else:
+        c1 = (
+            location,
+            range.min,
+        )
+        c2 = (
+            location,
+            range.max,
+        )
+    return PairedCoord(Coord(*c1), Coord(*c2))
+
+
+def coords_to_normal_range(coords: PairedCoord, ax: Axes):
+    if ax == "X":
+        return Range(*sorted([i.x for i in coords]))
+    else:
+        return Range(*sorted([i.y for i in coords]))
+
+
+def compute_intersection(r1: Range, r2: Range, ax: Axes):
+    l1 = coords_from_range_and_location(r1, 0, ax).shapely_line
+    l2 = coords_from_range_and_location(r2, 0, ax).shapely_line
+    inter = l1.intersection(l2)
+    assert isinstance(inter, sp.LineString)
+    inter_coords = PairedCoord(*[Coord(*i) for i in inter.coords])
+    return coords_to_normal_range(inter_coords, ax)
 
 
 @dataclass(frozen=True)
@@ -51,6 +84,13 @@ class FancyRange(Range):
             return False
         raise Exception(f"Invalid comparison for object of type {type(other)}")
 
+    def intersection(self, other, ax: Axes):
+        if isinstance(other, FancyRange):
+            inter_range = compute_intersection(self, other, ax)
+            return FancyRange(inter_range.min, inter_range.max)
+
+        raise Exception(f"Invalid comparison for object of type {type(other)}")
+
 
 def coords_to_range(coords: PairedCoord, ax: Axes):
     if ax == "X":
@@ -64,22 +104,6 @@ def coords_to_location(coords: PairedCoord, ax: Axes):
         return coords[0].y
     else:
         return coords[0].x
-
-
-def coords_from_range_and_location(range: FancyRange, location: float, ax: Axes):
-    if ax == "X":
-        c1 = (range.min, location)
-        c2 = (range.max, location)
-    else:
-        c1 = (
-            location,
-            range.min,
-        )
-        c2 = (
-            location,
-            range.max,
-        )
-    return PairedCoord(Coord(*c1), Coord(*c2))
 
 
 def update_paired_coords_location(coords: PairedCoord, location: float, ax: Axes):
@@ -122,6 +146,10 @@ class Surface:
 
     def __hash__(self) -> int:
         return hash(self.direction.name) + hash(self.coords) + hash(self.domain_name)
+
+    @property
+    def name(self):
+        return str(self)
 
     @property
     def aligned_axis(self):
@@ -182,3 +210,7 @@ def create_surface(v: geom.Vector, coords: PairedCoord, domain_name: str):
     direction = determine_normal_direction(v)
     assert direction, f"{geom.Vector} did not produce a matching direction"
     return Surface(direction, coords, domain_name)
+
+
+def print_surfaces(surfs: list[Surface]):
+    return [str(i) for i in surfs]

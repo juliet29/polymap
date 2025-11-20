@@ -9,6 +9,7 @@ from utils4plans.io import read_json
 from pathlib import Path
 from polymap.paths import DynamicPaths
 from typing import TypeVar
+from rich import print
 
 
 from dataclasses import dataclass
@@ -43,6 +44,16 @@ class Layout:
 
     def get_surface_by_name(self, surf_name: str):
         return get_unique_one(self.surfaces, lambda x: str(x) == surf_name)
+
+    @property
+    def surface_summary(self):
+        for d in self.domains:
+            d.summarize_surfaces
+            print("\n")
+
+    @property
+    def domain_names(self):
+        print([i.name for i in self.domains])
 
     # def update_layout(self, new_domains: list[FancyOrthoDomain]):
     #     domains_to_replace = [self.get_domain(i.name) for i in new_domains]

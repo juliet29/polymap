@@ -5,6 +5,7 @@ import shapely as sp
 from typing import NamedTuple
 
 
+GraphPairs = dict[str, list[str]]
 CoordsType = list[tuple[float | int, float | int]]
 
 

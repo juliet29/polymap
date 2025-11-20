@@ -7,13 +7,14 @@ import shapely as sp
 from utils4plans.geom import Coord, OrthoDomain
 from utils4plans.lists import get_unique_one, pairwise
 
-from polymap.geometry.surfaces import Surface, create_surface, index_surfaces
+from polymap.geometry.surfaces import create_surface, index_surfaces
 from polymap.geometry.vectors import (
     DirectionNames,
     is_perp_to_basis_vectors,
     vector_from_coords,
 )
 from polymap.interfaces import PairedCoord
+from rich import print
 
 
 def create_paired_coords(coords: list[Coord]):
@@ -90,7 +91,7 @@ class FancyOrthoDomain(OrthoDomain):
         raise Exception(f"Invalid object of type {type(other)}")
 
     def __hash__(self) -> int:
-        return hash(self.name) + hash(self.coords)
+        return hash(self.name) + sum([hash(i) for i in self.coords])
 
     # def __post_init__(self):
     #     assert self.is_orthogonal
@@ -153,6 +154,12 @@ class FancyOrthoDomain(OrthoDomain):
         ]
         return index_surfaces(surfaces)
 
+    @property
+    def summarize_surfaces(self):
+        print(self.name)
+        for i in sorted(self.surfaces, key=lambda surf: surf.direction):
+            print(f"{i}")
+
     def get_surface(self, direction_name: DirectionNames, direction_ix: int = 0):
         return get_unique_one(
             self.surfaces,
@@ -162,37 +169,6 @@ class FancyOrthoDomain(OrthoDomain):
 
     def get_surface_by_name(self, surf_name: str):
         return get_unique_one(self.surfaces, lambda x: str(x) == surf_name)
-
-    def update_surface(self, surf: Surface, location_delta: float):
-        new_surf = surf.update_surface_location(location_delta)
-        new_coords = find_and_replace_coords_in_list(
-            self.normalized_coords[0:-1], surf.coords, new_surf.coords
-        )
-
-        d = FancyOrthoDomain(new_coords, self.name)
-
-        # try:
-        #     assert d.shapely_polygon.is_valid
-        # except AssertionError:
-        #     f"{surf.domain_name} is not valid after applying delta of {location_delta} to {surf}. New Coords: {d.coords}  | Old Coords: {self.normalized_coords}  "
-        # assert d.is_orthogonal, (
-        #     f"{surf.domain_name} is not orthogonal after applying delta of {location_delta} to {surf}. New Coords: {d.coords}  | Old Coords: {self.normalized_coords}  "
-        # )
-
-        return d
-
-    # def update_surface_by_name(self, surf_name: str, location_delta: float):
-    #     surf = self.get_surface_by_name(surf_name)
-    #     return self.update_surface(surf, location_delta)
-
-    def update_surface_by_direction(
-        self,
-        direction_name: DirectionNames,
-        direction_ix: int = 0,
-        location_delta: float = 0,
-    ):
-        surf = self.get_surface(direction_name, direction_ix)
-        return self.update_surface(surf, location_delta)
 
     def set_name(self, name: str):
         self.name = name

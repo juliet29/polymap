@@ -6,7 +6,7 @@ from matplotlib.axes import Axes
 from utils4plans.geom import Coord
 from typing import NamedTuple
 
-from polymap.layout.graph import GraphPairs
+from polymap.interfaces import GraphPairs
 from polymap.layout.interfaces import Layout
 import matplotlib as mpl
 

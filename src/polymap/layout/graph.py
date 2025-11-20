@@ -1,4 +1,5 @@
 import networkx as nx
+from polymap.interfaces import GraphPairs
 from polymap.geometry.surfaces import Surface
 from polymap.geometry.surfaces import FancyRange
 from polymap.layout.interfaces import Layout
@@ -8,12 +9,44 @@ from polymap.geometry.vectors import Axes
 from pipe import where
 from dataclasses import dataclass
 
+DELTA = "delta"
+
+
+def collect_node_nbs(G: nx.DiGraph) -> GraphPairs:
+    nb_dict = {}
+    for node in G.nodes:
+        nbs = set(G.neighbors(node))
+        if nbs:
+            nb_dict[node] = list(nbs)
+    return nb_dict
+
 
 @dataclass
 class AxGraph:
     G: nx.DiGraph
     ax: Axes
     layout: Layout
+
+    def get_delta(self, nb1: str, nb2: str):
+        for nb in [nb1, nb2]:
+            assert nb in self.G.nodes
+
+        return self.G.edges[(nb1, nb2)][DELTA]
+
+    def get_neighors(self, node: str):
+        return list(self.G.neighbors(node))
+
+    @property
+    def roots(self):
+        return [n[0] for n in self.G.in_degree if n[1] == 0]
+
+    @property
+    def domains(self):
+        return self.layout.domains
+
+    @property
+    def nb_pairs(self):
+        return collect_node_nbs(self.G)
 
 
 def create_graph_for_surface(
@@ -62,58 +95,7 @@ def create_graph_positions(layout: Layout):
 def plot_graph(layout: Layout, G: nx.DiGraph, ax: MPLAxes):
     pos = create_graph_positions(layout)
     nx.draw_networkx(G, pos, ax=ax)
-    edge_labels = {
-        (u, v): round(data["delta"], 2) for (u, v, data) in G.edges(data=True)
-    }
+    edge_labels = {(u, v): round(data[DELTA], 2) for (u, v, data) in G.edges(data=True)}
 
     nx.draw_networkx_edge_labels(G, pos, edge_labels, ax=ax)
     return ax
-
-
-GraphPairs = dict[str, list[str]]
-
-
-def collect_node_nbs(G: nx.DiGraph) -> GraphPairs:
-    nb_dict = {}
-    for node in G.nodes:
-        nbs = set(G.neighbors(node))
-        if nbs:
-            nb_dict[node] = list(nbs)
-    return nb_dict
-
-
-# @property
-# def roots(self):
-#     return [n[0] for n in self.G.in_degree if n[1] == 0]
-#
-# def get_neighbors(self, node):
-#     return list(self.G.neighbors(node))
-#
-# def get_delta(self, n1, n2):
-#     return self.G.edges[(n1, n2)]["delta"]
-#
-# def collect_domain_updates_for_node(self, node: str):
-#     def create_new_domain_for_nb(
-#         nb: str,
-#     ):
-#         delta = self.get_delta(node, nb)
-#         surface = self.layout.get_surface_by_name(nb)
-#         domain = self.layout.get_domain(surface.domain_name)
-#         return update_domain(domain, surface, delta, True)
-#
-#     return [create_new_domain_for_nb(i) for i in self.get_neighbors(node)]
-#
-# @property
-# def updated_domains(self):
-#     return chain_flatten(
-#         [self.collect_domain_updates_for_node(i) for i in self.roots]
-#     )
-#
-# # these two could be merged..
-# @property
-# def updated_layout(self):
-#     return self.layout.update_layout(self.updated_domains)
-#
-# @property
-# def nbs_dict(self):
-#     return collect_node_nbs(self.G)

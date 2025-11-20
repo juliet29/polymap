@@ -1,15 +1,13 @@
 import pytest
-from rich import print
 
 from polymap.examples.layout import layout as sample_layout
 from polymap.geometry.vectors import Axes
 from polymap.layout.graph import (
     collect_node_nbs,
     create_graph_for_all_surfaces_along_axis,
-    create_graph_for_surface,
 )
 from polymap.layout.interfaces import create_layout_from_dict
-from polymap.layout.neighbors import get_candidate_surface_neighbors, get_nbs_for_surf
+from polymap.layout.neighbors import get_candidate_surface_neighbors
 
 
 def test_get_surface_in_layout():
@@ -72,30 +70,26 @@ def test_layout_nodes(get_nbs_dict, ax):
     assert nodes == expected_nodes
 
 
-def test_update_layout():
-    layout = create_layout_from_dict(sample_layout)
-    blue = layout.get_domain("blue").update_surface_by_direction(
-        "south", 0, location_delta=-2
-    )
-    yellow = layout.get_domain("yellow").update_surface_by_direction(
-        "west", 0, location_delta=-2
-    )
-
-    new_layout = layout.update_layout([blue, yellow])
-    print(new_layout)
-    assert new_layout.get_domain("blue").get_surface("south").location == -1
-    assert new_layout.get_domain("yellow").get_surface("west").location == -1
-
-
-# def test_set_update():
-#     lst = [0, 1, 2]
-#     new_lst = [10, 100, 1]
-#     expected_list = [0, 1, 2, 10, 100]
-#     assert set(expected_list) == set(set_update(lst, new_lst))
+#
+# def test_update_layout():
+#     layout = create_layout_from_dict(sample_layout)
+#     blue = layout.get_domain("blue").update_surface_by_direction(
+#         "south", 0, location_delta=-2
+#     )
+#     yellow = layout.get_domain("yellow").update_surface_by_direction(
+#         "west", 0, location_delta=-2
+#     )
+#
+#     new_layout = layout.update_layout([blue, yellow])
+#     print(new_layout)
+#     assert new_layout.get_domain("blue").get_surface("south").location == -1
+#     assert new_layout.get_domain("yellow").get_surface("west").location == -1
+#
 
 
 if __name__ == "__main__":
-    test_update_layout()
+    pass
+    # test_update_layout()
     # layout = create_layout_from_dict(sample_layout)
     # surf = layout.get_domain("red").get_surface("south", 1)
     # nbs = get_nbs_for_surf(layout, surf)
