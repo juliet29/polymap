@@ -1,9 +1,12 @@
 from polymap.examples.msd import get_one_msd_layout
-from polymap.layout.graph import create_graph_for_layout
-from polymap.layout.interfaces import Layout
-from polymap.layout.update import collect_updated_domains
 
-# from polymap.visuals import plot_graph_pairs_on_layout, plot_layout
+from polymap.layout.update import create_updated_layout
+from polymap.layout.graph import (
+    create_graph_for_layout,
+    AxGraph,
+    create_graph_for_all_surfaces_along_axis,
+)
+from polymap.visuals import plot_layout, plot_graph_pairs_on_layout
 
 
 # test plotting a layout and seeing if can get the name labels
@@ -13,25 +16,30 @@ from polymap.layout.update import collect_updated_domains
 
 
 def test_plotting_layout_with_labels():
-    id, layout = get_one_msd_layout()
+    id, layout = get_one_msd_layout("71308")
     layout.surface_summary
 
     # ax = plot_layout(layout, layout_name=id, show=True)
-    Gx, Gy = create_graph_for_layout(layout)
-    up_doms = collect_updated_domains(Gx)
-    Layout(up_doms).domain_names
+    Gx, _ = create_graph_for_layout(layout)
+    # up_doms = collect_updated_domains(Gx)
+    # Layout(up_doms).domain_names
     #
-    # ax = plot_layout(layout, layout_name=id, show=False)
-    # ax = plot_graph_pairs_on_layout(layout, Gx.nb_pairs, ax, show=True)
+    ax = plot_layout(layout, layout_name=id, show=True)
+    # ax = plot_graph_pairs_on_layout(layout, Gx.nb_pairs, ax, show=True, alpha=0.7)
 
-    #  layx = get_new_doms_for_graph(Gx)
-    # ax = plot_layout(layx, layout_name=id, show=True)
+    layx = create_updated_layout(Gx)
+    Gy = create_graph_for_all_surfaces_along_axis(layx, "Y")
+    ax = plot_layout(layx, layout_name=id, show=False)
+    ax = plot_graph_pairs_on_layout(layout, Gy.nb_pairs, ax, show=True, alpha=0.7)
+    layy = create_updated_layout(AxGraph(Gy.G, "Y", layx))
+
+    ax = plot_layout(layy, layout_name=id, show=True)
     #
     # return layx
 
-    pass
+    layx.domain_names
 
-    return Gx, Gy
+    # return Gx, Gy
 
 
 if __name__ == "__main__":

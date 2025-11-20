@@ -8,6 +8,7 @@ from polymap.geometry.update import update_domain
 from polymap.interfaces import GraphPairs
 from polymap.layout.graph import AxGraph
 from polymap.layout.interfaces import Layout
+from warnings import warn
 
 
 def get_unchanged_domains(layout: Layout, new_doms: list[FancyOrthoDomain]):
@@ -68,7 +69,17 @@ def collect_domain_changes(axgraph: AxGraph, domain_name: str, nb_pairs: GraphPa
         updates.append(SurfaceUpdates(surface, true_delta))
     domain = deepcopy(axgraph.layout.get_domain(domain_name))
     for update in updates:
-        surface = axgraph.layout.get_surface_by_name(update.name)
+        try:
+            surface = axgraph.layout.get_surface_by_name(update.name)
+        except AssertionError:
+            warn(
+                f"Ran into an error while looking for a domain surface:{update.name}. Skipping... "
+            )
+            domain.summarize_surfaces
+            continue
+            # raise Exception(
+            #     f"Could not find {update.name} in surfaces of {domain.name}: Error {e}"
+            # )
         domain = update_domain(domain, surface, update.delta)
 
     return domain
@@ -93,9 +104,15 @@ def collect_updated_domains(axgraph: AxGraph):
         for domain_name, domain_surfs_to_move in domain_and_surfaces.items()
     }
 
-    print(axgraph.nb_pairs)
     updated_domains = [
         collect_domain_changes(axgraph, domain_name, nb_pairs)
         for domain_name, nb_pairs in domain_and_nb_pairs.items()
     ]
     return updated_domains
+
+
+def create_updated_layout(axgraph: AxGraph):
+    new_doms = collect_updated_domains(axgraph)
+    unchanged_doms = get_unchanged_domains(axgraph.layout, new_doms)
+
+    return Layout(unchanged_doms + new_doms)

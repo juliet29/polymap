@@ -26,6 +26,12 @@ T = TypeVar("T")
 @dataclass
 class Layout:
     domains: list[FancyOrthoDomain]
+
+    def __post_init__(self):
+        self.domains = list(
+            filter(lambda x: "balcony" not in x.name.lower(), self.domains)
+        )
+
     # post init -> assert names are unique!
 
     # def plot_layout(self):
@@ -40,7 +46,7 @@ class Layout:
             return chain_flatten([i.substantial_surfaces for i in self.domains])
         return chain_flatten([i.surfaces for i in self.domains])
 
-    def get_other_surfaces(self, surf: Surface, substantial_only=True):
+    def get_other_surfaces(self, surf: Surface, substantial_only: bool = False):
         return set_difference(self.get_surfaces(substantial_only), [surf])
 
     def get_surface_by_name(self, surf_name: str):

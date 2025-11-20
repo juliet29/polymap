@@ -57,7 +57,7 @@ def plot_layout(
 
 
 def plot_graph_pairs_on_layout(
-    layout: Layout, graph_pairs: GraphPairs, ax: Axes, alpha: int = 1, show=True
+    layout: Layout, graph_pairs: GraphPairs, ax: Axes, alpha: float = 1, show=True
 ):
     def get_line(main: str, nbs: list[str]):
         main_surface = layout.get_surface_by_name(main)
