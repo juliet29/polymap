@@ -35,15 +35,16 @@ class Layout:
     def get_domain(self, name):
         return get_unique_one(self.domains, lambda x: x.name == name)
 
-    @property
-    def surfaces(self):
+    def get_surfaces(self, substantial_only=False):
+        if substantial_only:
+            return chain_flatten([i.substantial_surfaces for i in self.domains])
         return chain_flatten([i.surfaces for i in self.domains])
 
-    def get_other_surfaces(self, surf: Surface):
-        return set_difference(self.surfaces, [surf])
+    def get_other_surfaces(self, surf: Surface, substantial_only=True):
+        return set_difference(self.get_surfaces(substantial_only), [surf])
 
     def get_surface_by_name(self, surf_name: str):
-        return get_unique_one(self.surfaces, lambda x: str(x) == surf_name)
+        return get_unique_one(self.get_surfaces(), lambda x: str(x) == surf_name)
 
     @property
     def surface_summary(self):

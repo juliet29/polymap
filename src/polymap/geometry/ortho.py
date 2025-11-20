@@ -155,10 +155,17 @@ class FancyOrthoDomain(OrthoDomain):
         return index_surfaces(surfaces)
 
     @property
+    def substantial_surfaces(self):
+        if len(self.surfaces) > 4:
+            return list(filter(lambda x: not x.is_small, self.surfaces))
+        else:
+            return self.surfaces
+
+    @property
     def summarize_surfaces(self):
         print(self.name)
-        for i in sorted(self.surfaces, key=lambda surf: surf.direction):
-            print(f"{i}")
+        for i in sorted(self.substantial_surfaces, key=lambda surf: surf.direction):
+            print(f"{i.name:<20} | {i.range.size:.2f}")
 
     def get_surface(self, direction_name: DirectionNames, direction_ix: int = 0):
         return get_unique_one(

@@ -10,6 +10,8 @@ from polymap.interfaces import PairedCoord
 
 import numpy as np
 
+SMALL_SURFACE_SIZE = 0.15
+
 
 def coords_from_range_and_location(range: Range, location: float, ax: Axes):
     if ax == "X":
@@ -178,6 +180,10 @@ class Surface:
             self.location,
             self.range.midpoint,
         )
+
+    @property
+    def is_small(self):
+        return self.range.size <= SMALL_SURFACE_SIZE
 
     def update_ix(self, ix: int):
         self.direction_ix = ix

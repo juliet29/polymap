@@ -6,7 +6,7 @@ from polymap.layout.interfaces import Layout
 from polymap.layout.neighbors import get_nbs_for_surf
 from matplotlib.axes import Axes as MPLAxes
 from polymap.geometry.vectors import Axes
-from pipe import where
+from pipe import where, sort
 from dataclasses import dataclass
 
 DELTA = "delta"
@@ -56,7 +56,7 @@ def create_graph_for_surface(
     nbs = get_nbs_for_surf(layout, surf)
     G = nx.DiGraph()
     for nb in nbs:
-        delta = FancyRange(nb.location, surf.location).size
+        delta = FancyRange(surf.location, nb.location).size
         G.add_edge(str(surf), str(nb), delta=delta)
 
     return G
@@ -64,9 +64,10 @@ def create_graph_for_surface(
 
 def create_graph_for_all_surfaces_along_axis(layout: Layout, axis: Axes):
     surfaces = list(
-        layout.surfaces
+        layout.get_surfaces(substantial_only=True)
         | where(lambda x: x.direction_axis == axis)
-        | where(lambda x: x.direction.name == "south" or x.direction.name == "west")
+        | where(lambda x: x.direction.name == "north" or x.direction.name == "east")
+        | sort(key=lambda x: x.location)
     )
 
     graphs = [
@@ -89,7 +90,7 @@ def create_graph_for_layout(layout: Layout):
 
 
 def create_graph_positions(layout: Layout):
-    return {str(i): i.centroid.as_tuple for i in layout.surfaces}
+    return {str(i): i.centroid.as_tuple for i in layout.get_surfaces()}
 
 
 def plot_graph(layout: Layout, G: nx.DiGraph, ax: MPLAxes):

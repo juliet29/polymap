@@ -23,7 +23,7 @@ def get_candidate_surface_neighbors(layout: Layout, surf: Surface):
         return best_surfs
 
     res = list(
-        layout.get_other_surfaces(surf)
+        layout.get_other_surfaces(surf, substantial_only=True)
         | where(lambda x: x.domain_name != surf.domain_name)
         | where(lambda x: x.aligned_axis == surf.aligned_axis)
         | where(lambda x: surf.range.is_coincident(x.range))
@@ -116,6 +116,8 @@ def get_nbs_for_surf(layout: Layout, surf: Surface):
     # return potential_nbs
     print("\npotential_nbs=")
     print(potential_nbs)
+    if not potential_nbs:
+        return []
     return filter_candidate_neighbors(layout, surf, potential_nbs)
 
 
