@@ -39,6 +39,24 @@ def plot_polygon(
     return ax
 
 
+def plot_polygon_comparison(
+    polys: list[sp.Polygon], titles: list[str], big_title: str = ""
+):
+    n = len(polys)
+    fig, axs = plt.subplots(
+        ncols=n,
+    )
+
+    for ix, p in enumerate(polys):
+        plotting.plot_polygon(p, ax=axs[ix])
+        if len(titles) > ix:
+            axs[ix].set_title(titles[ix])
+
+    fig.suptitle(big_title)
+
+    plt.show()
+
+
 def plot_layout(
     layout: Layout, layout_name: str = "", ax: Axes | None = None, show=True
 ):
@@ -54,6 +72,17 @@ def plot_layout(
         plt.show()
 
     return ax
+
+
+def plot_layout_comparison(layouts: list[Layout], names: list[str]):
+    n = len(layouts)
+    fig, axs = plt.subplots(ncols=n)
+    assert len(layouts) == len(names)
+
+    for ix, layout in enumerate(layouts):
+        plot_layout(layout, names[ix], axs[ix], show=False)
+
+    plt.show()
 
 
 def plot_graph_pairs_on_layout(
