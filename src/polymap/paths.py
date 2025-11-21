@@ -9,3 +9,4 @@ static_paths = StaticPaths(name="", base_path=BASE_PATH)
 class DynamicPaths:
 
     MSD_PATHS = static_paths.inputs / "msd"
+    process_figs = static_paths.temp / "process_loop"

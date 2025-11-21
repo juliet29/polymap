@@ -1,8 +1,6 @@
-from typing import NamedTuple, Literal
-from rich import print
+from typing import NamedTuple
 import shapely as sp
 from polymap.geometry.vectors import sp_line_to_vector
-from polymap.visuals import plot_line
 import geom
 
 ORIGIN = (0, 0)

@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 import networkx as nx
 
-from polymap.visuals import plot_polygon
+from polymap.visuals.visuals import plot_polygon
 
 
 def print_nbs_data():

@@ -4,7 +4,7 @@ from utils4plans.geom import Coord
 import shapely as sp
 import matplotlib.pyplot as plt
 from rich import print
-from polymap.visuals import plot_polygon
+from polymap.visuals.visuals import plot_polygon
 from polymap.examples.sample_domains import create_ortho_domain
 from polymap.interfaces import PairedCoord
 

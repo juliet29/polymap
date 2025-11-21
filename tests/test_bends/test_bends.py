@@ -3,7 +3,7 @@ from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.nonortho.dot import make_ortho_coords
 
 from polymap.process.process import simplify_layout
-from polymap.visuals import plot_layout_comparison, plot_polygon_comparison
+from polymap.visuals.visuals import plot_layout_comparison, plot_polygon_comparison
 from polymap.geometry.shapely_helpers import get_coords_from_shapely_polygon
 import shapely as sp
 

@@ -2,7 +2,7 @@ from polymap.examples.sample_domains import create_ortho_domain
 from polymap.nonortho.dot import make_ortho_coords
 from rich import print
 from polymap.geometry.ortho import FancyOrthoDomain
-from polymap.visuals import plot_polygon
+from polymap.visuals.visuals import plot_polygon
 import matplotlib.pyplot as plt
 from polymap.examples.msd import get_msd_plan
 

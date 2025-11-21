@@ -63,6 +63,10 @@ def plot_layout(
 
     if not ax:
         fig, ax = plt.subplots()
+
+    if not layout.domains:
+        return ax
+
     polygons = sp.MultiPolygon([i.polygon for i in layout.domains])
     ax = plot_polygon(polygons, ax, title=layout_name)
     room_labels = [AnnotationPair(i.centroid, i.name) for i in layout.domains]
@@ -88,6 +92,11 @@ def plot_layout_comparison(layouts: list[Layout], names: list[str]):
 def plot_graph_pairs_on_layout(
     layout: Layout, graph_pairs: GraphPairs, ax: Axes, alpha: float = 1, show=True
 ):
+    if not layout.domains:
+        return ax
+    if not graph_pairs:
+        return ax
+
     def get_line(main: str, nbs: list[str]):
         main_surface = layout.get_surface_by_name(main)
         nb_surfaces = [layout.get_surface_by_name(i) for i in nbs]
@@ -106,6 +115,17 @@ def plot_graph_pairs_on_layout(
     return ax
 
 
+def plot_graph_pairs_and_layout(
+    layout: Layout,
+    title: str,
+    graph_pairs: GraphPairs,
+    ax: Axes,
+    alpha: float = 1,
+):
+    ax = plot_layout(layout, title, ax, show=False)
+    plot_graph_pairs_on_layout(layout, graph_pairs, ax, show=False, alpha=alpha)
+
+
 # def plot_domain(self):
 #     fig, ax = plt.subplots()
 #     plot_polygon(self.polygon, ax=ax)
@@ -113,10 +133,10 @@ def plot_graph_pairs_on_layout(
 #     plt.show()
 
 
-def plot_line(p: sp.LineString | sp.MultiLineString):
-    fig, ax = plt.subplots()
-    plotting.plot_line(p, ax=ax)
-    plt.show()
+# def plot_line(p: sp.LineString | sp.MultiLineString):
+#     fig, ax = plt.subplots()
+#     plotting.plot_line(p, ax=ax)
+#     plt.show()
 
 
 if __name__ == "__main__":

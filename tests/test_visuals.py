@@ -6,7 +6,7 @@ from polymap.layout.graph import (
     AxGraph,
     create_graph_for_all_surfaces_along_axis,
 )
-from polymap.visuals import plot_layout, plot_graph_pairs_on_layout
+from polymap.visuals.visuals import plot_layout, plot_graph_pairs_on_layout
 
 
 # test plotting a layout and seeing if can get the name labels

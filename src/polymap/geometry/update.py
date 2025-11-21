@@ -15,7 +15,7 @@ from polymap.geometry.vectors import (
 from polymap.interfaces import PairedCoord, coords_from_paired_coords_list
 import geom
 
-from polymap.visuals import plot_polygon
+from polymap.visuals.visuals import plot_polygon
 
 
 class UpdateCoordsInfo(NamedTuple):
