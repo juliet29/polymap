@@ -1,12 +1,10 @@
 import geom
-from rich import print
 import pytest
 from utils4plans.geom import Coord
 from polymap.geometry.vectors import (
     vector_from_coords,
     compute_outward_normal_assuming_cw,
     determine_normal_direction,
-
     CardinalDirections,
     Direction,
 )
@@ -79,9 +77,6 @@ def test_compute_normal_direction(v, result):
 #     new = geom.Vector([3, 2, 0])
 
 #     print(e2.cross(new))
-
-
-
 
 
 if __name__ == "__main__":

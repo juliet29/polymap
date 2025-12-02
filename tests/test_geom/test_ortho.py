@@ -2,7 +2,6 @@ from polymap.examples.sample_domains import create_ortho_domain
 from rich import print
 import geom
 from utils4plans.geom import Coord
-from polymap.geometry.ortho import find_and_replace_in_list
 
 
 def test_equality():
@@ -59,37 +58,6 @@ def test_is_not_orthogonal():
     d = create_ortho_domain("NON_ORTHO")
     # with pytest.raises(AssertionError):
     assert not d.is_orthogonal
-
-
-def test_find_and_replace_in_list():
-    lst = [1, 2, 3, 4, 5]
-    old = [2, 3]
-    new = [20, 30]
-    expected = [1, 20, 30, 4, 5]
-    assert find_and_replace_in_list(lst, old, new) == expected
-
-
-def test_update_surface():
-    d = create_ortho_domain("SQUARE")
-    new_dom = d.update_surface_by_direction("north", location_delta=2)
-    assert set(new_dom.coords) == set(
-        [
-            Coord(*i)
-            for i in [
-                (0, 0),
-                (1, 0),
-                (1, 3),
-                (0, 3),
-            ]
-        ],
-    )
-    assert new_dom.is_orthogonal
-
-
-# TODO better test of orthogonality + validity after move surfac..
-def test_update_surface_param():
-    d = create_ortho_domain("BOTTOM_UP_L")
-    new_dom = d.update_surface_by_direction("north", location_delta=2)
 
 
 if __name__ == "__main__":

@@ -36,8 +36,10 @@ class UpdateCoordsTuple(NamedTuple):
 
 
 def apply_vector_to_paired_coord(pc: PairedCoord, vector: geom.Vector):
+
     def apply(coord: Coord):
         res = vector2D_from_coord(coord) + vector
+        print(f"vector is {vector2D_from_coord(coord)}, applied vec is {vector}")
         return vector_as_coord(res)
 
     return PairedCoord(*[apply(i) for i in pc])
@@ -59,6 +61,9 @@ def create_update_coords_tuple(
     alpha, beta = paired_coords[alpha_ix], paired_coords[beta_ix]
 
     new_target = apply_vector_to_paired_coord(target, vector)
+
+    print(f"og paired coords are: {target}")
+    print(f"new paired coords are: {new_target}")
 
     target_info = UpdateCoordsInfo(new_target, target_ix)
     alpha_info = UpdateCoordsInfo(PairedCoord(alpha.first, new_target.first), alpha_ix)

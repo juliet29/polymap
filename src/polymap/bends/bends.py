@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import NamedTuple, Protocol
 
 from polymap.geometry.update import update_domain
+from rich import print
 
 TOLERANCE = 0.13  # TODO: make a constant
 
@@ -27,12 +28,24 @@ def get_component(v: geom.Vector, ix: int):
     return float(v[ix])  # pyright: ignore[reportArgumentType]
 
 
+def get_nonzero_component(v: geom.Vector):
+    # todo should check is orto ..
+    res = list(filter(lambda x: x != 0, [v.x, v.y]))
+    assert len(res) == 1, f"Invalid v. Possibly non-ortho: {v}"
+    return res[0]
+
+
 @dataclass
 class ZetaBend:
     s1: Surface
     s2: Surface
     s3: Surface
     domain: FancyOrthoDomain
+
+    def __rich_repr__(self):
+        yield "s1", self.s1
+        yield "s2", self.s2
+        yield "s3", self.s3
 
     @property
     def surfaces(self):
@@ -45,7 +58,7 @@ class ZetaBend:
     @property
     def get_move(self):
         return Move(
-            self.domain, self.s1, get_component(self.s2.vector, 1)
+            self.domain, self.s1, get_nonzero_component(self.s2.vector)
         )  # TODO: this should really be get value, for the case of vertical bend..
 
 
@@ -58,13 +71,20 @@ class PiBend:
     s5: Surface
     domain: FancyOrthoDomain
 
+    def __rich_repr__(self):
+        yield "s1", self.s1
+        yield "s2", self.s2
+        yield "s3", self.s3
+        yield "s4", self.s4
+        yield "s5", self.s5
+
     @property
     def surfaces(self):
         return [self.s1, self.s2, self.s3, self.s4, self.s5]
 
     @property
     def get_move(self):
-        return Move(self.domain, self.s3, get_component(self.s2.vector, 1))
+        return Move(self.domain, self.s3, -1 * get_nonzero_component(self.s2.vector))
 
 
 def get_domain(msd_id: MSD_IDs, domain_name: str):
@@ -73,7 +93,7 @@ def get_domain(msd_id: MSD_IDs, domain_name: str):
     return dom
 
 
-def find_small_surfs(domain: FancyOrthoDomain, tolerance=0.13):
+def find_small_surfs(domain: FancyOrthoDomain, tolerance=TOLERANCE):
     small_surfs = list(filter(lambda x: x.range.size <= tolerance, domain.surfaces))
     return small_surfs
 
@@ -115,6 +135,8 @@ def handle_pi_bend(b1: ZetaBend, b2: ZetaBend):
             "Zeta bends may be misordered.. add check for sorting.."
         )
     else:
+        print(b1)
+        print(b2)
         raise Exception("Unexpected pi bend combination!")
 
 
@@ -133,7 +155,9 @@ def check_zeta_intersections(bends: list[ZetaBend]):
             found_indices = update_indices(found_indices, bends, i, j)
 
             if len(intersection) > 1:
-                raise NotImplementedError("Haven't handled more complex bends")
+                raise NotImplementedError(
+                    f"Haven't handled more complex bends: Intersection of size {len(intersection)}"
+                )
 
             pi_bend = handle_pi_bend(i, j)
             pis.append(pi_bend)
@@ -144,6 +168,7 @@ def check_zeta_intersections(bends: list[ZetaBend]):
 
 
 def apply_move(move: Move):
+    print(f"Applying delta of {move.delta:.3f} to surf {move.surface.name}")
     new_dom = update_domain(*move)
     new_coords = get_unique_items_in_list_keep_order(new_dom.coords)
-    return FancyOrthoDomain(new_coords)
+    return FancyOrthoDomain(new_coords, name=move.domain.name)

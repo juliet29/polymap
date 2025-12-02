@@ -34,5 +34,5 @@ def plot_domain_move(
     lines = sp.MultiLineString([i.coords.shapely_line for i in surfs])
     plotting.plot_line(lines, ax=ax, color=surf_color)
     plot_polygon(domain2.polygon, ax=ax2, title=title)
-    plotting.plot_line(lines, ax=ax2, color=surf_color)
+    plotting.plot_line(lines, ax=ax2, color=surf_color, alpha=0.2, add_points=False)
     plt.show()
