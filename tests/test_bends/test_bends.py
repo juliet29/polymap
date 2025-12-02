@@ -1,13 +1,10 @@
-from polymap.bends.bends import (
-    apply_move,
-    find_small_surfs,
-    find_surf_nbs,
-    get_domain,
-    AlphaBend,
-)
 from rich import print
-
-from polymap.bends.viz import plot_domain_move
+from polymap.bends.bends import (
+    check_zeta_intersections,
+    create_zeta_bends,
+    find_small_surfs,
+    get_domain,
+)
 
 
 def test_bends():
@@ -16,24 +13,29 @@ def test_bends():
     dom = get_domain(id, domain_name)
 
     surfs = find_small_surfs(dom)
-    count = 0
-    while surfs:
-        nbs = find_surf_nbs(dom.surfaces, surfs[0])
+    zeta_bends = create_zeta_bends(surfs, dom)
+    zetas, pis = check_zeta_intersections(zeta_bends)
+    print(zetas)
+    print(pis)
 
-        ab = AlphaBend(*nbs, dom)
-        dom2 = apply_move(ab.get_move)
-        plot_domain_move(dom, dom2, list(nbs), id=id)
-        print(surfs)
-
-        dom = dom2
-        surfs = find_small_surfs(dom)
-
-        if not surfs:
-            break
-        count += 1
-        if count > 5:
-            break
-
+    # count = 0
+    # while surfs:
+    #     nbs = find_surf_nbs(dom.surfaces, surfs[0])
+    #
+    #     ab = ZetaBend(*nbs, dom)
+    #     dom2 = apply_move(ab.get_move)
+    #     plot_domain_move(dom, dom2, list(nbs), id=id)
+    #     print(surfs)
+    #
+    #     dom = dom2
+    #     surfs = find_small_surfs(dom)
+    #
+    #     if not surfs:
+    #         break
+    #     count += 1
+    #     if count > 5:
+    #         break
+    #
     # plot_domain_and_surf(dom, list(nbs), title=title)
 
     # domain2 = update_domain(*move)
