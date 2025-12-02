@@ -4,7 +4,10 @@ from typing import get_args
 from rich import print
 
 
-if __name__ == "__main__":
+GOOD_IDS = ["106493", "146915", "56958", "57231", "60553", "71308", "71318"]
+
+
+def run_whole_process():
     ids = get_args(MSD_IDs)
     good_ids = []
     for id in ids:
@@ -18,3 +21,8 @@ if __name__ == "__main__":
         print(f"[bold pink] GOOD IDS: {good_ids} ------------------- [/bold pink]")
 
     print(good_ids)
+
+
+if __name__ == "__main__":
+    for id in GOOD_IDS:
+        fin_id = process_layout(id)

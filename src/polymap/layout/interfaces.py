@@ -28,9 +28,10 @@ class Layout:
     domains: list[FancyOrthoDomain]
 
     def __post_init__(self):
-        self.domains = list(
-            filter(lambda x: "balcony" not in x.name.lower(), self.domains)
-        )
+        pass
+        # self.domains = list(
+        #     filter(lambda x: "balcony" not in x.name.lower(), self.domains)
+        # )
 
     # post init -> assert names are unique!
 

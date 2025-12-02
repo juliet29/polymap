@@ -1,43 +1,58 @@
-from polymap.examples.msd import MSD_IDs, get_one_msd_layout
-from polymap.geometry.ortho import FancyOrthoDomain
-from polymap.nonortho.dot import make_ortho_coords
+from polymap.bends.bends import (
+    apply_move,
+    find_small_surfs,
+    find_surf_nbs,
+    get_domain,
+    AlphaBend,
+)
+from rich import print
 
-from polymap.process.process import simplify_layout
-from polymap.visuals.visuals import plot_layout_comparison, plot_polygon_comparison
-from polymap.geometry.shapely_helpers import get_coords_from_shapely_polygon
-import shapely as sp
-
-
-def test_shapely_fixes(msd_id: MSD_IDs, domain_name: str, tolerance=0.13):
-    id, layout = get_one_msd_layout(msd_id)
-    dom = layout.get_domain(domain_name)
-    p1 = dom.polygon
-    p2 = sp.simplify(p1, tolerance=tolerance)
-
-    p2dom = FancyOrthoDomain(get_coords_from_shapely_polygon(p2))
-
-    ortho_coords = make_ortho_coords(p2dom.coords, p2dom.vectors)
-
-    dom_ortho = FancyOrthoDomain(ortho_coords)
-    p3 = dom_ortho.polygon
-
-    polys = [p1, p2, p3]
-    titles = ["orig", f"shapely.simplify: tol={tolerance}", "ortho"]
-
-    plot_polygon_comparison(polys, titles, f"{id}-{domain_name}")
+from polymap.bends.viz import plot_domain_move
 
 
-def see_shapely_fixes():
-    test_shapely_fixes("106493", "corridor_2")
-    test_shapely_fixes("71308", "corridor_2")
-    test_shapely_fixes("106493", "kitchen_7")
+def test_bends():
+    domain_name = "balcony_0"
+    id = "106493"
+    dom = get_domain(id, domain_name)
 
+    surfs = find_small_surfs(dom)
+    count = 0
+    while surfs:
+        nbs = find_surf_nbs(dom.surfaces, surfs[0])
 
-def test_simplify_layout():
-    id, layout = get_one_msd_layout("60529")
-    new_layout = simplify_layout(layout)
-    plot_layout_comparison([layout, new_layout], [str(id), "simplified"])
+        ab = AlphaBend(*nbs, dom)
+        dom2 = apply_move(ab.get_move)
+        plot_domain_move(dom, dom2, list(nbs), id=id)
+        print(surfs)
+
+        dom = dom2
+        surfs = find_small_surfs(dom)
+
+        if not surfs:
+            break
+        count += 1
+        if count > 5:
+            break
+
+    # plot_domain_and_surf(dom, list(nbs), title=title)
+
+    # domain2 = update_domain(*move)
+    # print([(i, i.mag()) for i in domain2.vectors])
+    #
+    # print(list(map(lambda x: str(x), domain2.coords)))
+    #
+    # new_coords = get_unique_items_in_list_keep_order(domain2.coords)
+    # print(list(map(lambda x: str(x), new_coords)))
+
+    # plot_domain_move(dom, domain2, list(nbs), id=id)
+
+    # ix = dom.surfaces.index(nbs[1])
+    #
+    # vix = dom.vectors[ix]
+    # print(vix)
+    #
+    # print(nbs)
 
 
 if __name__ == "__main__":
-    test_simplify_layout()
+    test_bends()

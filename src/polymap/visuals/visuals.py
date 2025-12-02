@@ -10,15 +10,19 @@ from polymap.interfaces import GraphPairs
 from polymap.layout.interfaces import Layout
 import matplotlib as mpl
 
+from polymap.visuals.styles import AnnotationStyles
+
 
 class AnnotationPair(NamedTuple):
     coord: Coord
     name: str
 
 
-def add_annotations(annotation_pairs: list[AnnotationPair], ax: Axes):
+def add_annotations(
+    annotation_pairs: list[AnnotationPair], ax: Axes, styles=AnnotationStyles()
+):
     for coord, name in annotation_pairs:
-        ax.text(*coord.as_tuple, s=name)
+        ax.text(*coord.as_tuple, s=name, **styles.values)
 
     return ax
 
@@ -58,7 +62,11 @@ def plot_polygon_comparison(
 
 
 def plot_layout(
-    layout: Layout, layout_name: str = "", ax: Axes | None = None, show=True
+    layout: Layout,
+    layout_name: str = "",
+    ax: Axes | None = None,
+    add_labels=True,
+    show=True,
 ):
 
     if not ax:
@@ -69,8 +77,10 @@ def plot_layout(
 
     polygons = sp.MultiPolygon([i.polygon for i in layout.domains])
     ax = plot_polygon(polygons, ax, title=layout_name)
-    room_labels = [AnnotationPair(i.centroid, i.name) for i in layout.domains]
-    ax = add_annotations(room_labels, ax)
+
+    if add_labels:
+        room_labels = [AnnotationPair(i.centroid, i.name) for i in layout.domains]
+        ax = add_annotations(room_labels, ax)
 
     if show:
         plt.show()
@@ -107,7 +117,7 @@ def plot_graph_pairs_on_layout(
     colors = mpl.colormaps["rainbow"](np.linspace(0, 1, len(graph_pairs)))
     for (key, values), color in zip(graph_pairs.items(), colors):
         mline = get_line(key, values)
-        plotting.plot_line(mline, ax=ax, color=color, linewidth=3, alpha=alpha)
+        plotting.plot_line(mline, ax=ax, color=color, linewidth=2, alpha=alpha)
 
     if show:
         plt.show()
@@ -121,8 +131,9 @@ def plot_graph_pairs_and_layout(
     graph_pairs: GraphPairs,
     ax: Axes,
     alpha: float = 1,
+    add_labels=True,
 ):
-    ax = plot_layout(layout, title, ax, show=False)
+    ax = plot_layout(layout, title, ax, show=False, add_labels=add_labels)
     plot_graph_pairs_on_layout(layout, graph_pairs, ax, show=False, alpha=alpha)
 
 

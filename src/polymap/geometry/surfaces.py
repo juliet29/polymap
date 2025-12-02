@@ -123,6 +123,7 @@ def update_paired_coords_location(coords: PairedCoord, location: float, ax: Axes
 class Surface:
     direction: Direction
     coords: PairedCoord
+    vector: geom.Vector
     domain_name: str
     direction_ix: int = -1
 
@@ -188,10 +189,10 @@ class Surface:
     def update_ix(self, ix: int):
         self.direction_ix = ix
 
-    def update_surface_location(self, num: float):
-        # new_loc = self.location + num
-        new_coords = update_paired_coords_location(self.coords, num, self.aligned_axis)
-        return Surface(self.direction, new_coords, self.domain_name, self.direction_ix)
+    # def update_surface_location(self, num: float):
+    #     # new_loc = self.location + num
+    #     new_coords = update_paired_coords_location(self.coords, num, self.aligned_axis)
+    #     return Surface(self.direction, new_coords, self.domain_name, self.direction_ix)
 
     # def is_crossing(self, shape: sp.Polygon):
     #     line = self.coords.shapely_line
@@ -215,7 +216,7 @@ def index_surfaces(surfaces: list[Surface]):
 def create_surface(v: geom.Vector, coords: PairedCoord, domain_name: str):
     direction = determine_normal_direction(v)
     assert direction, f"{geom.Vector} did not produce a matching direction"
-    return Surface(direction, coords, domain_name)
+    return Surface(direction, coords, v, domain_name)
 
 
 def print_surfaces(surfs: list[Surface]):
