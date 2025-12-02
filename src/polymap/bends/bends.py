@@ -6,22 +6,16 @@ from polymap.examples.msd import MSD_IDs, get_one_msd_layout
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.surfaces import Surface
 from dataclasses import dataclass
-from typing import NamedTuple, Protocol
 
-from polymap.geometry.update import update_domain
+from polymap.geometry.update import update_domain, Move
 from rich import print
 
 TOLERANCE = 0.13  # TODO: make a constant
 
 
-class Move(NamedTuple):
-    domain: FancyOrthoDomain
-    surface: Surface
-    delta: float
-
-
-class DefinesMove(Protocol):
-    def get_move(self) -> Move: ...
+# class DefinesMove(Protocol):
+#     def get_move(self) -> Move: ...
+#
 
 
 def get_component(v: geom.Vector, ix: int):
@@ -169,6 +163,6 @@ def check_zeta_intersections(bends: list[ZetaBend]):
 
 def apply_move(move: Move):
     print(f"Applying delta of {move.delta:.3f} to surf {move.surface.name}")
-    new_dom = update_domain(*move)
+    new_dom = update_domain(move)
     new_coords = get_unique_items_in_list_keep_order(new_dom.coords)
     return FancyOrthoDomain(new_coords, name=move.domain.name)

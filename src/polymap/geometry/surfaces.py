@@ -64,27 +64,31 @@ class Surface:
         return str(self)
 
     @property
-    def aligned_axis(self):
+    def parallel_axis(self):
         # NOTE: this is the axis that describes how the surface is oriented
         return self.direction.normal_axis
 
     @property
-    def direction_axis(self):
-        # NOTE: this is the axis along which the surface can move
-        return self.direction.aligned_axis
+    def positive_perpendicular_vector(self):
+        return self.direction.positive_vector
+
+    # @property
+    # def perpendicular_axis(self):
+    #     # NOTE: this is the axis along which the surface can move
+    #     return self.direction.aligned_axis
 
     @property
     def range(self):
-        return coords_to_range(self.coords, self.aligned_axis)
+        return coords_to_range(self.coords, self.parallel_axis)
 
     @property
     def location(self) -> float:
-        return coords_to_location(self.coords, self.aligned_axis)
+        return coords_to_location(self.coords, self.parallel_axis)
 
     @property
     def centroid(self):
         # TODO there is an easier way to do this with coords?
-        if self.aligned_axis == "X":
+        if self.parallel_axis == "X":
             return Coord(self.range.midpoint, self.location)
         return Coord(
             self.location,

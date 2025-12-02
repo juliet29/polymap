@@ -72,6 +72,12 @@ def test_compute_normal_direction(v, result):
     assert determine_normal_direction(v) == result
 
 
+def test_positive_vector():
+    drn = CardinalDirections.WEST
+    assert drn.positive_vector == geom.Vector([1, 0, 0])
+    assert drn.aligned_vector == geom.Vector([-1, 0, 0])
+
+
 # def test_normal2():
 #     e2 = geom.Vector([0, 0, 1])
 #     new = geom.Vector([3, 2, 0])

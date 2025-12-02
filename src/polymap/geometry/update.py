@@ -18,6 +18,12 @@ import geom
 from polymap.visuals.visuals import plot_polygon
 
 
+class Move(NamedTuple):
+    domain: FancyOrthoDomain
+    surface: Surface
+    delta: float
+
+
 class UpdateCoordsInfo(NamedTuple):
     paired_coord: PairedCoord
     ix: int
@@ -115,11 +121,10 @@ def validate_polygon(p: sp.Polygon, domain_name: str, debug=False):
         raise InvalidPolygonError(p, domain_name, reason, debug)
 
 
-def update_domain(
-    domain: FancyOrthoDomain, surface: Surface, location_delta: float, debug=False
-):
+def update_domain(move: Move, debug=False):
+    domain, surface, location_delta = move
     # NOTE: not sure this is correct, but lets just try the aligned vecto and see what happens
-    vector = make_vector_2D(surface.direction.aligned_vector) * location_delta
+    vector = make_vector_2D(surface.positive_perpendicular_vector) * location_delta
     # NOTE: the aligned vector already has a direction! would be nice if can fix so that south rooms can only move south.. but think the graph will determine this ..
 
     updated_paired_coords = update_paired_coords(

@@ -48,6 +48,13 @@ class Direction:
             return "Y"
         return "X"
 
+    @property
+    def positive_vector(self):
+        if self.aligned_vector.x < 0 or self.aligned_vector.y < 0:
+            # TODO: use get compoenent function..
+            return -1 * self.aligned_vector
+        return self.aligned_vector
+
     def __lt__(self, other):
         if isinstance(other, Direction):
             return self.name < other.name

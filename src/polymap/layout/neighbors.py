@@ -25,7 +25,7 @@ def get_candidate_surface_neighbors(layout: Layout, surf: Surface):
     res = list(
         layout.get_other_surfaces(surf, substantial_only=True)
         | where(lambda x: x.domain_name != surf.domain_name)
-        | where(lambda x: x.aligned_axis == surf.aligned_axis)
+        | where(lambda x: x.parallel_axis == surf.parallel_axis)
         | where(lambda x: surf.range.is_coincident(x.range))
         | where(lambda x: x.location >= surf.location)
     )
@@ -50,10 +50,10 @@ def make_virtual_domain(
     further_surf: Surface,
 ):
     distance_range = FancyRange(surf.location, further_surf.location)
-    axis_aligned_range = surf.range.intersection(further_surf.range, surf.aligned_axis)
+    axis_aligned_range = surf.range.intersection(further_surf.range, surf.parallel_axis)
     print(f"{axis_aligned_range=}")
 
-    if surf.aligned_axis == "X":
+    if surf.parallel_axis == "X":
         virtual_domain = FancyOrthoDomain.from_bounds(
             *axis_aligned_range.as_tuple, *distance_range.as_tuple
         )
