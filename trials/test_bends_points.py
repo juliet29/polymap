@@ -11,7 +11,7 @@ from rich import print
 
 from polymap.geometry.update import validate_polygon
 
-# TODO add to tests!
+# TODO: move to tests!
 
 
 def test_find_vector_groups():

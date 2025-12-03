@@ -155,14 +155,12 @@ def check_zeta_intersections(bends: list[ZetaBend]):
 
             pi_bend = handle_pi_bend(i, j)
             pis.append(pi_bend)
-            # print(intersection)
 
     zetas = get_remain_zetas(found_indices, bends)
     return zetas, pis
 
 
 def apply_move(move: Move):
-    print(f"Applying delta of {move.delta:.3f} to surf {move.surface.name}")
     new_dom = update_domain(move)
     new_coords = get_unique_items_in_list_keep_order(new_dom.coords)
     return FancyOrthoDomain(new_coords, name=move.domain.name)

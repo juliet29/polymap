@@ -40,7 +40,7 @@ class Surface:
         yield "ix", self.direction_ix
         yield "range", repr(self.range)
         yield "size", f"{self.range.size:.4f}"
-        yield "location", self.location
+        yield "location", f"{self.location:.4f}"
         yield "vector_norm", self.vector.norm()
 
     def __str__(self) -> str:
