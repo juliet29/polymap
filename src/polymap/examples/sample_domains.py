@@ -8,6 +8,8 @@ OrthoNames = Literal[
     "SQUARE",
     "NON_ORTHO_SQUARE",
     "SQUARE_W_EXTRA_POINTS",
+    "SQUARE_EXTRA_WEST",
+    "SQUARE_EXTRA_NORTH_WEST",
 ]
 
 ortho_coords: dict[OrthoNames, CoordsType] = {
@@ -27,6 +29,8 @@ ortho_coords: dict[OrthoNames, CoordsType] = {
         (0.5, 1),
         (0, 1),
     ],
+    "SQUARE_EXTRA_WEST": [(0, 0), (1, 0), (1, 1), (0, 1), (0, 0.5)],
+    "SQUARE_EXTRA_NORTH_WEST": [(0, 0), (1, 0), (1, 1), (0.5, 1), (0, 1), (0, 0.5)],
 }
 
 

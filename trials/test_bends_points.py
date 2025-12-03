@@ -1,10 +1,12 @@
 from utils4plans.sets import set_equality
+import pytest
 from polymap.bends.points import (
     find_new_surf_for_vector_group,
     find_vector_groups_on_domain,
-    remove_extra_points_from_domain,
+    fix_vector_group_on_domain,
+    heal_extra_points_on_domain,
 )
-from polymap.examples.sample_domains import create_ortho_domain
+from polymap.examples.sample_domains import OrthoNames, create_ortho_domain
 from rich import print
 
 from polymap.geometry.update import validate_polygon
@@ -38,7 +40,7 @@ def test_remove_extra_point_from_domain():
     og_surf_names = [i.name for i in domain.surfaces]
     print(og_surf_names)
     surfs = [domain.get_surface("north", i) for i in [0, 1]]
-    new_domain = remove_extra_points_from_domain(domain, surfs)
+    new_domain = fix_vector_group_on_domain(domain, surfs)
     new_surf_names = [i.name for i in new_domain.surfaces]
 
     og_surf_names.remove("-north_1")
@@ -48,6 +50,24 @@ def test_remove_extra_point_from_domain():
     validate_polygon(new_domain.polygon, new_domain.name)
 
     print(new_surf_names)
+
+
+domain_names: list[OrthoNames] = ["SQUARE_W_EXTRA_POINTS", "SQUARE_EXTRA_WEST"]
+
+
+@pytest.mark.parametrize("domain_name", domain_names)
+def test_heal_north(domain_name):
+    domain = create_ortho_domain(domain_name)
+    new_domain = heal_extra_points_on_domain(domain)
+    assert len(new_domain.surfaces) == 4
+    assert new_domain.is_orthogonal
+    validate_polygon(new_domain.polygon, new_domain.name)
+
+
+def test_extra_points():
+    domain = create_ortho_domain("SQUARE_EXTRA_NORTH_WEST")
+    with pytest.raises(Exception):
+        heal_extra_points_on_domain(domain)
 
 
 if __name__ == "__main__":

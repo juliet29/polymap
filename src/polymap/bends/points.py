@@ -25,23 +25,31 @@ def find_new_surf_for_vector_group(surfs: list[Surface], domain_name: str):
     return new_surf
 
 
-def remove_extra_points_from_domain(domain: FancyOrthoDomain, surfs: list[Surface]):
+def fix_vector_group_on_domain(domain: FancyOrthoDomain, surfs: list[Surface]):
+    new_surf = find_new_surf_for_vector_group(surfs, domain.name)
     surf_indices = [domain.surfaces.index(i) for i in surfs]
     min_ix, max_ix = surf_indices[0], surf_indices[-1]
-    new_surf = find_new_surf_for_vector_group(surfs, domain.name)
 
     def get_surfs(start_ix: int, end_ix: int):
         res = [domain.surfaces[ix] for ix in range(start_ix, end_ix)]
-        # print([i.name for i in res])
-
         return res
 
     len_surfs = len(domain.surfaces)
 
     new_surfs = get_surfs(0, min_ix) + [new_surf] + get_surfs(max_ix + 1, len_surfs)
 
-    # for n in new_surfs:
-    #     print(n.name)
-
     new_coords = coords_from_paired_coords_list([i.coords for i in new_surfs])
     return FancyOrthoDomain(new_coords, domain.name)
+
+
+def heal_extra_points_on_domain(domain: FancyOrthoDomain):
+    vector_groups = find_vector_groups_on_domain(domain)
+    problem_groups = list(filter(lambda x: len(x) > 1, vector_groups))
+
+    if len(problem_groups) == 0:
+        return domain
+
+    if len(problem_groups) > 1:
+        raise Exception("Should only have one problem group at a time!")
+
+    return fix_vector_group_on_domain(domain, problem_groups[0])
