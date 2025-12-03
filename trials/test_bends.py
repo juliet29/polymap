@@ -11,7 +11,7 @@ from polymap.examples.msd import MSD_IDs, get_one_msd_layout
 
 def test_bends():
     domain_name = "balcony_0"
-    id: MSD_IDs = "67372"
+    id: MSD_IDs = "146903"
     # dom = get_domain(id, domain_name)
     _, layout = get_one_msd_layout(id)
     domains = layout.domains

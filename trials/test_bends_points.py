@@ -1,0 +1,54 @@
+from utils4plans.sets import set_equality
+from polymap.bends.points import (
+    find_new_surf_for_vector_group,
+    find_vector_groups_on_domain,
+    remove_extra_points_from_domain,
+)
+from polymap.examples.sample_domains import create_ortho_domain
+from rich import print
+
+from polymap.geometry.update import validate_polygon
+
+# TODO add to tests!
+
+
+def test_find_vector_groups():
+    domain = create_ortho_domain("SQUARE_W_EXTRA_POINTS")
+    result = find_vector_groups_on_domain(domain)
+    group_names = list(map(lambda x: tuple(i.name.split("-")[1] for i in x), result))
+    print(group_names)
+
+    expected_groups = [("north_0", "north_1"), ("east_0",), ("south_0",), ("west_0",)]
+    assert set_equality(group_names, expected_groups)
+
+
+def test_create_new_surf():
+    domain = create_ortho_domain("SQUARE_W_EXTRA_POINTS")
+    surfs = [domain.get_surface("north", i) for i in [0, 1]]
+    new_surf = find_new_surf_for_vector_group(surfs, "")
+    coords = [i.as_tuple for i in new_surf.coords.as_list]
+
+    expected_coords = [(0, 1), (1, 1)]
+
+    assert coords == expected_coords
+
+
+def test_remove_extra_point_from_domain():
+    domain = create_ortho_domain("SQUARE_W_EXTRA_POINTS")
+    og_surf_names = [i.name for i in domain.surfaces]
+    print(og_surf_names)
+    surfs = [domain.get_surface("north", i) for i in [0, 1]]
+    new_domain = remove_extra_points_from_domain(domain, surfs)
+    new_surf_names = [i.name for i in new_domain.surfaces]
+
+    og_surf_names.remove("-north_1")
+    assert og_surf_names == new_surf_names
+
+    assert new_domain.is_orthogonal
+    validate_polygon(new_domain.polygon, new_domain.name)
+
+    print(new_surf_names)
+
+
+if __name__ == "__main__":
+    test_remove_extra_point_from_domain()

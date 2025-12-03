@@ -2,10 +2,15 @@ from polymap.interfaces import CoordsType
 from polymap.geometry.ortho import FancyOrthoDomain
 from typing import Literal
 
-OrthoNames = Literal["L", "BOTTOM_UP_L", "NON_ORTHO", "SQUARE", "NON_ORTHO_SQUARE"]
+OrthoNames = Literal[
+    "BOTTOM_UP_L",
+    "NON_ORTHO",
+    "SQUARE",
+    "NON_ORTHO_SQUARE",
+    "SQUARE_W_EXTRA_POINTS",
+]
 
 ortho_coords: dict[OrthoNames, CoordsType] = {
-    "L": [],
     "BOTTOM_UP_L": [(1, 1), (2, 1), (2, 2), (3, 2), (3, 3), (1, 3)],
     "NON_ORTHO": [(1, 1), (2, 2), (3, 2), (3, 3), (1, 3)],
     "SQUARE": [
@@ -15,6 +20,13 @@ ortho_coords: dict[OrthoNames, CoordsType] = {
         (0, 1),
     ],
     "NON_ORTHO_SQUARE": [(0, 0), (1, 0.1), (0.8, 1), (0, 1)],
+    "SQUARE_W_EXTRA_POINTS": [
+        (0, 0),
+        (1, 0),
+        (1, 1),
+        (0.5, 1),
+        (0, 1),
+    ],
 }
 
 
