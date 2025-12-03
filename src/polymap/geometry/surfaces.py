@@ -41,6 +41,7 @@ class Surface:
         yield "range", repr(self.range)
         yield "size", f"{self.range.size:.4f}"
         yield "location", f"{self.location:.4f}"
+        yield "vector", self.vector
         yield "vector_norm", self.vector.norm()
 
     def __str__(self) -> str:
@@ -71,6 +72,13 @@ class Surface:
     @property
     def positive_perpendicular_vector(self):
         return self.direction.positive_vector
+
+    @property
+    def rounded_norm_vector(self):
+        v = self.vector.norm()
+        return geom.Vector(
+            [round(i) for i in [v.x, v.y, v.z]]  # pyright: ignore[reportArgumentType]
+        )
 
     # @property
     # def perpendicular_axis(self):

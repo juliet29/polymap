@@ -1,6 +1,6 @@
 import geom
 from polymap.nonortho.interfaces import RotatedLinearGeoms
-from polymap.geometry.vectors import BasisVectors2D, BaseVectorNames
+from polymap.geometry.vectors import BasisVectors2D
 from rich import print
 from typing import NamedTuple
 from utils4plans.geom import Coord
@@ -28,8 +28,9 @@ def get_aligned_vector(v: geom.Vector):
 
 
 def make_ortho_coords(coords: list[Coord], vectors: list[geom.Vector]):
+    # TODO: need to put this under test for some real domains!
     aligned_vectors = [get_aligned_vector(i) for i in vectors]
-    new_coords: list[Coord] = [] # = [coords[0]]
+    new_coords: list[Coord] = []  # = [coords[0]]
 
     for coord, v in zip(coords[0:-1], aligned_vectors):
         new_coord = add_coord_and_vector(coord, v)

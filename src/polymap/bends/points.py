@@ -1,3 +1,4 @@
+from typing import Any, NamedTuple
 from polymap.geometry.ortho import FancyOrthoDomain
 from itertools import groupby
 
@@ -7,10 +8,29 @@ from polymap.interfaces import PairedCoord, coords_from_paired_coords_list
 from rich import print
 
 
-def find_vector_groups_on_domain(domain: FancyOrthoDomain):
-    result = groupby(domain.surfaces, key=lambda x: x.vector.norm())
+DEBUG = True
+
+
+class GroupByResult(NamedTuple):
+    group_name: Any
+    items: list[Any]
+
+    # @property
+    # def items(self):
+    #     return list(self.group_list)
+
+
+def find_vector_groups_on_domain(domain: FancyOrthoDomain, debug=DEBUG):
+    gres = groupby(domain.surfaces, key=lambda x: x.rounded_norm_vector)
+    result = [GroupByResult(i[0], list(i[1])) for i in gres]
+
+    if debug:
+        print("VECTOR GROUPS=")
+        for group_name, items in result:
+            print(f"{group_name}: {[i.name for i in items]}")
     # TODO: add to utils4plans, group objects without sorting...
     groups = list(map(lambda x: list(x[1]), result))
+
     return groups
 
 
@@ -47,6 +67,8 @@ def fix_vector_group_on_domain(domain: FancyOrthoDomain, surfs: list[Surface]):
 def heal_extra_points_on_domain(domain: FancyOrthoDomain):
     vector_groups = find_vector_groups_on_domain(domain)
     problem_groups = list(filter(lambda x: len(x) > 1, vector_groups))
+    # print(vector_groups)
+    # print(problem_groups)
 
     if len(problem_groups) == 0:
         return domain
