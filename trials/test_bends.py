@@ -6,6 +6,7 @@ from polymap.bends.bends import (
     find_small_surfs,
     get_domain,
 )
+from polymap.bends.iterate import iterate_clean_domain
 from polymap.bends.points import heal_extra_points_on_domain
 from polymap.bends.viz import plot_domain_move
 from polymap.examples.msd import MSD_IDs, get_one_msd_layout
@@ -38,19 +39,23 @@ def handle_domain(dom: FancyOrthoDomain, id: MSD_IDs):
 
 
 def test_bends():
-    id: MSD_IDs = "60529"
+    id: MSD_IDs = "67372"
     _, layout = get_one_msd_layout(id)
     domains = layout.domains
     for dom in domains:
-        print(f"\n{dom.name=}")
-        handle_domain(dom, id)
+        print(f"\n{dom.name.upper()=}")
+        try:
+            iterate_clean_domain(dom, id)
+        except NotImplementedError as e:
+            print(e)
+            continue
 
 
 def test_bends_one():
     domain_name = "balcony_0"
     id: MSD_IDs = "106493"
     dom = get_domain(id, domain_name)
-    handle_domain(dom, id)
+    iterate_clean_domain(dom, id)
 
 
 if __name__ == "__main__":
