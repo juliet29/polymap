@@ -12,7 +12,7 @@ from polymap.layout.graph import create_graph_for_all_surfaces_along_axis
 from polymap.layout.update import create_updated_layout
 from polymap.nonortho.dot import make_ortho_coords
 from polymap.process.interfaces import ProcessGraphPairs, ProcessLayouts
-from polymap.visuals.study import make_study_plot
+from polymap.process.viz import make_study_plot
 
 
 TOLERANCE = 0.15
@@ -37,7 +37,6 @@ class ReturnsLayout(Protocol):
 
 
 def prep_study_plot(msd_id: str, layouts: list[Layout], graph_pairs: list[GraphPairs]):
-
     pl = ProcessLayouts(msd_id, *layouts)
     pgp = ProcessGraphPairs(*graph_pairs)
     make_study_plot(pl, pgp)

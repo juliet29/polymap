@@ -1,3 +1,4 @@
+from typing import get_args
 from rich import print
 from polymap.bends.bends import (
     apply_move,
@@ -6,7 +7,7 @@ from polymap.bends.bends import (
     find_small_surfs,
     get_domain,
 )
-from polymap.bends.iterate import iterate_clean_domain
+from polymap.bends.iterate import clean_layout, iterate_clean_domain
 from polymap.bends.points import heal_extra_points_on_domain
 from polymap.bends.viz import plot_domain_move
 from polymap.examples.msd import MSD_IDs, get_one_msd_layout
@@ -51,6 +52,33 @@ def test_bends():
             continue
 
 
+def test_layout():
+    id: MSD_IDs = "57231"
+    _, layout = get_one_msd_layout(id)
+    new_layout = clean_layout(layout, layout_id=id, debug=False)
+
+
+def test_all_layouts():
+    bad_ids = []
+    good_ids = []
+    bad_domains_all = []
+    for id in get_args(MSD_IDs):
+        print(f"\n{id=}")
+        _, layout = get_one_msd_layout(id)
+        _, bad_domains = clean_layout(layout, layout_id=id, debug=False)
+        print(f"{bad_domains=}")
+        bad_domains_all.extend(bad_domains)
+
+        if not bad_domains:
+            good_ids.append(id)
+        else:
+            bad_ids.append(id)
+
+    print(f"{bad_ids=}")
+    print(f"{good_ids=}")
+    print(f"{bad_domains_all=}")
+
+
 def test_bends_one():
     domain_name = "balcony_0"
     id: MSD_IDs = "106493"
@@ -59,4 +87,4 @@ def test_bends_one():
 
 
 if __name__ == "__main__":
-    test_bends()
+    test_all_layouts()

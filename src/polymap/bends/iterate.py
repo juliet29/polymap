@@ -9,6 +9,8 @@ from polymap.geometry.ortho import FancyOrthoDomain
 from copy import deepcopy
 from polymap.bends.viz import DomainMoveDetails, plot_domain_iteration
 from polymap.geometry.surfaces import Surface
+from polymap.geometry.update import InvalidPolygonError
+from polymap.layout.interfaces import Layout
 
 DEBUG = True
 
@@ -46,7 +48,15 @@ def iterate_clean_domain(domain_: FancyOrthoDomain, layout_id: str = "", debug=D
 
     count = 0
     while surfs:
-        move_details = clean_domain(domain, surfs)
+        try:
+            move_details = clean_domain(domain, surfs)
+        except (NotImplementedError, InvalidPolygonError, Exception) as e:
+            print(f"Failure for {layout_id}-{domain.name}. {e}")
+            if not tracker:
+                tracker.append(DomainMoveDetails(domain, domain, surfs))
+            plot_domain_iteration(tracker, layout_id)
+            return
+
         tracker.append(move_details)
         domain = move_details.end_domain
         surfs = find_small_surfs(domain)
@@ -62,3 +72,24 @@ def iterate_clean_domain(domain_: FancyOrthoDomain, layout_id: str = "", debug=D
         plot_domain_iteration(tracker, layout_id)
 
     return domain
+
+
+def clean_layout(layout: Layout, layout_id: str = "", debug=DEBUG):
+    # TODO: do we assume the doms are ortho coming in?
+    bad_domains = []
+    non_balconies = list(filter(lambda x: "balcony" not in x.name, layout.domains))
+
+    new_doms = []
+    for dom in non_balconies:
+        new_dom = iterate_clean_domain(dom, layout_id, False)
+        if not new_dom:
+            bad_domains.append(f"{layout_id}_{dom.name}")
+            new_doms.append(dom)
+        else:
+            new_doms.append(new_dom)
+
+    # check is ortho
+    for dom in new_doms:
+        assert dom.is_orthogonal, f"{dom.name} is not orthogonal"
+
+    return Layout(new_doms), bad_domains

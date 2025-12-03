@@ -36,8 +36,8 @@ def make_study_plot(pl: ProcessLayouts, pgp: ProcessGraphPairs):
 
     fig.suptitle(pl.id)
 
-    save_figure(pl.id, fig)
+    # save_figure(pl.id, fig)
 
-    # plt.show()
+    plt.show()
 
     # later, save in folder for layout, along with a log file..
