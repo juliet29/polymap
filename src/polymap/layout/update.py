@@ -4,7 +4,7 @@ from utils4plans.lists import sort_and_group_objects_dict
 from utils4plans.sets import set_difference
 from rich import print
 from polymap.geometry.ortho import FancyOrthoDomain
-from polymap.geometry.update import update_domain
+from polymap.geometry.update import Move, update_domain
 from polymap.interfaces import GraphPairs
 from polymap.layout.graph import AxGraph
 from polymap.layout.interfaces import Layout
@@ -49,7 +49,7 @@ def collect_domain_changes(axgraph: AxGraph, domain_name: str, nb_pairs: GraphPa
             # raise Exception(
             #     f"Could not find {update.name} in surfaces of {domain.name}: Error {e}"
             # )
-        domain = update_domain(domain, surface, update.delta)
+        domain = update_domain(Move(domain, surface, update.delta))
 
     return domain
 

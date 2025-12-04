@@ -41,7 +41,7 @@ class Surface:
         yield "range", repr(self.range)
         yield "size", f"{self.range.size:.4f}"
         yield "location", f"{self.location:.4f}"
-        yield "vector", self.vector
+        # yield "vector", self.vector
         yield "vector_norm", self.vector.norm()
 
     def __str__(self) -> str:
@@ -68,6 +68,10 @@ class Surface:
     def parallel_axis(self):
         # NOTE: this is the axis that describes how the surface is oriented
         return self.direction.normal_axis
+
+    @property
+    def perpendicular_axis(self):
+        return self.direction.aligned_axis
 
     @property
     def positive_perpendicular_vector(self):

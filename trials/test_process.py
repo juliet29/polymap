@@ -4,7 +4,23 @@ from typing import get_args
 from rich import print
 
 
-GOOD_IDS = ["106493", "146915", "56958", "57231", "60553", "71308", "71318"]
+# GOOD_IDS = ["106493", "146915", "56958", "57231", "60553", "71308", "71318"]
+GOOD_IDS: list[MSD_IDs] = [
+    # # "146903", # bad
+    # "146915",
+    # "146965",
+    # "19792",
+    # # "48204",# bad
+    # "48205", # bad
+    # "56958",
+    # "57231",
+    # "60529",
+    # "60553",
+    # "67372",  # failed -> cannot norm 0 vector after x
+    # "67408", # same issue
+    "71308",
+    "71318",
+]
 
 
 def run_whole_process():

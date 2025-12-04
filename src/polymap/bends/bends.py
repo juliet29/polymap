@@ -46,6 +46,10 @@ class ZetaBend:
         return [self.s1, self.s2, self.s3]
 
     @property
+    def surface_names(self):
+        return [i.name for i in self.surfaces]
+
+    @property
     def surface_tuple(self):
         return (self.s1, self.s2, self.s3)
 
@@ -75,6 +79,37 @@ class PiBend:
     @property
     def surfaces(self):
         return [self.s1, self.s2, self.s3, self.s4, self.s5]
+
+    @property
+    def surface_names(self):
+        return [i.name for i in self.surfaces]
+
+    @property
+    def get_move(self):
+        return Move(self.domain, self.s3, -1 * get_nonzero_component(self.s2.vector))
+
+
+@dataclass
+class KappaBend:
+    s1: Surface
+    s2: Surface
+    s3: Surface
+    s4: Surface
+    domain: FancyOrthoDomain
+
+    def __rich_repr__(self):
+        yield "s1", self.s1
+        yield "s2", self.s2
+        yield "s3", self.s3
+        yield "s4", self.s4
+
+    @property
+    def surfaces(self):
+        return [self.s1, self.s2, self.s3, self.s4]
+
+    @property
+    def surface_names(self):
+        return [i.name for i in self.surfaces]
 
     @property
     def get_move(self):
@@ -129,6 +164,7 @@ def handle_pi_bend(b1: ZetaBend, b2: ZetaBend):
             "Zeta bends may be misordered.. add check for sorting.."
         )
     else:
+        print("Unexpected pi bend combo!")
         print(b1)
         print(b2)
         raise Exception("Unexpected pi bend combination!")
@@ -146,15 +182,20 @@ def check_zeta_intersections(bends: list[ZetaBend]):
         intersection = set_intersection(i.surfaces, j.surfaces)
 
         if intersection:
-            found_indices = update_indices(found_indices, bends, i, j)
+            # found_indices = update_indices(found_indices, bends, i, j)
 
-            if len(intersection) > 1:
+            if len(intersection) > 2:
                 raise NotImplementedError(
                     f"Haven't handled more complex bends: Intersection of size {len(intersection)}"
                 )
 
-            pi_bend = handle_pi_bend(i, j)
-            pis.append(pi_bend)
+            if len(intersection) == 2:
+                pass
+            else:
+                found_indices = update_indices(found_indices, bends, i, j)
+
+                pi_bend = handle_pi_bend(i, j)
+                pis.append(pi_bend)
 
     zetas = get_remain_zetas(found_indices, bends)
     return zetas, pis

@@ -96,7 +96,7 @@ def create_graph_for_surface(
 def create_graph_for_all_surfaces_along_axis(layout: Layout, axis: Axes):
     surfaces = list(
         layout.get_surfaces(substantial_only=True)
-        | where(lambda x: x.direction_axis == axis)
+        | where(lambda x: x.perpendicular_axis == axis)
         | where(lambda x: x.direction.name == "north" or x.direction.name == "east")
         | sort(key=lambda x: x.location)
     )

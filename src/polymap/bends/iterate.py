@@ -11,6 +11,7 @@ from polymap.bends.viz import DomainMoveDetails, plot_domain_iteration
 from polymap.geometry.surfaces import Surface
 from polymap.geometry.update import InvalidPolygonError
 from polymap.layout.interfaces import Layout
+from rich import print
 
 DEBUG = True
 
@@ -23,11 +24,12 @@ def clean_domain(domain: FancyOrthoDomain, surfs: list[Surface]):
     surfaces: list[Surface]
 
     if pis:
+        print(f"Handling PI move for {domain.name} | {pis[0].surface_names}")
         dom2 = apply_move(pis[0].get_move)
         surfaces = pis[0].surfaces
     elif zetas:
+        print(f"Handling ZETA move for {domain.name} | {zetas[0].surface_names}")
         dom2 = apply_move(zetas[0].get_move)
-
         surfaces = zetas[0].surfaces
     else:
         raise Exception("No zetas or pis")

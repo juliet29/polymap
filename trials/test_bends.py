@@ -74,14 +74,14 @@ def test_all_layouts():
         else:
             bad_ids.append(id)
 
-    print(f"{bad_ids=}")
-    print(f"{good_ids=}")
-    print(f"{bad_domains_all=}")
+    print(f"{sorted(bad_ids)=}")
+    print(f"{sorted(good_ids)=}")
+    print(f"{sorted(bad_domains_all)=}")
 
 
 def test_bends_one():
-    domain_name = "balcony_0"
-    id: MSD_IDs = "106493"
+    domain_name = "room_6"
+    id: MSD_IDs = "146903"
     dom = get_domain(id, domain_name)
     iterate_clean_domain(dom, id)
 

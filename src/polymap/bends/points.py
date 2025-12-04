@@ -8,7 +8,7 @@ from polymap.interfaces import PairedCoord, coords_from_paired_coords_list
 from rich import print
 
 
-DEBUG = True
+DEBUG = False
 
 
 class GroupByResult(NamedTuple):
