@@ -16,23 +16,26 @@ from rich import print
 DEBUG = True
 
 
-def clean_domain(domain: FancyOrthoDomain, surfs: list[Surface]):
+def determine_bend_to_fix(surfs, domain):
     zeta_bends = create_zeta_bends(surfs, domain)
 
     zetas, pis = check_zeta_intersections(zeta_bends)
 
-    surfaces: list[Surface]
-
     if pis:
         print(f"Handling PI move for {domain.name} | {pis[0].surface_names}")
-        dom2 = apply_move(pis[0].get_move)
-        surfaces = pis[0].surfaces
+        return pis[0]
     elif zetas:
         print(f"Handling ZETA move for {domain.name} | {zetas[0].surface_names}")
-        dom2 = apply_move(zetas[0].get_move)
-        surfaces = zetas[0].surfaces
+        return zetas[0]
     else:
         raise Exception("No zetas or pis")
+
+
+def clean_domain(domain: FancyOrthoDomain, surfs: list[Surface]):
+    bends_to_fix = determine_bend_to_fix(surfs, domain)
+    print(str(bends_to_fix.get_move))
+    dom2 = apply_move(bends_to_fix.get_move)
+    surfaces = bends_to_fix.surfaces
 
     dom3 = heal_extra_points_on_domain(dom2)
     return DomainMoveDetails(domain, dom3, surfaces)
@@ -54,8 +57,8 @@ def iterate_clean_domain(domain_: FancyOrthoDomain, layout_id: str = "", debug=D
             move_details = clean_domain(domain, surfs)
         except (NotImplementedError, InvalidPolygonError, Exception) as e:
             print(f"Failure for {layout_id}-{domain.name}. {e}")
-            if not tracker:
-                tracker.append(DomainMoveDetails(domain, domain, surfs))
+            attempted_fix = determine_bend_to_fix(surfs, domain)
+            tracker.append(DomainMoveDetails(domain, domain, attempted_fix.surfaces))
             plot_domain_iteration(tracker, layout_id)
             return
 

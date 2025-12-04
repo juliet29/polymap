@@ -23,6 +23,9 @@ class Move(NamedTuple):
     surface: Surface
     delta: float
 
+    def __str__(self) -> str:
+        return f"Moving {self.surface} by {self.delta:.4f}"
+
 
 class UpdateCoordsInfo(NamedTuple):
     paired_coord: PairedCoord
@@ -117,7 +120,7 @@ def validate_polygon(p: sp.Polygon, domain_name: str, debug=False):
         raise InvalidPolygonError(p, domain_name, reason, debug)
 
 
-def update_domain(move: Move, debug=False):
+def update_domain(move: Move, debug=True):
     domain, surface, location_delta = move
     # NOTE: not sure this is correct, but lets just try the aligned vecto and see what happens
     vector = make_vector_2D(surface.positive_perpendicular_vector) * location_delta

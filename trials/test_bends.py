@@ -80,11 +80,11 @@ def test_all_layouts():
 
 
 def test_bends_one():
-    domain_name = "room_6"
-    id: MSD_IDs = "146903"
+    domain_name = "kitchen_9"
+    id: MSD_IDs = "27540"
     dom = get_domain(id, domain_name)
     iterate_clean_domain(dom, id)
 
 
 if __name__ == "__main__":
-    test_all_layouts()
+    test_bends_one()
