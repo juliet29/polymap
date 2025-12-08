@@ -1,4 +1,4 @@
-from polymap.examples.msd import MSD_IDs
+from polymap.examples.msd import MSD_IDs, get_one_msd_layout
 from polymap.process.process import process_layout
 from typing import get_args
 from rich import print
@@ -39,6 +39,16 @@ def run_whole_process():
     print(good_ids)
 
 
+def count_domains():
+    len_doms = 0
+    for id in get_args(MSD_IDs):
+        id, layout = get_one_msd_layout(id)
+        lend = len(layout.domains)
+        len_doms += lend
+    print(len_doms)
+
+
 if __name__ == "__main__":
-    for id in GOOD_IDS:
-        fin_id = process_layout(id)
+    count_domains()
+    # for id in GOOD_IDS:
+    #     fin_id = process_layout(id)

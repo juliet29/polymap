@@ -1,4 +1,4 @@
-from typing import get_args
+from typing import NamedTuple, get_args
 from rich import print
 from polymap.bends.bends import (
     apply_move,
@@ -86,5 +86,27 @@ def test_bends_one():
     iterate_clean_domain(dom, id)
 
 
+class DomainName(NamedTuple):
+    id: str
+    room_type: str
+    ix: str
+
+    @property
+    def msd_id(self) -> MSD_IDs:
+        assert self.id in get_args(MSD_IDs)
+        id: MSD_IDs = self.id  # pyright: ignore[reportAssignmentType]
+        return id
+
+    @property
+    def domain_name(self):
+        return f"{self.room_type}_{self.ix}"
+
+
+def test_failing_domain(name: str):
+    dname = DomainName(*name.split("_"))
+    dom = get_domain(dname.msd_id, dname.domain_name)
+    iterate_clean_domain(dom, dname.msd_id)
+
+
 if __name__ == "__main__":
-    test_bends_one()
+    test_failing_domain("58613_kitchen_3")
