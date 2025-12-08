@@ -7,6 +7,8 @@ from polymap.layout.interfaces import Layout
 class ProcessLayouts(NamedTuple):
     id: str
     original: Layout = Layout([])
+    rotated: Layout = Layout([])
+    ortho: Layout = Layout([])
     simplified: Layout = Layout([])
     xpull: Layout = Layout([])
     ypull: Layout = Layout([])

@@ -1,4 +1,5 @@
-from typing import Any, Protocol
+from typing import Any, Protocol, get_args
+
 
 import shapely as sp
 
@@ -14,6 +15,7 @@ from polymap.layout.update import create_updated_layout
 from polymap.nonortho.dot import make_ortho_coords
 from polymap.process.interfaces import ProcessGraphPairs, ProcessLayouts
 from polymap.process.viz import make_study_plot
+from polymap.rotate.rotate import rotate_layout
 
 
 TOLERANCE = 0.15
@@ -48,7 +50,7 @@ def prep_study_plot(msd_id: str, layouts: list[Layout], graph_pairs: list[GraphP
     make_study_plot(pl, pgp)
 
 
-def process_layout(msd_id: MSD_IDs):
+def process_layout(msd_id: MSD_IDs, layout: Layout | None = None):
 
     def attempt(fx: ReturnsLayout, *args: Any, **kwargs: Any):
         try:
@@ -76,7 +78,13 @@ def process_layout(msd_id: MSD_IDs):
     layouts = []
     graph_pairs = []
 
-    id, layout = get_one_msd_layout(msd_id)
+    if not layout:
+        assert msd_id in get_args(MSD_IDs), f"MSD IDs {msd_id} is not expected.."
+        _, layout = get_one_msd_layout(msd_id)
+
+    rotated_layout = rotate_layout(layout)
+    # ortho layout
+
     simple_layout = attempt(simplify_layout, layout, id=msd_id)
     layouts.extend([layout, simple_layout])
 
