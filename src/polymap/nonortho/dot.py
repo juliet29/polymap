@@ -17,6 +17,8 @@ def add_coord_and_vector(c: Coord, v: geom.Vector):
 
 
 def get_aligned_vector(v: geom.Vector):
+    # NOTE: goal here is to find the most aligned basis vector by finding the most alligned dot product. this also helps to compute the maagnitude of the aligned vector..
+    # however, in some cases, the vector and its magnitude is pretty clear, and should just do that..
     dot_prods = [DotProdCombo(b, v.dot(b)) for b in BasisVectors2D.vectors]
     sorted_dot_prods = sorted(dot_prods, key=lambda x: x.dot_prod, reverse=True)
     # print(sorted_dot_prods)
@@ -35,6 +37,8 @@ def make_ortho_coords(coords: list[Coord], vectors: list[geom.Vector]):
     for coord, v in zip(coords[0:-1], aligned_vectors):
         new_coord = add_coord_and_vector(coord, v)
         new_coords.append(new_coord)
+        #  a better approach here would be to add the vectors, and then extract the coords..
+        #  pr maybe its how we calc coords in the domain
     # new_coords.append(coords[0])
 
     return new_coords

@@ -40,6 +40,30 @@ def simplify_layout(layout: Layout, id: str = "", tolerance: float = TOLERANCE):
     return new_layout
 
 
+def make_ortho_layout(layout: Layout):
+
+    def make_ortho_doms(dom: FancyOrthoDomain):
+        if not dom.is_orthogonal:
+            print(f"Resolving non-ortho on {dom.name}")
+
+            coords = make_ortho_coords(dom.normalized_coords, dom.vectors)
+
+            new_dom = FancyOrthoDomain(coords, name=dom.name)
+            try:
+                assert new_dom.is_orthogonal
+            except AssertionError:
+                print(f"{new_dom.name} is not ortho after trying to ortho")
+                new_dom.summarize_vectors
+                raise Exception("Failed to ortho domains")
+            return new_dom
+
+        print(f"No non-ortho on {dom.name}")
+        return dom
+
+    new_doms = map(lambda x: make_ortho_doms(x), layout.domains)
+    return Layout(list(new_doms))
+
+
 class ReturnsLayout(Protocol):
     def __call__(self, *args: Any, **kwds: Any) -> Layout: ...
 
@@ -82,11 +106,14 @@ def process_layout(msd_id: MSD_IDs, layout: Layout | None = None):
         assert msd_id in get_args(MSD_IDs), f"MSD IDs {msd_id} is not expected.."
         _, layout = get_one_msd_layout(msd_id)
 
-    rotated_layout = rotate_layout(layout)
+    angle, rotated_layout = rotate_layout(layout)
+    layouts.extend([layout, rotated_layout])
+    ortho_layout = attempt(make_ortho_layout, rotated_layout)
+    layouts.append(ortho_layout)
     # ortho layout
 
-    simple_layout = attempt(simplify_layout, layout, id=msd_id)
-    layouts.extend([layout, simple_layout])
+    simple_layout = attempt(simplify_layout, ortho_layout, id=msd_id)
+    layouts.append(simple_layout)
 
     Gx = attempt_make_graph(simple_layout, "X")
     graph_pairs.append(Gx.nb_pairs)

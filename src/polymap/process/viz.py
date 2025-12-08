@@ -25,12 +25,12 @@ def make_study_plot(pl: ProcessLayouts, pgp: ProcessGraphPairs):
     print("Y-GRAPH: ")
     print(pgp.y)
 
-    fig, axs = plt.subplots(ncols=2, nrows=3, sharex=True, sharey=True)
+    fig, axs = plt.subplots(ncols=2, nrows=4, sharex=True, sharey=True)
 
     ax0, ax1, ax2, ax3, ax4, ax5, ax6, ax7 = axs.flatten()
 
     plot_layout(pl.original, str(pl.id), ax0, show=False, add_labels=True)
-    plot_layout(pl.rotated, "rotated", ax1, show=False, add_labels=False)
+    plot_layout(pl.rotated, "rotated", ax1, show=False, add_labels=True)
     plot_layout(pl.ortho, "ortho", ax2, show=False, add_labels=False)
     plot_layout(pl.simplified, "simplified", ax3, show=False, add_labels=False)
 

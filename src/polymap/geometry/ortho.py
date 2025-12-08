@@ -11,6 +11,7 @@ from polymap.geometry.surfaces import create_surface, index_surfaces
 from polymap.geometry.vectors import (
     DirectionNames,
     is_perp_to_basis_vectors,
+    pretty_print_vector,
     vector_from_coords,
 )
 from polymap.interfaces import PairedCoord
@@ -163,9 +164,18 @@ class FancyOrthoDomain(OrthoDomain):
 
     @property
     def summarize_surfaces(self):
+        # NOTE: this ignores small surfaces!
         print(self.name)
         for i in sorted(self.substantial_surfaces, key=lambda surf: surf.direction):
             print(f"{i.name:<20} | {i.range.size:.2f}")
+
+    @property
+    def summarize_vectors(self):
+        for ix, i in enumerate(self.vectors):
+            if is_perp_to_basis_vectors(i):
+                print(f"{ix:>3}| {pretty_print_vector(i)}")
+            else:
+                print(f"{ix:>3}| {i} | NOT ORTHO")
 
     def get_surface(self, direction_name: DirectionNames, direction_ix: int = 0):
         return get_unique_one(

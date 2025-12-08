@@ -40,7 +40,15 @@ def test_plotting_layout_with_labels():
     layx.domain_names
 
     # return Gx, Gy
+    #
+
+
+def test_print_domain_vectors():
+    id, layout = get_one_msd_layout()
+    dom = layout.domains[0]
+    dom.summarize_vectors
 
 
 if __name__ == "__main__":
-    res = test_plotting_layout_with_labels()
+    test_print_domain_vectors()
+    # res = test_plotting_layout_with_labels()

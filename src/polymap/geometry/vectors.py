@@ -3,7 +3,7 @@ from utils4plans.geom import Coord
 from utils4plans.lists import get_unique_one
 import geom
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, get_args
 from typing import TypeVar
 import numpy as np
 
@@ -11,6 +11,8 @@ T = TypeVar("T")
 
 
 Axes = Literal["X", "Y"]
+
+VectorComponents = Literal["x", "y", "z"]
 
 
 class BasisVectors:
@@ -80,6 +82,13 @@ class CardinalDirections:
             raise Exception(f"{v} has 0 or many potential matches: {matches}")
 
 
+def get_component(v: geom.Vector, comp: VectorComponents):
+    try:
+        return v.__getattribute__(comp)
+    except (ValueError, AttributeError, KeyError):
+        return 0
+
+
 def vector2D_from_coord(c: Coord):
     return geom.Vector(c.as_tuple)
 
@@ -89,7 +98,19 @@ def vector_from_coords(c1: Coord, c2: Coord, _2D=False):
         v1, v2 = [vector2D_from_coord(i) for i in [c1, c2]]
     else:
         v1, v2 = [vector3D_from_coord(i) for i in [c1, c2]]
-    return v2 - v1
+    v = v2 - v1
+    true_x, true_y = (
+        v.x,
+        v.y,
+    )
+    if np.isclose(get_component(v, "x"), 0):
+        true_x = 0
+    if np.isclose(get_component(v, "y"), 0):
+        true_y = 0
+    if _2D:
+        return geom.Vector([true_x, true_y])
+
+    return geom.Vector([true_x, true_y, v.z])
 
 
 def vector3D_from_coord(c: Coord):
@@ -154,3 +175,18 @@ def make_vector_2D(v: geom.Vector):
     if len(v) == 3:
         assert v[2] == 0
     return geom.Vector([v[0], v[1]])
+
+
+def pretty_print_vector(v: geom.Vector):
+    def print_component(f: float):
+        if f == 0:
+            return "0"
+        else:
+            return f"{f:.2f}"
+
+    comps = map(
+        lambda x: print_component(get_component(v, x)), get_args(VectorComponents)
+    )
+    x, y, z = comps
+    res = f"[{x}, {y}, {z}]"
+    return res
