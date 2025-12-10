@@ -142,7 +142,7 @@ class KappaBend(Bend):
         m1 = Move(self.domain, self.s1, get_nonzero_component(self.s2.vector))
 
         m2 = Move(self.domain, self.s2, get_nonzero_component(self.s1.vector))
-        return [m1, m2]
+        return [m1, m2]  # [m1, m2]
 
 
 @dataclass

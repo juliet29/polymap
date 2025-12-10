@@ -37,26 +37,34 @@ def test_fix_kappa():
     #
 
 
-BAD_DOMAINS = [
-    "106493_kitchen_7",
-    "22940_corridor_6",
-    "27540_corridor_1",
-    "27540_kitchen_9",
-    "27540_shaft_10",
-    "49943_room_8",
-    "49943_room_14",
-    "49943_room_18",
-    "49943_corridor_21",
-    "58613_kitchen_3",
-    "60532_corridor_5",
+all_bad_doms2 = [
+    # pi bends at the end of the vector list
+    "106493-kitchen_7",  # invalid pi bend
+    "27540-shaft_10",  # bad pi bend? -> reverse..
+    # kappa that is gamma
+    # "146915-living_room_8", # kappa that is gamma
+    "27540-kitchen_9",  # kappa that is really gamma
+    # "27540-living_dining_4", # kappa that is gamma
+    "48205-room_9",  # kappa that is gamma
+    # kappas that are inner bends...
+    "146915-kitchen_5",  # bad kappa
+    "146965-kitchen_5",  # bad kappa
+    "49943-bathroom_0",  # inner kappa / bad kappa
+    "49943-room_18",  # inner kappa
+    "49943-room_4",  # inner kappa
+    # vectors not getting cleaned up
+    "146915-room_6",  # pi-bend, zero vector not cleaned up..
+    "71308-kitchen_0",  # zeta, zero vector not cleaned up..
+    "71318-kitchen_5",  # zeta, zero vector not cleaned up
 ]
-geom_fails = [
-    "27540_kitchen_9",
-    "49943_room_8",
-    "49943_room_14",
-    "49943_room_18",
-    "49943_corridor_21",
-    "60532_corridor_5",
+
+inner_bend_kappas = [
+    # kappas that are inner bends...
+    "146915-kitchen_5",  # bad kappa
+    "146965-kitchen_5",  # bad kappa
+    "49943-bathroom_0",  # inner kappa / bad kappa
+    "49943-room_18",  # inner kappa
+    "49943-room_4",  # inner kappa
 ]
 
 
@@ -80,9 +88,11 @@ def test_fix_bad_domains():
     def test(name):
 
         dname, dom = get_msd_domain(name)
-        res = iterate_clean_domain(dom, dname.msd_id, show_complete_iteration=False)
+        res = iterate_clean_domain(
+            dom, dname.msd_id, show_complete_iteration=False, show_failure=True
+        )
 
-    for name in BAD_DOMAINS:
+    for name in inner_bend_kappas:
         print(f"[bold italic yellow]\n{name}")
         try:
             test(name)
@@ -94,8 +104,8 @@ def test_fix_bad_domains():
 
 
 def test_bends_one():
-    domain_name = "room_18"
-    id: MSD_IDs = "49943"
+    domain_name = "kitchen_5"
+    id: MSD_IDs = "146915"
     dom = get_domain(id, domain_name)
     bh = make_bend_holder(dom)
     iterate_clean_domain(dom, id, show_failure=True)

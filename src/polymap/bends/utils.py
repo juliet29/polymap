@@ -35,6 +35,8 @@ class DomainName(NamedTuple):
 
 
 def get_msd_domain(name: str):
-    dname = DomainName(*name.split("_"))
+    layoud_id, name = name.split("-")
+    room_name, ix = name.split("_")
+    dname = DomainName(layoud_id, room_name, ix)
     dom = get_domain(dname.msd_id, dname.domain_name)
     return dname, dom

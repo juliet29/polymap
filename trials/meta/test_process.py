@@ -49,6 +49,6 @@ def count_domains():
 
 
 if __name__ == "__main__":
-    count_domains()
+    run_whole_process()
     # for id in GOOD_IDS:
     #     fin_id = process_layout(id)

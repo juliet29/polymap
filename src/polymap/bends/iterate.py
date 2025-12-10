@@ -145,7 +145,7 @@ def iterate_clean_domain(
                     )
                 )
                 plot_domain_iteration(tracker, layout_id)
-            raise DomainCleanFailureReport(domain.name, e.fail_type)
+            raise DomainCleanFailureReport(f"{layout_id}-{domain.name}", e.fail_type)
 
         tracker.append(move_details)
         domain = move_details.end_domain
@@ -158,7 +158,7 @@ def iterate_clean_domain(
         count += 1
         if count > N_ITER:
             raise DomainCleanFailureReport(
-                domain.name, f"Exceeded number of iterations={N_ITER}"
+                f"{layout_id}-{domain.name}", f"Exceeded number of iterations={N_ITER}"
             )
 
     if show_complete_iteration:
@@ -176,12 +176,12 @@ def clean_layout(layout: Layout, layout_id: str = "", debug=DEBUG):
 
     new_doms = []
     for dom in non_balconies:
-        new_dom = iterate_clean_domain(dom, layout_id, False)
-        if not new_dom:
-            bad_domains.append(f"{layout_id}_{dom.name}")
-            new_doms.append(dom)
-        else:
+        try:
+            new_dom = iterate_clean_domain(dom, layout_id, False)
             new_doms.append(new_dom)
+        except DomainCleanFailureReport as e:
+            bad_domains.append(f"{e.domain}")
+            new_doms.append(dom)
 
     # check is ortho
     for dom in new_doms:

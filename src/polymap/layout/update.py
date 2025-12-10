@@ -1,14 +1,16 @@
 from copy import deepcopy
 from typing import NamedTuple
+from warnings import warn
+
+from rich import print
 from utils4plans.lists import sort_and_group_objects_dict
 from utils4plans.sets import set_difference
-from rich import print
+
+from polymap.geometry.modify.update import Move, update_domain
 from polymap.geometry.ortho import FancyOrthoDomain
-from polymap.geometry.update import Move, update_domain
 from polymap.interfaces import GraphPairs
 from polymap.layout.graph import AxGraph
 from polymap.layout.interfaces import Layout
-from warnings import warn
 
 
 def get_unchanged_domains(layout: Layout, new_doms: list[FancyOrthoDomain]):
