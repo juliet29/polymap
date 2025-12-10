@@ -39,13 +39,13 @@ def test_identify_kappa():
 
 
 def test_identify_gamma():
-    domain_name = "room_14"
-    id: MSD_IDs = "49943"
+    domain_name = "room_9"
+    id: MSD_IDs = "48205"
     dom = get_domain(id, domain_name)
     plot_polygon(dom.polygon, show=True)
     dom.summarize_surfaces()
     bh = make_bend_holder(dom)
-    # assert len(bh.etas) == 1
+    assert len(bh.gammas) == 1
     #
 
 

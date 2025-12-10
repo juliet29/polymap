@@ -150,6 +150,25 @@ class GammaBend(Bend):
     s1: Surface
     s2: Surface
     s3: Surface
+    domain: FancyOrthoDomain
+
+    def __rich_repr__(self):
+        yield "s1", make_surface_rep(self.s1)
+        yield "s2", make_surface_rep(self.s2)
+        yield "s3", make_surface_rep(self.s3)
+
+    @property
+    def surfaces(self):
+        return [self.s1, self.s2, self.s3]
+
+    @property
+    def surface_names(self):
+        return [i.name for i in self.surfaces]
+
+    @property
+    def get_move(self):
+        m1 = Move(self.domain, self.s2, get_nonzero_component(self.s3.vector))
+        return [m1]
 
 
 class ProblemIdentifyingBend(Exception):
@@ -174,18 +193,22 @@ class BendHolder:
         print(f"BendHolder: {sdata}")
 
     def get_next_bend(self):
-        if self.kappas:
+        if self.gammas:
+            res = self.gammas[0]
+        elif self.betas:
+            res = self.betas[0]
+        elif self.kappas:
             res = self.kappas[0]
         elif self.pis:
             res = self.pis[0]
-        elif self.betas:
-            res = self.betas[0]
         elif self.zetas:
             res = self.zetas[0]
         else:
             raise ProblemIdentifyingBend(
                 "Bend holder is empty!",
-                chain_flatten([self.kappas, self.pis, self.betas, self.zetas]),
+                chain_flatten(
+                    [self.gammas, self.kappas, self.pis, self.betas, self.zetas]
+                ),
             )
 
         print(f"Next bend is {str(res)}")

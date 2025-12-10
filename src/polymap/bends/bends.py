@@ -36,8 +36,12 @@ def get_domain(msd_id: MSD_IDs, domain_name: str):
     return dom
 
 
-def find_small_surfs(domain: FancyOrthoDomain, tolerance=TOLERANCE):
-    small_surfs = list(filter(lambda x: x.range.size <= tolerance, domain.surfaces))
+def is_small_surf(surf: Surface, tolerance: float = TOLERANCE):
+    return surf.range.size <= tolerance
+
+
+def find_small_surfs(domain: FancyOrthoDomain, tolerance: float = TOLERANCE):
+    small_surfs = list(filter(lambda x: is_small_surf(x, tolerance), domain.surfaces))
     return small_surfs
 
 
@@ -57,7 +61,7 @@ def create_eta_bends(small_surfs: list[Surface], domain: FancyOrthoDomain):
 
 
 def update_indices(
-    found_indices: list[int], bends: list[EtaBend], b1: EtaBend, b2: EtaBend
+    found_indices: list[int], bends: list[ZetaBend], b1: ZetaBend, b2: ZetaBend
 ):
     ix1 = bends.index(b1)
     ix2 = bends.index(b2)
@@ -65,7 +69,7 @@ def update_indices(
     return found_indices
 
 
-def get_remain_etas(found_indices: list[int], bends: list[EtaBend]):
+def get_remain_zetas(found_indices: list[int], bends: list[ZetaBend]):
     remain_indices = set_difference(list(range(len(bends))), found_indices)
     return list(map(lambda x: bends[x], remain_indices))
 
@@ -90,18 +94,14 @@ def handle_kappa_bend(b1: EtaBend, b2: EtaBend):
         raise ProblemIdentifyingBend("Unexpected kappa bend combo", [b1, b2])
 
 
-def handle_gamma_bend(b1: EtaBend, b2: EtaBend):
-    return GammaBend(*b1.surfaces)
-
-
-def handle_complex_bend(bh: BendHolder, i: EtaBend, j: EtaBend, len_interesection: int):
+def handle_complex_bend(
+    bh: BendHolder, i: ZetaBend, j: ZetaBend, len_interesection: int
+):
     match len_interesection:
         case 1:
             bh.pis.append(handle_pi_bend(i, j))
         case 2:
             bh.kappas.append(handle_kappa_bend(i, j))
-        case 3:
-            bh.gammas.append(handle_gamma_bend(i, j))
         case _:
             raise ProblemIdentifyingBend(
                 f"Haven't handled zeta intersection of size {len_interesection}", [i, j]
@@ -115,13 +115,15 @@ def distinguish_eta_bends(bend_holder: BendHolder):
         zeta_cond = eta.a.direction == eta.b.direction
         beta_cond = (
             eta.a.direction.aligned_vector == -1 * eta.b.direction.aligned_vector
+            and not is_small_surf(eta.a)
+            and not is_small_surf(eta.b)
         )
         if zeta_cond:
             bend_holder.zetas.append(ZetaBend.from_eta(eta))
         elif beta_cond:
             bend_holder.betas.append(BetaBend.from_eta(eta))
         else:
-            raise ProblemIdentifyingBend("Invalid ZetaBend!", [eta])
+            raise ProblemIdentifyingBend("Invalid EtaBend!", [eta])
         return bend_holder
 
     for eta in bend_holder.etas:
@@ -130,50 +132,49 @@ def distinguish_eta_bends(bend_holder: BendHolder):
     return bend_holder
 
 
-def check_eta_intersections(bends: list[EtaBend]) -> BendHolder:
-    if not bends or len(bends) == 1:
-
-        bend_holder = distinguish_eta_bends(BendHolder(etas=bends))
+def get_gamma_bends(bend_holder: BendHolder):
+    def get_gamma(eta: EtaBend):
+        gamma_cond = all(map(lambda x: is_small_surf(x), eta.surfaces))
+        if gamma_cond:
+            g = GammaBend(*eta.surface_tuple, eta.domain)
+            bend_holder.gammas.append(g)
+            bend_holder.etas.remove(eta)
 
         return bend_holder
 
+    # this is mesusy and bad.. TODO: dont iterate over something that is changing..
+    for eta in bend_holder.etas:
+        bend_holder = get_gamma(eta)
+    return bend_holder
+
+
+def check_eta_intersections(bends: list[EtaBend]) -> BendHolder:
+    if not bends:
+        return BendHolder()
+
+    bh = BendHolder(etas=bends)
+    bh = get_gamma_bends(bh)
+    bh = distinguish_eta_bends(bh)
+
+    # NOTE: only zetas will combine to create kappas and pis.. other bends have already been determined
+    if len(bh.zetas) == 1:
+        return bh
+
     found_indices: list[int] = []
 
-    combos = combinations(bends, 2)
-    bend_holder = BendHolder()
+    combos = combinations(bh.zetas, 2)
     for i, j in combos:
         intersection = set_intersection(i.surfaces, j.surfaces)
 
         if intersection:
-            found_indices = update_indices(found_indices, bends, i, j)
-            bend_holder = handle_complex_bend(bend_holder, i, j, len(intersection))
+            found_indices = update_indices(found_indices, bh.zetas, i, j)
+            bh = handle_complex_bend(bh, i, j, len(intersection))
 
-    etas = get_remain_etas(found_indices, bends)
-    bend_holder.etas.extend(etas)
-    bend_holder = distinguish_eta_bends(bend_holder)
-    return bend_holder
+    zetas = get_remain_zetas(found_indices, bh.zetas)
+    bh.zetas = zetas
+    return bh
 
 
-# TODO go back to how was before!
-# def apply_move(moves: list[Move], debug=False):
-#     if len(moves) == 1:
-#         move = moves[0]
-#         move2 = None
-#     elif len(moves) == 2:
-#         move, move2 = moves
-#     else:
-#         raise Exception("Bad moves")
-#     try:
-#         new_dom = update_domain(move, debug=debug)
-#     except InvalidPolygonError as e:
-#         if move2:
-#             try:
-#                 new_dom = update_domain(move2, debug=debug)
-#             except InvalidPolygonError as e:
-#                 raise InvalidPolygonError(move.domain.polygon, str(e), move.domain.name)
-#
-#         else:
-#             raise InvalidPolygonError(move.domain.polygon, str(e), move.domain.name)
 def apply_move(moves: list[Move], delete: Delete | None = None) -> FancyOrthoDomain:
     new_dom = None
 
