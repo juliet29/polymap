@@ -1,4 +1,7 @@
 from typing import Any, NamedTuple
+import shapely as sp
+from utils4plans.geom import tuple_list_from_list_of_coords
+from polymap.geometry.modify.validate import validate_polygon
 from polymap.geometry.ortho import FancyOrthoDomain
 from itertools import groupby
 
@@ -49,7 +52,9 @@ def find_new_surf_for_vector_group(surfs: list[Surface], domain_name: str):
     return new_surf
 
 
-def fix_vector_group_on_domain(domain: FancyOrthoDomain, surfs: list[Surface]):
+def fix_vector_group_on_domain(
+    domain: FancyOrthoDomain, surfs: list[Surface], show_failing_polygon=False
+):
     print(f"surf group to heal: {[i.name for i in surfs]}")
     new_surf = find_new_surf_for_vector_group(surfs, domain.name)
     surf_indices = [domain.surfaces.index(i) for i in surfs]
@@ -64,7 +69,10 @@ def fix_vector_group_on_domain(domain: FancyOrthoDomain, surfs: list[Surface]):
     new_surfs = get_surfs(0, min_ix) + [new_surf] + get_surfs(max_ix + 1, len_surfs)
 
     new_coords = coords_from_paired_coords_list([i.coords for i in new_surfs])
-    return FancyOrthoDomain(new_coords, domain.name)
+    test_poly = sp.Polygon(tuple_list_from_list_of_coords(new_coords))
+    validate_polygon(test_poly, domain.name, show_failing_polygon)
+    dom = FancyOrthoDomain(new_coords, domain.name)
+    return dom
 
 
 def heal_extra_points_on_domain(domain: FancyOrthoDomain):

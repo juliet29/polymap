@@ -1,21 +1,12 @@
 from typing import NamedTuple
-from polymap.bends.bends import find_small_surfs, get_domain
+
+from polymap.bends.bends import get_domain
 import shapely as sp
-from polymap.bends.iterate import determine_bend_to_fix, iterate_clean_domain
+from polymap.bends.iterate import DomainCleanFailureReport, iterate_clean_domain
 from polymap.bends.utils import get_msd_domain, make_bend_holder
 from polymap.examples.msd import MSD_IDs
-from polymap.geometry.modify.update import update_domain
 from polymap.visuals.visuals import plot_polygon
 from rich import print
-
-
-def test_bends_one():
-    domain_name = "kitchen_3"
-    id: MSD_IDs = "58613"
-    dom = get_domain(id, domain_name)
-    surfs = find_small_surfs(dom)
-    bends_to_fix = determine_bend_to_fix(surfs, dom)
-    update_domain(bends_to_fix.get_move)
 
 
 def plot_coords():
@@ -75,9 +66,10 @@ class Failures(NamedTuple):
 
 
 def summarize_failures(fails: list[Failures]):
+    print(f"[bold]\nSummarizing run - {len(fails)} failures:")
     print([f.name for f in fails])
     print("geom fails")
-    print([f.name for f in fails if "POLYGON" in f.reason])
+    print([f.name for f in fails if "Move" in f.reason])
     for f in fails:
         print(f)
 
@@ -88,17 +80,26 @@ def test_fix_bad_domains():
     def test(name):
 
         dname, dom = get_msd_domain(name)
-        res = iterate_clean_domain(dom, dname.msd_id, debug=True)
+        res = iterate_clean_domain(dom, dname.msd_id, show_complete_iteration=False)
 
-    for name in geom_fails:
+    for name in BAD_DOMAINS:
         print(f"[bold italic yellow]\n{name}")
         try:
             test(name)
-        except Exception as e:
+        except DomainCleanFailureReport as e:
             fails.append(Failures(name, str(e)))
             print(f"[bold italic magenta]{name} failed in outer loop")
 
     summarize_failures(fails)
+
+
+def test_bends_one():
+    domain_name = "room_18"
+    id: MSD_IDs = "49943"
+    dom = get_domain(id, domain_name)
+    bh = make_bend_holder(dom)
+    iterate_clean_domain(dom, id, show_failure=True)
+    # apply_move(bh.betas[0].get_move)
 
 
 if __name__ == "__main__":

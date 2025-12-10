@@ -18,6 +18,7 @@ from polymap.interfaces import (
 )
 import geom
 from polymap.geometry.modify.validate import validate_polygon
+from rich import print
 
 
 class Move(NamedTuple):
@@ -26,7 +27,7 @@ class Move(NamedTuple):
     delta: float
 
     def __str__(self) -> str:
-        return f"Moving {self.surface} by {self.delta:.4f}"
+        return f"[green italic]Moving {self.surface} by {self.delta:.4f}"
 
 
 class UpdateCoordsInfo(NamedTuple):
@@ -90,8 +91,9 @@ def update_paired_coords(
     return paired_coords
 
 
-def update_domain(move: Move, delete: Delete | None = None, debug=True):
+def update_domain(move: Move, delete: Delete | None = None, show_failing_polygon=False):
     domain, surface, location_delta = move
+    print(str(move))
     vector = make_vector_2D(surface.positive_perpendicular_vector) * location_delta
     updated_paired_coords = update_paired_coords(
         domain.paired_coords, surface.coords, vector
@@ -108,6 +110,7 @@ def update_domain(move: Move, delete: Delete | None = None, debug=True):
     coords = coords_from_paired_coords_list(updated_paired_coords)
 
     test_poly = sp.Polygon(tuple_list_from_list_of_coords(coords))
-    validate_polygon(test_poly, domain.name, debug)
+
+    validate_polygon(test_poly, domain.name, show_failing_polygon)
 
     return FancyOrthoDomain(coords=coords, name=domain.name)

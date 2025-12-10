@@ -14,6 +14,7 @@ class DomainMoveDetails(NamedTuple):
     start_domain: FancyOrthoDomain
     end_domain: FancyOrthoDomain
     surfs: list[Surface]
+    show_second_surf: bool = True
 
 
 def plot_domain_and_surf(
@@ -30,7 +31,7 @@ def plot_domain_and_surf(
 
 
 def plot_domain_move_only(dmd: DomainMoveDetails, ax: Axes, ax2: Axes):
-    domain, domain2, surfs = dmd
+    domain, domain2, surfs, show_second_surf = dmd
     surf_color: Color = "saddlebrown"
 
     plot_polygon(
@@ -43,7 +44,9 @@ def plot_domain_move_only(dmd: DomainMoveDetails, ax: Axes, ax2: Axes):
         domain2.polygon,
         ax=ax2,
     )
-    plotting.plot_line(lines, ax=ax2, color=surf_color, alpha=0.4, add_points=False)
+
+    if show_second_surf:
+        plotting.plot_line(lines, ax=ax2, color=surf_color, alpha=0.4, add_points=False)
 
 
 def plot_domain_move(

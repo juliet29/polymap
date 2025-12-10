@@ -1,8 +1,11 @@
 import geom
 from dataclasses import dataclass, field
+
+from utils4plans.lists import chain_flatten
 from polymap.geometry.modify.update import Move
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.surfaces import Surface
+from rich import print
 
 
 def get_nonzero_component(v: geom.Vector):
@@ -29,10 +32,6 @@ class Bend:
     def __str__(self):
         return f"{type(self)}({self.surface_names})"
 
-    # @property
-    # def first(self):
-    #     return self.surfaces[0]
-
 
 @dataclass
 class EtaBend(Bend):
@@ -42,9 +41,9 @@ class EtaBend(Bend):
     domain: FancyOrthoDomain
 
     def __rich_repr__(self):
-        yield "a", self.a
-        yield "s1", self.s1
-        yield "b", self.b
+        yield "a", make_surface_rep(self.a)
+        yield "s1", make_surface_rep(self.s1)
+        yield "b", make_surface_rep(self.b)
 
     @property
     def surfaces(self):
@@ -58,20 +57,18 @@ class EtaBend(Bend):
     def surface_tuple(self):
         return (self.a, self.s1, self.b)
 
-    @property
-    def get_move(self):
-        m = Move(
-            self.domain, self.a, get_nonzero_component(self.s1.vector)
-        )  # TODO: this should really be get value, for the case of vertical bend..
-
-        return [m]
-
 
 @dataclass
 class ZetaBend(EtaBend):
     @classmethod
     def from_eta(cls, e: EtaBend):
         return cls(*e.surface_tuple, e.domain)
+
+    @property
+    def get_move(self):
+        m = Move(self.domain, self.a, get_nonzero_component(self.s1.vector))
+
+        return [m]
 
 
 @dataclass
@@ -80,6 +77,12 @@ class BetaBend(EtaBend):
     @classmethod
     def from_eta(cls, e: EtaBend):
         return cls(*e.surface_tuple, e.domain)
+
+    @property
+    def get_move(self):
+        m = Move(self.domain, self.s1, get_nonzero_component(self.b.vector))
+
+        return [m]
 
 
 @dataclass
@@ -92,11 +95,11 @@ class PiBend(Bend):
     domain: FancyOrthoDomain
 
     def __rich_repr__(self):
-        yield "a", self.a
-        yield "s1", self.s1
-        yield "b", self.b
-        yield "s2", self.s2
-        yield "c", self.c
+        yield "a", make_surface_rep(self.a)
+        yield "s1", make_surface_rep(self.s1)
+        yield "b", make_surface_rep(self.b)
+        yield "s2", make_surface_rep(self.s2)
+        yield "c", make_surface_rep(self.c)
 
     @property
     def surfaces(self):
@@ -149,6 +152,12 @@ class GammaBend(Bend):
     s3: Surface
 
 
+class ProblemIdentifyingBend(Exception):
+    def __init__(self, reason: str, bends: list[Bend]) -> None:
+        self.reason = reason
+        self.bends = bends
+
+
 @dataclass
 class BendHolder:
     etas: list[EtaBend] = field(default_factory=list)
@@ -159,8 +168,10 @@ class BendHolder:
     gammas: list[GammaBend] = field(default_factory=list)
 
     def summarize(self):
+        sdata = {}
         for name, val in self.__dict__.items():
-            print(f"{name}: {len(val)}")
+            sdata[name] = len(val)
+        print(f"BendHolder: {sdata}")
 
     def get_next_bend(self):
         if self.kappas:
@@ -172,7 +183,10 @@ class BendHolder:
         elif self.zetas:
             res = self.zetas[0]
         else:
-            raise Exception("Bend holder is empty!")
+            raise ProblemIdentifyingBend(
+                "Bend holder is empty!",
+                chain_flatten([self.kappas, self.pis, self.betas, self.zetas]),
+            )
 
         print(f"Next bend is {str(res)}")
         return res

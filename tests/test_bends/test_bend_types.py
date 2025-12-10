@@ -11,7 +11,15 @@ def test_identify_zeta():
     id: MSD_IDs = "67372"
     dom = get_domain(id, domain_name)
     bh = make_bend_holder(dom)
-    assert len(bh.etas) == 1
+    assert len(bh.zetas) == 1
+
+
+def test_identify_beta():
+    domain_name = "kitchen_9"
+    id: MSD_IDs = "27540"
+    dom = get_domain(id, domain_name)
+    bh = make_bend_holder(dom)
+    assert len(bh.betas) == 1
 
 
 def test_identify_pi():
@@ -30,7 +38,7 @@ def test_identify_kappa():
     assert len(bh.kappas) == 1
 
 
-def test_identify_eta():
+def test_identify_gamma():
     domain_name = "room_14"
     id: MSD_IDs = "49943"
     dom = get_domain(id, domain_name)
@@ -50,4 +58,4 @@ def see_bh_general(domain_name: str, id: MSD_IDs):
 
 
 if __name__ == "__main__":
-    see_bh_general("room_8", "49943")
+    test_identify_beta()
