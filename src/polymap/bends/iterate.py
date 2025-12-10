@@ -1,7 +1,7 @@
 from polymap.bends.bends import (
     apply_move,
-    check_zeta_intersections,
-    create_zeta_bends,
+    check_eta_intersections,
+    create_eta_bends,
     find_small_surfs,
 )
 from polymap.bends.points import heal_extra_points_on_domain
@@ -17,9 +17,9 @@ DEBUG = True
 
 
 def determine_bend_to_fix(surfs, domain, verbose=True):
-    zeta_bends = create_zeta_bends(surfs, domain)
+    zeta_bends = create_eta_bends(surfs, domain)
 
-    bend_holder = check_zeta_intersections(zeta_bends)
+    bend_holder = check_eta_intersections(zeta_bends)
 
     if verbose:
         print(f"[bold]Bend Holder for {domain.name}")
@@ -54,6 +54,7 @@ def iterate_clean_domain(domain_: FancyOrthoDomain, layout_id: str = "", debug=D
         except (NotImplementedError, InvalidPolygonError, Exception) as e:
             print(f"[red bold]Failure for {layout_id}-{domain.name}. {e}")
             attempted_fix = determine_bend_to_fix(surfs, domain, verbose=False)
+            print(attempted_fix)
             tracker.append(DomainMoveDetails(domain, domain, attempted_fix.surfaces))
             plot_domain_iteration(tracker, layout_id)
             raise Exception(e)

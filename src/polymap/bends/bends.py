@@ -1,7 +1,15 @@
 from itertools import combinations
 
 from utils4plans.lists import get_unique_items_in_list_keep_order
-from polymap.bends.interfaces import ZetaBend, PiBend, KappaBend, EtaBend, BendHolder
+from polymap.bends.interfaces import (
+    EtaBend,
+    PiBend,
+    KappaBend,
+    GammaBend,
+    BendHolder,
+    ZetaBend,
+    BetaBend,
+)
 from utils4plans.sets import set_difference, set_intersection
 from polymap.examples.msd import MSD_IDs, get_one_msd_layout
 from polymap.geometry.modify.delete import Delete
@@ -34,15 +42,15 @@ def find_surf_nbs(surfs: list[Surface], target: Surface):
     return (alpha, target, beta)
 
 
-def create_zeta_bends(small_surfs: list[Surface], domain: FancyOrthoDomain):
+def create_eta_bends(small_surfs: list[Surface], domain: FancyOrthoDomain):
     bends = list(
-        map(lambda x: ZetaBend(*find_surf_nbs(domain.surfaces, x), domain), small_surfs)
+        map(lambda x: EtaBend(*find_surf_nbs(domain.surfaces, x), domain), small_surfs)
     )
     return bends
 
 
 def update_indices(
-    found_indices: list[int], bends: list[ZetaBend], b1: ZetaBend, b2: ZetaBend
+    found_indices: list[int], bends: list[EtaBend], b1: EtaBend, b2: EtaBend
 ):
     ix1 = bends.index(b1)
     ix2 = bends.index(b2)
@@ -50,12 +58,12 @@ def update_indices(
     return found_indices
 
 
-def get_remain_zetas(found_indices: list[int], bends: list[ZetaBend]):
+def get_remain_etas(found_indices: list[int], bends: list[EtaBend]):
     remain_indices = set_difference(list(range(len(bends))), found_indices)
     return list(map(lambda x: bends[x], remain_indices))
 
 
-def handle_pi_bend(b1: ZetaBend, b2: ZetaBend):
+def handle_pi_bend(b1: EtaBend, b2: EtaBend):
     if b1.b == b2.a:
         return PiBend(*b1.surface_tuple, b2.s1, b2.b, b1.domain)
     elif b2.a == b2.b:
@@ -69,7 +77,7 @@ def handle_pi_bend(b1: ZetaBend, b2: ZetaBend):
         raise Exception("Unexpected pi bend combination!")
 
 
-def handle_kappa_bend(b1: ZetaBend, b2: ZetaBend):
+def handle_kappa_bend(b1: EtaBend, b2: EtaBend):
     rel1 = b1.s1 == b2.a
     rel2 = b1.b == b2.s1
     if rel1 and rel2:
@@ -78,20 +86,18 @@ def handle_kappa_bend(b1: ZetaBend, b2: ZetaBend):
         raise Exception("Unexpected kappa bend combo")
 
 
-def handle_eta_bend(b1: ZetaBend, b2: ZetaBend):
-    return EtaBend(*b1.surfaces)
+def handle_gamma_bend(b1: EtaBend, b2: EtaBend):
+    return GammaBend(*b1.surfaces)
 
 
-def handle_complex_band(
-    bh: BendHolder, i: ZetaBend, j: ZetaBend, len_interesection: int
-):
+def handle_complex_bend(bh: BendHolder, i: EtaBend, j: EtaBend, len_interesection: int):
     match len_interesection:
         case 1:
             bh.pis.append(handle_pi_bend(i, j))
         case 2:
             bh.kappas.append(handle_kappa_bend(i, j))
         case 3:
-            bh.etas.append(handle_eta_bend(i, j))
+            bh.gammas.append(handle_gamma_bend(i, j))
         case _:
             raise NotImplementedError(
                 f"Haven't handled zeta intersection of size {len_interesection}"
@@ -99,9 +105,29 @@ def handle_complex_band(
     return bh
 
 
-def check_zeta_intersections(bends: list[ZetaBend]) -> BendHolder:
+def distinguish_eta_bends(bend_holder: BendHolder):
+    def distinguish(eta: EtaBend):
+        zeta_cond = eta.a.direction == eta.b.direction
+        beta_cond = (
+            eta.a.direction.aligned_vector == -1 * eta.b.direction.aligned_vector
+        )
+        if zeta_cond:
+            bend_holder.zetas.append(ZetaBend.from_eta(eta))
+        elif beta_cond:
+            bend_holder.betas.append(BetaBend.from_eta(eta))
+        else:
+            raise Exception("Invalid ZetaBend!")
+        return bend_holder
+
+    for eta in bend_holder.etas:
+        bend_holder = distinguish(eta)
+
+    return bend_holder
+
+
+def check_eta_intersections(bends: list[EtaBend]) -> BendHolder:
     if not bends or len(bends) == 1:
-        return BendHolder(zetas=bends)
+        return BendHolder(etas=bends)
 
     found_indices: list[int] = []
 
@@ -112,16 +138,34 @@ def check_zeta_intersections(bends: list[ZetaBend]) -> BendHolder:
 
         if intersection:
             found_indices = update_indices(found_indices, bends, i, j)
-            bend_holder = handle_complex_band(bend_holder, i, j, len(intersection))
+            bend_holder = handle_complex_bend(bend_holder, i, j, len(intersection))
 
-    zetas = get_remain_zetas(found_indices, bends)
-    bend_holder.zetas.extend(zetas)
+    etas = get_remain_etas(found_indices, bends)
+    bend_holder.etas.extend(etas)
+    bend_holder = distinguish_eta_bends(bend_holder)
     return bend_holder
 
 
-MoveDelete = tuple[Move, Delete]
-
-
+# TODO go back to how was before!
+# def apply_move(moves: list[Move], debug=False):
+#     if len(moves) == 1:
+#         move = moves[0]
+#         move2 = None
+#     elif len(moves) == 2:
+#         move, move2 = moves
+#     else:
+#         raise Exception("Bad moves")
+#     try:
+#         new_dom = update_domain(move, debug=debug)
+#     except InvalidPolygonError as e:
+#         if move2:
+#             try:
+#                 new_dom = update_domain(move2, debug=debug)
+#             except InvalidPolygonError as e:
+#                 raise InvalidPolygonError(move.domain.polygon, str(e), move.domain.name)
+#
+#         else:
+#             raise InvalidPolygonError(move.domain.polygon, str(e), move.domain.name)
 def apply_move(move: Move, delete: Delete | None = None, debug=False):
     new_dom = update_domain(move, delete, debug=debug)
     new_coords = get_unique_items_in_list_keep_order(new_dom.coords)

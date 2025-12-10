@@ -2,8 +2,8 @@ from typing import NamedTuple, get_args
 from rich import print
 from polymap.bends.bends import (
     apply_move,
-    check_zeta_intersections,
-    create_zeta_bends,
+    check_eta_intersections,
+    create_eta_bends,
     find_small_surfs,
     get_domain,
 )
@@ -16,12 +16,12 @@ from polymap.geometry.ortho import FancyOrthoDomain
 
 def handle_domain(dom: FancyOrthoDomain, id: MSD_IDs):
     surfs = find_small_surfs(dom)
-    zeta_bends = create_zeta_bends(surfs, dom)
+    zeta_bends = create_eta_bends(surfs, dom)
     pis = []
     zetas = []
 
     try:
-        zetas, pis = check_zeta_intersections(zeta_bends)
+        zetas, pis = check_eta_intersections(zeta_bends)
     except NotImplementedError as e:
         print(e)
         return

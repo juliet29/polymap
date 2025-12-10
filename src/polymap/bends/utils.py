@@ -1,7 +1,7 @@
 from typing import NamedTuple, get_args
 from polymap.bends.bends import (
-    check_zeta_intersections,
-    create_zeta_bends,
+    check_eta_intersections,
+    create_eta_bends,
     find_small_surfs,
     get_domain,
 )
@@ -11,8 +11,8 @@ from polymap.geometry.ortho import FancyOrthoDomain
 
 def make_bend_holder(dom: FancyOrthoDomain):
     surfs = find_small_surfs(dom)
-    zeta_bends = create_zeta_bends(surfs, dom)
-    bend_holder = check_zeta_intersections(zeta_bends)
+    zeta_bends = create_eta_bends(surfs, dom)
+    bend_holder = check_eta_intersections(zeta_bends)
     bend_holder.summarize()
 
     return bend_holder

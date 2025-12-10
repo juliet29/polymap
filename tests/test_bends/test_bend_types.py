@@ -11,7 +11,7 @@ def test_identify_zeta():
     id: MSD_IDs = "67372"
     dom = get_domain(id, domain_name)
     bh = make_bend_holder(dom)
-    assert len(bh.zetas) == 1
+    assert len(bh.etas) == 1
 
 
 def test_identify_pi():

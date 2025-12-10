@@ -1,7 +1,6 @@
 import geom
 from dataclasses import dataclass, field
 from polymap.geometry.modify.update import Move
-from polymap.geometry.modify.delete import Delete
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.surfaces import Surface
 
@@ -36,7 +35,7 @@ class Bend:
 
 
 @dataclass
-class ZetaBend(Bend):
+class EtaBend(Bend):
     a: Surface
     s1: Surface
     b: Surface
@@ -61,9 +60,26 @@ class ZetaBend(Bend):
 
     @property
     def get_move(self):
-        return Move(
+        m = Move(
             self.domain, self.a, get_nonzero_component(self.s1.vector)
         )  # TODO: this should really be get value, for the case of vertical bend..
+
+        return [m]
+
+
+@dataclass
+class ZetaBend(EtaBend):
+    @classmethod
+    def from_eta(cls, e: EtaBend):
+        return cls(*e.surface_tuple, e.domain)
+
+
+@dataclass
+class BetaBend(EtaBend):
+
+    @classmethod
+    def from_eta(cls, e: EtaBend):
+        return cls(*e.surface_tuple, e.domain)
 
 
 @dataclass
@@ -92,7 +108,8 @@ class PiBend(Bend):
 
     @property
     def get_move(self):
-        return Move(self.domain, self.b, -1 * get_nonzero_component(self.s1.vector))
+        m = Move(self.domain, self.b, -1 * get_nonzero_component(self.s1.vector))
+        return [m]
 
 
 @dataclass
@@ -119,13 +136,14 @@ class KappaBend(Bend):
 
     @property
     def get_move(self):
-        m = Move(self.domain, self.s1, get_nonzero_component(self.s2.vector))
-        d = Delete(self.domain.paired_coords, self.s2.coords)
-        return m
+        m1 = Move(self.domain, self.s1, get_nonzero_component(self.s2.vector))
+
+        m2 = Move(self.domain, self.s2, get_nonzero_component(self.s1.vector))
+        return [m1, m2]
 
 
 @dataclass
-class EtaBend(Bend):
+class GammaBend(Bend):
     s1: Surface
     s2: Surface
     s3: Surface
@@ -133,10 +151,12 @@ class EtaBend(Bend):
 
 @dataclass
 class BendHolder:
+    etas: list[EtaBend] = field(default_factory=list)
     zetas: list[ZetaBend] = field(default_factory=list)
+    betas: list[BetaBend] = field(default_factory=list)
     pis: list[PiBend] = field(default_factory=list)
     kappas: list[KappaBend] = field(default_factory=list)
-    etas: list[EtaBend] = field(default_factory=list)
+    gammas: list[GammaBend] = field(default_factory=list)
 
     def summarize(self):
         for name, val in self.__dict__.items():
@@ -147,6 +167,8 @@ class BendHolder:
             res = self.kappas[0]
         elif self.pis:
             res = self.pis[0]
+        elif self.betas:
+            res = self.betas[0]
         elif self.zetas:
             res = self.zetas[0]
         else:
