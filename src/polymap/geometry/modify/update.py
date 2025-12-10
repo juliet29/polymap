@@ -2,8 +2,10 @@ from copy import deepcopy
 import shapely as sp
 from typing import NamedTuple
 from utils4plans.geom import Coord, tuple_list_from_list_of_coords
+from utils4plans.lists import get_unique_items_in_list_keep_order
 from polymap.geometry.modify.delete import Delete
 from polymap.geometry.ortho import FancyOrthoDomain
+from polymap.geometry.shapely_helpers import get_coords_from_shapely_polygon
 from polymap.geometry.surfaces import Surface
 from polymap.geometry.vectors import (
     is_perpendicular,
@@ -91,7 +93,7 @@ def update_paired_coords(
     return paired_coords
 
 
-def update_domain(move: Move, delete: Delete | None = None, show_failing_polygon=False):
+def update_domain(move: Move, delete: Delete | None = None):
     domain, surface, location_delta = move
     print(str(move))
     vector = make_vector_2D(surface.positive_perpendicular_vector) * location_delta
@@ -107,10 +109,18 @@ def update_domain(move: Move, delete: Delete | None = None, show_failing_polygon
     #     updated_paired_coords = delete_paired_coords(
     #         Delete(updated_paired_coords, delete.target_coords)
     #     )
+
+    # new_coords = get_unique_items_in_list_keep_order(new_dom.coords)
     coords = coords_from_paired_coords_list(updated_paired_coords)
+    new_coords = tuple_list_from_list_of_coords(coords)
 
-    test_poly = sp.Polygon(tuple_list_from_list_of_coords(coords))
+    # NOTE: this is a change to accomadate bends, may mess with the larger matching algo 25/12/10
+    unique_coords = get_unique_items_in_list_keep_order(new_coords)
 
-    validate_polygon(test_poly, domain.name, show_failing_polygon)
+    test_poly = sp.Polygon(unique_coords)
 
-    return FancyOrthoDomain(coords=coords, name=domain.name)
+    validate_polygon(test_poly, domain.name)
+
+    return FancyOrthoDomain(
+        coords=get_coords_from_shapely_polygon(test_poly), name=domain.name
+    )

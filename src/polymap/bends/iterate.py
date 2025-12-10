@@ -86,7 +86,7 @@ def clean_domain(domain: FancyOrthoDomain, surfs: list[Surface]):
         )
 
     try:
-        dom2 = apply_move(bends_to_fix.get_move, show_failing_polygon=False)
+        dom2 = apply_move(bends_to_fix.get_move)
     except InvalidPolygonError as e:
         raise DomainCleanFailure(
             e.domain, "Invalid Move", e.reason, surfaces=bends_to_fix.surfaces
@@ -117,20 +117,15 @@ def iterate_clean_domain(
     try:
         validate_polygon(domain.polygon, domain.name)
     except InvalidPolygonError as e:
-        print(f"Domain {domain.name}. Failure to validate: {e.reason}")
-        tracker.append(DomainMoveDetails(domain, domain, []))
-        plot_domain_iteration(tracker, layout_id)
-        raise DomainCleanFailureReport(domain.name, "Domain is not ortho")
+        print(
+            f"Coukd not clean {domain.name} because incoming polygon is invalid. {e.reason}"
+        )
+        if show_failure:
+            tracker.append(DomainMoveDetails(domain, domain, []))
+            plot_domain_iteration(tracker, layout_id)
+        raise DomainCleanFailureReport(domain.name, "Invalid incoming domain")
 
-    try:
-        surfs = find_small_surfs(domain)
-    except:
-        print(f"Domain {domain.name}. Couldnt get small surfs..")
-        tracker.append(DomainMoveDetails(domain, domain, []))
-        plot_domain_iteration(tracker, layout_id)
-        raise DomainCleanFailureReport(domain.name, "Failed to get small surfas")
-
-    # surfs = find_small_surfs(domain)
+    surfs = find_small_surfs(domain)
     if not surfs:
         print(f"No small surfaces for {domain.name}")
         return domain
@@ -155,10 +150,7 @@ def iterate_clean_domain(
         tracker.append(move_details)
         domain = move_details.end_domain
 
-        try:
-            surfs = find_small_surfs(domain)
-        except:
-            raise DomainCleanFailureReport(domain.name, "Failed to get small surfas")
+        surfs = find_small_surfs(domain)
 
         if not surfs:
             break

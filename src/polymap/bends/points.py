@@ -52,9 +52,7 @@ def find_new_surf_for_vector_group(surfs: list[Surface], domain_name: str):
     return new_surf
 
 
-def fix_vector_group_on_domain(
-    domain: FancyOrthoDomain, surfs: list[Surface], show_failing_polygon=False
-):
+def fix_vector_group_on_domain(domain: FancyOrthoDomain, surfs: list[Surface]):
     print(f"surf group to heal: {[i.name for i in surfs]}")
     new_surf = find_new_surf_for_vector_group(surfs, domain.name)
     surf_indices = [domain.surfaces.index(i) for i in surfs]
@@ -69,8 +67,10 @@ def fix_vector_group_on_domain(
     new_surfs = get_surfs(0, min_ix) + [new_surf] + get_surfs(max_ix + 1, len_surfs)
 
     new_coords = coords_from_paired_coords_list([i.coords for i in new_surfs])
+
     test_poly = sp.Polygon(tuple_list_from_list_of_coords(new_coords))
-    validate_polygon(test_poly, domain.name, show_failing_polygon)
+    validate_polygon(test_poly, domain.name)
+
     dom = FancyOrthoDomain(new_coords, domain.name)
     return dom
 

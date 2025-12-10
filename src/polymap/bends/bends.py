@@ -1,6 +1,5 @@
 from itertools import combinations
 
-from utils4plans.lists import get_unique_items_in_list_keep_order
 from polymap.bends.interfaces import (
     EtaBend,
     PiBend,
@@ -174,10 +173,9 @@ def check_eta_intersections(bends: list[EtaBend]) -> BendHolder:
 #
 #         else:
 #             raise InvalidPolygonError(move.domain.polygon, str(e), move.domain.name)
-def apply_move(
-    moves: list[Move], delete: Delete | None = None, show_failing_polygon=False
-):
+def apply_move(moves: list[Move], delete: Delete | None = None):
     move = moves[0]
-    new_dom = update_domain(move, delete, show_failing_polygon=show_failing_polygon)
-    new_coords = get_unique_items_in_list_keep_order(new_dom.coords)
-    return FancyOrthoDomain(new_coords, name=move.domain.name)
+    new_dom = update_domain(move, delete)
+    return new_dom
+    # new_coords = get_unique_items_in_list_keep_order(new_dom.coords)
+    # return FancyOrthoDomain(new_coords, name=move.domain.name)
