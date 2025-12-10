@@ -34,6 +34,9 @@ def find_vector_groups_on_domain(domain: FancyOrthoDomain, debug=DEBUG):
     return groups
 
 
+# second type of vector group => vectors that are separated only by small surface..
+
+
 def find_new_surf_for_vector_group(surfs: list[Surface], domain_name: str):
     # TODO: assert that the surfaces are sorted!
     c0 = surfs[0].coords.first
@@ -67,8 +70,6 @@ def fix_vector_group_on_domain(domain: FancyOrthoDomain, surfs: list[Surface]):
 def heal_extra_points_on_domain(domain: FancyOrthoDomain):
     vector_groups = find_vector_groups_on_domain(domain)
     problem_groups = list(filter(lambda x: len(x) > 1, vector_groups))
-    # print(vector_groups)
-    # print(problem_groups)
 
     if len(problem_groups) == 0:
         return domain

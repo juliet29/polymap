@@ -1,8 +1,8 @@
 from copy import deepcopy
-import matplotlib.pyplot as plt
 import shapely as sp
 from typing import NamedTuple
 from utils4plans.geom import Coord, tuple_list_from_list_of_coords
+from polymap.geometry.modify.delete import Delete
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.surfaces import Surface
 from polymap.geometry.vectors import (
@@ -12,10 +12,12 @@ from polymap.geometry.vectors import (
     vector_as_coord,
     vector_from_coords,
 )
-from polymap.interfaces import PairedCoord, coords_from_paired_coords_list
+from polymap.interfaces import (
+    PairedCoord,
+    coords_from_paired_coords_list,
+)
 import geom
-
-from polymap.visuals.visuals import plot_polygon
+from polymap.geometry.modify.validate import validate_polygon
 
 
 class Move(NamedTuple):
@@ -88,48 +90,21 @@ def update_paired_coords(
     return paired_coords
 
 
-# TODO: put this shapely validation stuff in a different file
-class InvalidPolygonError(Exception):
-    def __init__(
-        self, p: sp.Polygon, domain_name: str, reason: str, debug: bool = True
-    ) -> None:
-        self.p = p
-        self.domain_name = domain_name
-        self.reason = reason
-
-        self.message()
-
-        if debug:
-            self.plot()
-
-    def message(self):
-        return f"{self.domain_name} is invalid! Reason: {self.reason}"
-
-    def plot(self):
-        fig, ax = plt.subplots()
-        plot_polygon(self.p, ax=ax)
-        ax.set_title(f"Failing polygon: {self.domain_name}")
-        plt.show()
-
-
-def validate_polygon(p: sp.Polygon, domain_name: str, debug=False):
-    if len(p.interiors) != 0:
-        raise InvalidPolygonError(p, domain_name, "Num interiors != 0")
-    if not p.is_valid:
-        reason = sp.is_valid_reason(p)
-        raise InvalidPolygonError(p, domain_name, reason, debug)
-
-
-def update_domain(move: Move, debug=True):
+def update_domain(move: Move, delete: Delete | None = None, debug=True):
     domain, surface, location_delta = move
-    # NOTE: not sure this is correct, but lets just try the aligned vecto and see what happens
     vector = make_vector_2D(surface.positive_perpendicular_vector) * location_delta
-    # NOTE: the aligned vector already has a direction! would be nice if can fix so that south rooms can only move south.. but think the graph will determine this ..
-
     updated_paired_coords = update_paired_coords(
         domain.paired_coords, surface.coords, vector
     )
-
+    # print("init coords:")
+    # print_paired_coords(domain.paired_coords)
+    # print("changed coords:")
+    # print_paired_coords(updated_paired_coords)
+    # if delete:
+    #     print(delete.target_coords)
+    #     updated_paired_coords = delete_paired_coords(
+    #         Delete(updated_paired_coords, delete.target_coords)
+    #     )
     coords = coords_from_paired_coords_list(updated_paired_coords)
 
     test_poly = sp.Polygon(tuple_list_from_list_of_coords(coords))

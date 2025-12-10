@@ -9,32 +9,28 @@ from polymap.geometry.ortho import FancyOrthoDomain
 from copy import deepcopy
 from polymap.bends.viz import DomainMoveDetails, plot_domain_iteration
 from polymap.geometry.surfaces import Surface
-from polymap.geometry.update import InvalidPolygonError
+from polymap.geometry.modify.validate import InvalidPolygonError
 from polymap.layout.interfaces import Layout
 from rich import print
 
 DEBUG = True
 
 
-def determine_bend_to_fix(surfs, domain):
+def determine_bend_to_fix(surfs, domain, verbose=True):
     zeta_bends = create_zeta_bends(surfs, domain)
 
-    zetas, pis = check_zeta_intersections(zeta_bends)
+    bend_holder = check_zeta_intersections(zeta_bends)
 
-    if pis:
-        print(f"Handling PI move for {domain.name} | {pis[0].surface_names}")
-        return pis[0]
-    elif zetas:
-        print(f"Handling ZETA move for {domain.name} | {zetas[0].surface_names}")
-        return zetas[0]
-    else:
-        raise Exception("No zetas or pis")
+    if verbose:
+        print(f"[bold]Bend Holder for {domain.name}")
+        bend_holder.summarize()
+    return bend_holder.get_next_bend()
 
 
-def clean_domain(domain: FancyOrthoDomain, surfs: list[Surface]):
+def clean_domain(domain: FancyOrthoDomain, surfs: list[Surface], debug=DEBUG):
     bends_to_fix = determine_bend_to_fix(surfs, domain)
     print(str(bends_to_fix.get_move))
-    dom2 = apply_move(bends_to_fix.get_move)
+    dom2 = apply_move(bends_to_fix.get_move, debug=debug)
     surfaces = bends_to_fix.surfaces
 
     dom3 = heal_extra_points_on_domain(dom2)
@@ -54,13 +50,13 @@ def iterate_clean_domain(domain_: FancyOrthoDomain, layout_id: str = "", debug=D
     count = 0
     while surfs:
         try:
-            move_details = clean_domain(domain, surfs)
+            move_details = clean_domain(domain, surfs, debug=debug)
         except (NotImplementedError, InvalidPolygonError, Exception) as e:
-            print(f"Failure for {layout_id}-{domain.name}. {e}")
-            attempted_fix = determine_bend_to_fix(surfs, domain)
+            print(f"[red bold]Failure for {layout_id}-{domain.name}. {e}")
+            attempted_fix = determine_bend_to_fix(surfs, domain, verbose=False)
             tracker.append(DomainMoveDetails(domain, domain, attempted_fix.surfaces))
             plot_domain_iteration(tracker, layout_id)
-            return
+            raise Exception(e)
 
         tracker.append(move_details)
         domain = move_details.end_domain

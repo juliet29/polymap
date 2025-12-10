@@ -1,5 +1,6 @@
 from utils4plans.geom import Coord
 import shapely as sp
+from rich import print
 
 
 from typing import NamedTuple
@@ -42,3 +43,8 @@ class PairedCoord(NamedTuple):
 
 def coords_from_paired_coords_list(pcs: list[PairedCoord]):
     return [i.last for i in pcs]
+
+
+def print_paired_coords(pcs: list[PairedCoord]):
+    for ix, pc in enumerate(pcs):
+        print(f"{ix}: {str(pc)}")

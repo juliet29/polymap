@@ -162,12 +162,16 @@ class FancyOrthoDomain(OrthoDomain):
         else:
             return self.surfaces
 
-    @property
-    def summarize_surfaces(self):
+    def summarize_surfaces(self, sort=False, substantial=False):
         # NOTE: this ignores small surfaces!
+        #
         print(self.name)
-        for i in sorted(self.substantial_surfaces, key=lambda surf: surf.direction):
-            print(f"{i.name:<20} | {i.range.size:.2f}")
+        if sort and substantial:
+            for i in sorted(self.substantial_surfaces, key=lambda surf: surf.direction):
+                print(f"{i.name:<20} | {i.range.size:.2f}")
+        else:
+            for i in self.surfaces:
+                print(f"{i.name:<20} | {i.range.size:.4f}")
 
     @property
     def summarize_vectors(self):

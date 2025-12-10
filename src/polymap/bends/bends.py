@@ -1,119 +1,18 @@
 from itertools import combinations
-from utils4plans.sets import set_difference, set_intersection
+
 from utils4plans.lists import get_unique_items_in_list_keep_order
-import geom
+from polymap.bends.interfaces import ZetaBend, PiBend, KappaBend, EtaBend, BendHolder
+from utils4plans.sets import set_difference, set_intersection
 from polymap.examples.msd import MSD_IDs, get_one_msd_layout
+from polymap.geometry.modify.delete import Delete
+from polymap.geometry.modify.update import Move, update_domain
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.surfaces import Surface
-from dataclasses import dataclass
 
-from polymap.geometry.update import update_domain, Move
 from rich import print
 
+
 TOLERANCE = 0.13  # TODO: make a constant
-
-
-# class DefinesMove(Protocol):
-#     def get_move(self) -> Move: ...
-#
-
-
-def get_component(v: geom.Vector, ix: int):
-    return float(v[ix])  # pyright: ignore[reportArgumentType]
-
-
-def get_nonzero_component(v: geom.Vector):
-    # todo should check is orto ..
-    res = list(filter(lambda x: x != 0, [v.x, v.y]))
-    assert len(res) == 1, f"Invalid v. Possibly non-ortho: {v}"
-    return res[0]
-
-
-@dataclass
-class ZetaBend:
-    s1: Surface
-    s2: Surface
-    s3: Surface
-    domain: FancyOrthoDomain
-
-    def __rich_repr__(self):
-        yield "s1", self.s1
-        yield "s2", self.s2
-        yield "s3", self.s3
-
-    @property
-    def surfaces(self):
-        return [self.s1, self.s2, self.s3]
-
-    @property
-    def surface_names(self):
-        return [i.name for i in self.surfaces]
-
-    @property
-    def surface_tuple(self):
-        return (self.s1, self.s2, self.s3)
-
-    @property
-    def get_move(self):
-        return Move(
-            self.domain, self.s1, get_nonzero_component(self.s2.vector)
-        )  # TODO: this should really be get value, for the case of vertical bend..
-
-
-@dataclass
-class PiBend:
-    s1: Surface
-    s2: Surface
-    s3: Surface
-    s4: Surface
-    s5: Surface
-    domain: FancyOrthoDomain
-
-    def __rich_repr__(self):
-        yield "s1", self.s1
-        yield "s2", self.s2
-        yield "s3", self.s3
-        yield "s4", self.s4
-        yield "s5", self.s5
-
-    @property
-    def surfaces(self):
-        return [self.s1, self.s2, self.s3, self.s4, self.s5]
-
-    @property
-    def surface_names(self):
-        return [i.name for i in self.surfaces]
-
-    @property
-    def get_move(self):
-        return Move(self.domain, self.s3, -1 * get_nonzero_component(self.s2.vector))
-
-
-@dataclass
-class KappaBend:
-    s1: Surface
-    s2: Surface
-    s3: Surface
-    s4: Surface
-    domain: FancyOrthoDomain
-
-    def __rich_repr__(self):
-        yield "s1", self.s1
-        yield "s2", self.s2
-        yield "s3", self.s3
-        yield "s4", self.s4
-
-    @property
-    def surfaces(self):
-        return [self.s1, self.s2, self.s3, self.s4]
-
-    @property
-    def surface_names(self):
-        return [i.name for i in self.surfaces]
-
-    @property
-    def get_move(self):
-        return Move(self.domain, self.s3, -1 * get_nonzero_component(self.s2.vector))
 
 
 def get_domain(msd_id: MSD_IDs, domain_name: str):
@@ -157,9 +56,9 @@ def get_remain_zetas(found_indices: list[int], bends: list[ZetaBend]):
 
 
 def handle_pi_bend(b1: ZetaBend, b2: ZetaBend):
-    if b1.s3 == b2.s1:
-        return PiBend(*b1.surface_tuple, b2.s2, b2.s3, b1.domain)
-    elif b2.s1 == b2.s3:
+    if b1.b == b2.a:
+        return PiBend(*b1.surface_tuple, b2.s1, b2.b, b1.domain)
+    elif b2.a == b2.b:
         raise NotImplementedError(
             "Zeta bends may be misordered.. add check for sorting.."
         )
@@ -170,38 +69,60 @@ def handle_pi_bend(b1: ZetaBend, b2: ZetaBend):
         raise Exception("Unexpected pi bend combination!")
 
 
-def check_zeta_intersections(bends: list[ZetaBend]):
+def handle_kappa_bend(b1: ZetaBend, b2: ZetaBend):
+    rel1 = b1.s1 == b2.a
+    rel2 = b1.b == b2.s1
+    if rel1 and rel2:
+        return KappaBend(*b1.surface_tuple, b2.b, b1.domain)
+    else:
+        raise Exception("Unexpected kappa bend combo")
+
+
+def handle_eta_bend(b1: ZetaBend, b2: ZetaBend):
+    return EtaBend(*b1.surfaces)
+
+
+def handle_complex_band(
+    bh: BendHolder, i: ZetaBend, j: ZetaBend, len_interesection: int
+):
+    match len_interesection:
+        case 1:
+            bh.pis.append(handle_pi_bend(i, j))
+        case 2:
+            bh.kappas.append(handle_kappa_bend(i, j))
+        case 3:
+            bh.etas.append(handle_eta_bend(i, j))
+        case _:
+            raise NotImplementedError(
+                f"Haven't handled zeta intersection of size {len_interesection}"
+            )
+    return bh
+
+
+def check_zeta_intersections(bends: list[ZetaBend]) -> BendHolder:
     if not bends or len(bends) == 1:
-        return bends, []
+        return BendHolder(zetas=bends)
 
     found_indices: list[int] = []
-    pis: list[PiBend] = []
-    combos = combinations(bends, 2)
 
+    combos = combinations(bends, 2)
+    bend_holder = BendHolder()
     for i, j in combos:
         intersection = set_intersection(i.surfaces, j.surfaces)
 
         if intersection:
-            # found_indices = update_indices(found_indices, bends, i, j)
-
-            if len(intersection) > 2:
-                raise NotImplementedError(
-                    f"Haven't handled more complex bends: Intersection of size {len(intersection)}"
-                )
-
-            if len(intersection) == 2:
-                pass
-            else:
-                found_indices = update_indices(found_indices, bends, i, j)
-
-                pi_bend = handle_pi_bend(i, j)
-                pis.append(pi_bend)
+            found_indices = update_indices(found_indices, bends, i, j)
+            bend_holder = handle_complex_band(bend_holder, i, j, len(intersection))
 
     zetas = get_remain_zetas(found_indices, bends)
-    return zetas, pis
+    bend_holder.zetas.extend(zetas)
+    return bend_holder
 
 
-def apply_move(move: Move):
-    new_dom = update_domain(move)
+MoveDelete = tuple[Move, Delete]
+
+
+def apply_move(move: Move, delete: Delete | None = None, debug=False):
+    new_dom = update_domain(move, delete, debug=debug)
     new_coords = get_unique_items_in_list_keep_order(new_dom.coords)
     return FancyOrthoDomain(new_coords, name=move.domain.name)
