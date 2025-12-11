@@ -3,7 +3,6 @@ import shapely as sp
 from typing import NamedTuple
 from utils4plans.geom import Coord, tuple_list_from_list_of_coords
 from utils4plans.lists import get_unique_items_in_list_keep_order
-from polymap.geometry.modify.delete import Delete
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.shapely_helpers import get_coords_from_shapely_polygon
 from polymap.geometry.surfaces import Surface
@@ -19,7 +18,7 @@ from polymap.interfaces import (
     coords_from_paired_coords_list,
 )
 import geom
-from polymap.geometry.modify.validate import validate_polygon
+from polymap.geometry.modify.validate import InvalidPolygonError, validate_polygon
 from rich import print
 
 
@@ -105,13 +104,14 @@ def remove_zero_vector_coords(pcs: list[PairedCoord]):
     return new_pcs
 
 
-def update_domain(move: Move, delete: Delete | None = None):
+def update_domain(move: Move):
     domain, surface, location_delta = move
     print(str(move))
     vector = make_vector_2D(surface.positive_perpendicular_vector) * location_delta
     updated_paired_coords = update_paired_coords(
         domain.paired_coords, surface.coords, vector
     )
+
     non_zero_paired_coords = remove_zero_vector_coords(updated_paired_coords)
     coords = coords_from_paired_coords_list(non_zero_paired_coords)
     new_coords = tuple_list_from_list_of_coords(coords)
@@ -119,7 +119,14 @@ def update_domain(move: Move, delete: Delete | None = None):
     # NOTE: this is a change to accomadate bends, may mess with the larger matching algo 25/12/10
     unique_coords = get_unique_items_in_list_keep_order(new_coords)
 
-    test_poly = sp.Polygon(unique_coords)
+    try:
+        test_poly = sp.Polygon(unique_coords)
+    except ValueError as e:
+        raise InvalidPolygonError(
+            sp.Polygon(),
+            domain.name,
+            f"Not enough coords to create polygon! {unique_coords}: {e}",
+        )
 
     validate_polygon(test_poly, domain.name)
 

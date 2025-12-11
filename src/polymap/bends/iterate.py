@@ -114,8 +114,8 @@ def iterate_clean_domain(
     domain = deepcopy(domain_)
     tracker: list[DomainMoveDetails] = []
 
-    if layout_id == "27540":
-        return domain
+    # if layout_id == "27540":
+    #     return domain
 
     try:
         validate_polygon(domain.polygon, domain.name)
@@ -154,6 +154,9 @@ def iterate_clean_domain(
         domain = move_details.end_domain
 
         surfs = find_small_surfs(domain)
+
+        if len(domain.surfaces) <= 4:
+            break
 
         if not surfs:
             break

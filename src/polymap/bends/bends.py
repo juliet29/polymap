@@ -13,7 +13,6 @@ from polymap.bends.interfaces import (
 )
 from utils4plans.sets import set_difference, set_intersection
 from polymap.examples.msd import MSD_IDs, get_one_msd_layout
-from polymap.geometry.modify.delete import Delete
 from polymap.geometry.modify.update import Move, update_domain
 from polymap.geometry.modify.validate import InvalidPolygonError
 from polymap.geometry.ortho import FancyOrthoDomain
@@ -176,7 +175,7 @@ def check_eta_intersections(bends: list[EtaBend]) -> BendHolder:
     return bh
 
 
-def apply_move(moves: list[Move], delete: Delete | None = None) -> FancyOrthoDomain:
+def apply_move(moves: list[Move]) -> FancyOrthoDomain:
     new_dom = None
 
     if len(moves) == 1:
@@ -185,7 +184,7 @@ def apply_move(moves: list[Move], delete: Delete | None = None) -> FancyOrthoDom
 
     for ix, m in enumerate(moves):
         try:
-            new_dom = update_domain(m, delete)
+            new_dom = update_domain(m)
         except InvalidPolygonError as e:
             if ix == len(moves) - 1:
                 raise InvalidPolygonError(e.p, e.domain_name, e.reason)

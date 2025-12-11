@@ -68,6 +68,9 @@ zero_vectors = [
 ]
 
 
+new_issues = ["48204-room_0", "48205-corridor_2"]
+
+
 class Failures(NamedTuple):
     name: str
     reason: str
@@ -92,7 +95,7 @@ def test_fix_bad_domains():
             dom, dname.msd_id, show_complete_iteration=False, show_failure=True
         )
 
-    for name in zero_vectors:
+    for name in all_bad_doms2:
         print(f"[bold italic yellow]\n{name}")
         try:
             test(name)
@@ -104,7 +107,7 @@ def test_fix_bad_domains():
 
 
 def test_bends_one():
-    domain_name = "kitchen_9"
+    domain_name = "shaft_10"
     id: MSD_IDs = "27540"
     dom = get_domain(id, domain_name)
     bh = make_bend_holder(dom)
