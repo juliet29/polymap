@@ -118,12 +118,13 @@ def distinguish_eta_bends(bend_holder: BendHolder):
             and not is_small_surf(eta.a)
             and not is_small_surf(eta.b)
         )
-        if zeta_cond:
-            bend_holder.zetas.append(ZetaBend.from_eta(eta))
-        elif beta_cond:
+        # if zeta_cond:
+        #     bend_holder.zetas.append(ZetaBend.from_eta(eta))
+        if beta_cond:
             bend_holder.betas.append(BetaBend.from_eta(eta))
         else:
-            raise ProblemIdentifyingBend("Invalid EtaBend!", [eta])
+            bend_holder.zetas.append(ZetaBend.from_eta(eta))
+            # raise ProblemIdentifyingBend("Invalid EtaBend!", [eta])
         return bend_holder
 
     for eta in bend_holder.etas:

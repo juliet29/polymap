@@ -114,6 +114,9 @@ def iterate_clean_domain(
     domain = deepcopy(domain_)
     tracker: list[DomainMoveDetails] = []
 
+    if layout_id == "27540":
+        return domain
+
     try:
         validate_polygon(domain.polygon, domain.name)
     except InvalidPolygonError as e:

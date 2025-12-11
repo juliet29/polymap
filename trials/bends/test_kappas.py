@@ -41,10 +41,6 @@ all_bad_doms2 = [
     # pi bends at the end of the vector list
     "106493-kitchen_7",  # invalid pi bend
     "27540-shaft_10",  # bad pi bend? -> reverse..
-    # vectors not getting cleaned up
-    "146915-room_6",  # pi-bend, zero vector not cleaned up..
-    "71308-kitchen_0",  # zeta, zero vector not cleaned up..
-    "71318-kitchen_5",  # zeta, zero vector not cleaned up
 ]
 
 gammas = [
@@ -62,6 +58,13 @@ inner_bend_kappas = [
     "49943-bathroom_0",  # inner kappa / bad kappa
     "49943-room_18",  # inner kappa
     "49943-room_4",  # inner kappa
+]
+
+zero_vectors = [
+    # vectors not getting cleaned up
+    "146915-room_6",  # pi-bend, zero vector not cleaned up..
+    "71308-kitchen_0",  # zeta, zero vector not cleaned up..
+    "71318-kitchen_5",  # zeta, zero vector not cleaned up
 ]
 
 
@@ -89,7 +92,7 @@ def test_fix_bad_domains():
             dom, dname.msd_id, show_complete_iteration=False, show_failure=True
         )
 
-    for name in gammas:
+    for name in zero_vectors:
         print(f"[bold italic yellow]\n{name}")
         try:
             test(name)

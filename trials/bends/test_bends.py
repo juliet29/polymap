@@ -33,6 +33,7 @@ def test_all_layouts():
     for id in get_args(MSD_IDs):
         print(f"\n{id=}")
         _, layout = get_one_msd_layout(id)
+
         _, bad_domains = clean_layout(layout, layout_id=id, debug=False)
         print(f"{bad_domains=}")
         bad_domains_all.extend(bad_domains)

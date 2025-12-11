@@ -25,7 +25,7 @@ class InvalidPolygonError(Exception):
             self.plot()
 
     def message(self):
-        return f"[bold red]{self.domain_name} is invalid! Reason: {self.reason}"
+        return f"[italic orange]{self.domain_name} is invalid! Reason: {self.reason}"
 
     @property
     def domain(self):

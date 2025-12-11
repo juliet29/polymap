@@ -93,6 +93,18 @@ def update_paired_coords(
     return paired_coords
 
 
+def remove_zero_vector_coords(pcs: list[PairedCoord]):
+
+    vectors = list(map(lambda x: vector_from_coords(*x), pcs))
+
+    new_pcs = []
+    for v, pc in zip(vectors, pcs):
+        if v.mag() != 0:
+            new_pcs.append(pc)
+
+    return new_pcs
+
+
 def update_domain(move: Move, delete: Delete | None = None):
     domain, surface, location_delta = move
     print(str(move))
@@ -100,18 +112,8 @@ def update_domain(move: Move, delete: Delete | None = None):
     updated_paired_coords = update_paired_coords(
         domain.paired_coords, surface.coords, vector
     )
-    # print("init coords:")
-    # print_paired_coords(domain.paired_coords)
-    # print("changed coords:")
-    # print_paired_coords(updated_paired_coords)
-    # if delete:
-    #     print(delete.target_coords)
-    #     updated_paired_coords = delete_paired_coords(
-    #         Delete(updated_paired_coords, delete.target_coords)
-    #     )
-
-    # new_coords = get_unique_items_in_list_keep_order(new_dom.coords)
-    coords = coords_from_paired_coords_list(updated_paired_coords)
+    non_zero_paired_coords = remove_zero_vector_coords(updated_paired_coords)
+    coords = coords_from_paired_coords_list(non_zero_paired_coords)
     new_coords = tuple_list_from_list_of_coords(coords)
 
     # NOTE: this is a change to accomadate bends, may mess with the larger matching algo 25/12/10
