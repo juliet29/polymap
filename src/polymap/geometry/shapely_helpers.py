@@ -11,6 +11,11 @@ class HashableVector(NamedTuple):
     y: float
 
 
+def get_coords_from_shapely_geom(geom: sp.Point | sp.LineString):
+    coords = geom.coords
+    return [Coord(*i) for i in coords]
+
+
 def vector_to_hashable(v: geom.Vector):
     return HashableVector(v[0], v[1])  # type: ignore
 

@@ -86,6 +86,7 @@ def update_paired_coords(
 ):
     paired_coords = deepcopy(paired_coords_)
     update_coords_tuple = create_update_coords_tuple(paired_coords, target, vector)
+    print(update_coords_tuple)
     for item in update_coords_tuple:
         paired_coords[item.ix] = item.paired_coord
 
@@ -111,6 +112,7 @@ def update_domain(move: Move):
     updated_paired_coords = update_paired_coords(
         domain.paired_coords, surface.coords, vector
     )
+    print(updated_paired_coords)
 
     non_zero_paired_coords = remove_zero_vector_coords(updated_paired_coords)
     coords = coords_from_paired_coords_list(non_zero_paired_coords)

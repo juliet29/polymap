@@ -1,4 +1,5 @@
 from itertools import combinations
+from typing import NamedTuple
 
 from polymap.bends.interfaces import (
     EtaBend,
@@ -21,6 +22,12 @@ from rich import print
 
 
 TOLERANCE = 0.13  # TODO: make a constant
+
+
+class BendNeighbors(NamedTuple):
+    alpha: Surface
+    target: Surface
+    beta: Surface
 
 
 def show_problem_bends(bends: list[Bend]):

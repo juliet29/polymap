@@ -11,6 +11,7 @@ dependencies = [
     "bpython>=0.25",
     "expression>=5.6.0",
     "geom>=0.3.0",
+    "loguru>=0.7.3",
     "matplotlib>=3.10.6",
     "networkx>=3.5",
     "numpy>=2.3.3",

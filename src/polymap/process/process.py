@@ -16,6 +16,7 @@ from polymap.nonortho.dot import make_ortho_coords
 from polymap.process.interfaces import ProcessGraphPairs, ProcessLayouts
 from polymap.process.viz import make_study_plot
 from polymap.rotate.rotate import rotate_layout
+from loguru import logger
 
 
 TOLERANCE = 0.15
@@ -68,22 +69,38 @@ class ReturnsLayout(Protocol):
     def __call__(self, *args: Any, **kwds: Any) -> Layout: ...
 
 
-def prep_study_plot(msd_id: str, layouts: list[Layout], graph_pairs: list[GraphPairs]):
+def prep_study_plot(
+    msd_id: str, layouts: list[Layout], graph_pairs: list[GraphPairs], show_plot
+):
     pl = ProcessLayouts(msd_id, *layouts)
     pgp = ProcessGraphPairs(*graph_pairs)
-    make_study_plot(pl, pgp)
+    if show_plot:
+        make_study_plot(pl, pgp)
 
 
-def process_layout(msd_id: MSD_IDs, layout: Layout | None = None):
+class LayoutProcessFailure(Exception):
+    def __init__(self, message: str) -> None:
+        self.message = message
+
+
+def process_layout(
+    msd_id: MSD_IDs | None = None,
+    layout: Layout | None = None,
+    other_layout_id: str = "",
+    rotate: bool = True,
+    ortho: bool = True,
+    show_plot=False,
+):
+    layout_id = msd_id if msd_id else other_layout_id
 
     def attempt(fx: ReturnsLayout, *args: Any, **kwargs: Any):
         try:
             layout = fx(*args, **kwargs)
         except Exception as e:
-            print(f"failed to finish processing {msd_id}.\n {e}")
-            prep_study_plot(msd_id, layouts, graph_pairs)
-
-            raise Exception("Failed to generate layout")
+            prep_study_plot(layout_id, layouts, graph_pairs, show_plot)
+            raise LayoutProcessFailure(
+                f"failed to finish processing layout for {layout_id}.\n {e}"
+            )
 
         return layout
 
@@ -91,11 +108,10 @@ def process_layout(msd_id: MSD_IDs, layout: Layout | None = None):
         try:
             axgraph = create_graph_for_all_surfaces_along_axis(layout, axes)
         except (AssertionError, ValueError, Exception) as e:
-            err = f"failed to make {axes} graph for {msd_id}.\n {e}"
-            print(err)
-            prep_study_plot(msd_id, layouts, graph_pairs)
-
-            raise Exception(err)
+            prep_study_plot(layout_id, layouts, graph_pairs, show_plot)
+            raise LayoutProcessFailure(
+                f"failed to make {axes} graph {layout_id}.\n {e}"
+            )
 
         return axgraph
 
@@ -103,16 +119,24 @@ def process_layout(msd_id: MSD_IDs, layout: Layout | None = None):
     graph_pairs = []
 
     if not layout:
-        assert msd_id in get_args(MSD_IDs), f"MSD IDs {msd_id} is not expected.."
+        assert msd_id and msd_id in get_args(
+            MSD_IDs
+        ), f"MSD IDs {msd_id} is not expected.."
         _, layout = get_one_msd_layout(msd_id)
 
-    angle, rotated_layout = rotate_layout(layout)
-    layouts.extend([layout, rotated_layout])
-    ortho_layout = attempt(make_ortho_layout, rotated_layout)
-    layouts.append(ortho_layout)
-    # ortho layout
+    if rotate and ortho:
+        angle, rotated_layout = rotate_layout(layout)
+        print(f"Rotated layout by {angle}")
+        layouts.extend([layout, rotated_layout])
 
-    simple_layout = attempt(simplify_layout, ortho_layout, id=msd_id)
+        ortho_layout = attempt(make_ortho_layout, rotated_layout)
+        layouts.append(ortho_layout)
+    else:
+        ortho_layout = layout
+
+    layout_id = msd_id if msd_id else other_layout_id
+
+    simple_layout = attempt(simplify_layout, ortho_layout, id=layout_id)
     layouts.append(simple_layout)
 
     Gx = attempt_make_graph(simple_layout, "X")
@@ -126,6 +150,7 @@ def process_layout(msd_id: MSD_IDs, layout: Layout | None = None):
 
     layy = attempt(create_updated_layout, Gy)
     layouts.append(layy)
-    prep_study_plot(msd_id, layouts, graph_pairs)
+    prep_study_plot(layout_id, layouts, graph_pairs, show_plot)
+    logger.success(f"[green]Finished process layout for {layout_id}")
 
-    return msd_id
+    return layy
