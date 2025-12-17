@@ -82,7 +82,15 @@ class Surface:
         v = self.vector.norm()
         return geom.Vector(
             [round(i) for i in [v.x, v.y, v.z]]  # pyright: ignore[reportArgumentType]
-        )
+        )  # normal vector is always positive!
+
+    @property
+    def direction_vector(self):
+        return self.direction.aligned_vector
+        # v = self.vector.norm()
+        # return geom.Vector(
+        #     [round(i) for i in [v.x, v.y, v.z]]  # pyright: ignore[reportArgumentType]
+        # ) # normal vector is always positive!
 
     # @property
     # def perpendicular_axis(self):
