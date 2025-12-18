@@ -20,7 +20,7 @@ def assign_bends(domain: FancyOrthoDomain):
     # uncategorized = []H
 
     for comp_ in components:
-        comp = list(comp_)
+        comp = list(comp_)  # TODO: can fix this.
         size = len(comp)
         if size > 3:
             bh.large.append(comp)
@@ -45,3 +45,5 @@ def assign_bends(domain: FancyOrthoDomain):
                 continue
 
             bh.not_found.append(comp)
+
+    return bh

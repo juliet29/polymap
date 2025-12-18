@@ -1,5 +1,9 @@
+from copy import deepcopy
+from rich.pretty import pretty_repr
+from utils4plans.sets import set_equality
 import networkx as nx
 
+from polymap.bends.b2 import assign_bends
 from polymap.bends.graph import (
     NodeData,
     create_cycle_graph,
@@ -38,17 +42,15 @@ def test_find_directed_edges():
 
 
 class TestSimpleGraph:
-    def __init__(self) -> None:
-        num = 5
-        G = create_cycle_graph(range(num))
-        node_data = {i: {"data": NodeData(is_small=False)} for i in range(num)}
-        nx.set_node_attributes(G, node_data)
+    num = 5
+    G = create_cycle_graph(range(num))
+    node_data = {i: {"data": NodeData(is_small=False)} for i in range(num)}
+    nx.set_node_attributes(G, node_data)
 
-        test_nodes = {0, 4, 2}
+    test_nodes = {0, 4, 2}
 
-        for node in test_nodes:
-            G.nodes(data=True)[node]["data"].is_small = True
-        self.G = G
+    for node in test_nodes:
+        G.nodes(data=True)[node]["data"].is_small = True
 
     def test_find_small_groups(self):
         node_groups = find_small_node_groups(self.G)
@@ -66,12 +68,10 @@ class TestSimpleGraph:
         assert expected_edges == edges
 
 
-class TestDomain:
-    def __init__(self):
-        pe = PiExamples()
-        domain = FancyOrthoDomain.from_tuple_list(pe.one)
-        self.domain = domain
-        self.G = create_surface_graph_for_domain(domain)
+class TestDomainSurfaceGraph:
+    pe = PiExamples()
+    domain = FancyOrthoDomain.from_tuple_list(pe.one)
+    G = create_surface_graph_for_domain(domain)
 
     def print_graph(self):
         logger.debug(repr_graph(self.G))
@@ -89,6 +89,29 @@ class TestDomain:
         expected_surf = self.domain.get_surface("north")
         assert surfs[0] == expected_surf
 
+    def test_can_get_components_many(self):
+        G = deepcopy(self.G)
+        node_data = G.nodes["-west_1"].get("data")
+        assert node_data
+        node_data.is_small = True
+
+        components = find_small_node_groups(G)
+        logger.debug(components)
+        surfs = handle_components(G, components[0])
+
+        logger.debug(pretty_repr(surfs, expand_all=True))
+
+        expected_surfs = [
+            self.domain.get_surface("north"),
+            self.domain.get_surface("west", 1),
+        ]
+
+        assert set_equality(expected_surfs, surfs)
+
+    def test_make_bends(self):
+        bh = assign_bends(self.domain)
+        logger.debug(bh.summary)
+
 
 # def test_create_surface_graph():
 #     pe = PiExamples()
@@ -105,7 +128,5 @@ class TestDomain:
 
 if __name__ == "__main__":
     logset()
-    logger.debug("hekko?")
-    print("hi")
-    t = TestDomain()
-    t.test_can_get_components_one()
+    t = TestDomainSurfaceGraph()
+    t.test_make_bends()

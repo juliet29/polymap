@@ -16,7 +16,7 @@ class DomainGraph:
     graph: nx.DiGraph
 
 
-@dataclass(frozen=True)
+@dataclass
 class NodeData:
     is_small: bool = False
     surface: Surface | None = None
@@ -114,12 +114,22 @@ def create_surface_graph_for_domain(domain: FancyOrthoDomain):
     return G
 
 
+def get_surface(G: nx.Graph, node: str):
+    data = G.nodes[node].get("data")
+    assert isinstance(data, NodeData)
+    s = data.surface
+    assert s
+    return s
+
+
 def get_predecesor(G: nx.DiGraph, node: object):
-    return list(G.predecessors(node))[0]
+    res = list(G.predecessors(node))[0]
+    return get_surface(G, res)
 
 
 def get_successor(G: nx.DiGraph, node: object):
-    return list(G.successors(node))[0]
+    res = list(G.successors(node))[0]
+    return get_surface(G, res)
 
 
 def repr_graph(G: nx.DiGraph):

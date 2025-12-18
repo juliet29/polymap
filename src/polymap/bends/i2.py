@@ -3,6 +3,7 @@ import geom
 import networkx as nx
 from dataclasses import dataclass, field
 
+from rich.pretty import pretty_repr
 from utils4plans.lists import chain_flatten
 from polymap.bends.graph import get_predecesor, get_successor
 from polymap.geometry.modify.update import Move
@@ -220,11 +221,12 @@ class BendHolder:
     large: list[list[str]] = field(default_factory=list)
     not_found: list[list[str]] = field(default_factory=list)
 
-    def summarize(self):
+    @property
+    def summary(self):
         sdata = {}
         for name, val in self.__dict__.items():
             sdata[name] = len(val)
-        print(f"BendHolder: {sdata}")
+        return f"BendHolder: {pretty_repr(sdata)}"
 
     def get_next_bend(self):
         if self.pi2s:

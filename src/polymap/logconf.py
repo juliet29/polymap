@@ -8,7 +8,7 @@ def logset():
         handlers=[
             {
                 "sink": RichHandler(markup=True, show_time=False),
-                "format": "<green>{name}</green>:<green>{function}</green>| {message}",
+                "format": "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | {message}",
             }
         ]
     )
