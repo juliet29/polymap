@@ -1,25 +1,22 @@
 from typing import Any, Protocol, get_args
 
-
 import shapely as sp
+from loguru import logger
 
 from polymap.bends.iterate import clean_layout
+from polymap.config import TOLERANCE
 from polymap.examples.msd import MSD_IDs, get_one_msd_layout
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.shapely_helpers import get_coords_from_shapely_polygon
 from polymap.geometry.vectors import Axes
 from polymap.interfaces import GraphPairs
-from polymap.layout.interfaces import Layout
 from polymap.layout.graph import create_graph_for_all_surfaces_along_axis
+from polymap.layout.interfaces import Layout
 from polymap.layout.update import create_updated_layout
 from polymap.nonortho.dot import make_ortho_coords
 from polymap.process.interfaces import ProcessGraphPairs, ProcessLayouts
 from polymap.process.viz import make_study_plot
 from polymap.rotate.rotate import rotate_layout
-from loguru import logger
-
-
-TOLERANCE = 0.15
 
 
 def simplify_layout_shapely(layout: Layout, tolerance: float = TOLERANCE):

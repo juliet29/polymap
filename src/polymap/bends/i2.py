@@ -1,7 +1,10 @@
 import geom
+
+import networkx as nx
 from dataclasses import dataclass, field
 
 from utils4plans.lists import chain_flatten
+from polymap.bends.graph import get_predecesor, get_successor
 from polymap.geometry.modify.update import Move
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.surfaces import Surface
@@ -48,6 +51,12 @@ class PiOne(Bend):
     b: Surface
     domain: FancyOrthoDomain
 
+    @classmethod
+    def from_surfaces(cls, domain: FancyOrthoDomain, G: nx.DiGraph, s1: Surface):
+        a = get_predecesor(G, s1.name)
+        b = get_successor(G, s1.name)
+        return cls(a, s1, b, domain)
+
     @property
     def are_vectors_correct(self):
         exp = self.a.direction_vector == -self.b.direction_vector
@@ -68,6 +77,15 @@ class PiTwo(Bend):
     s2: Surface
     c: Surface
     domain: FancyOrthoDomain
+
+    @classmethod
+    def from_surfaces(
+        cls, domain: FancyOrthoDomain, G: nx.DiGraph, s1: Surface, s2: Surface
+    ):
+        a = get_predecesor(G, s1.name)
+        b = get_successor(G, s1.name)
+        c = get_successor(G, s2.name)
+        return cls(a, s1, b, s2, c, domain)
 
     @property
     def are_vectors_correct(self):
@@ -95,6 +113,19 @@ class PiThree(Bend):
     b: Surface
     domain: FancyOrthoDomain
 
+    @classmethod
+    def from_surfaces(
+        cls,
+        domain: FancyOrthoDomain,
+        G: nx.DiGraph,
+        s1: Surface,
+        s2: Surface,
+        s3: Surface,
+    ):
+        a = get_predecesor(G, s1.name)
+        b = get_successor(G, s3.name)
+        return cls(a, s1, s2, s3, b, domain)
+
     @property
     def are_vectors_correct(self):
         exp1 = self.s1.direction_vector == -self.s3.direction_vector
@@ -119,6 +150,12 @@ class KappaOne(Bend):
     b: Surface
     domain: FancyOrthoDomain
 
+    @classmethod
+    def from_surfaces(cls, domain: FancyOrthoDomain, G: nx.DiGraph, s1: Surface):
+        a = get_predecesor(G, s1.name)
+        b = get_successor(G, s1.name)
+        return cls(a, s1, b, domain)
+
     @property
     def are_vectors_correct(self):
         exp = (self.a.direction_vector == self.b.direction_vector) and (
@@ -139,6 +176,14 @@ class KappaTwo(Bend):
     s2: Surface
     b: Surface
     domain: FancyOrthoDomain
+
+    @classmethod
+    def from_surfaces(
+        cls, domain: FancyOrthoDomain, G: nx.DiGraph, s1: Surface, s2: Surface
+    ):
+        a = get_predecesor(G, s1.name)
+        b = get_successor(G, s2.name)
+        return cls(a, s1, s2, b, domain)
 
     @property
     def are_vectors_correct(self):
@@ -172,6 +217,8 @@ class BendHolder:
     kappa2s: list[KappaTwo] = field(default_factory=list)
     pis: list[PiOne] = field(default_factory=list)
     kappas: list[KappaOne] = field(default_factory=list)
+    large: list[list[str]] = field(default_factory=list)
+    not_found: list[list[str]] = field(default_factory=list)
 
     def summarize(self):
         sdata = {}
@@ -198,9 +245,3 @@ class BendHolder:
 
         print(f"Next bend is {str(res)}")
         return res
-
-
-@dataclass
-class NodeData:
-    is_small: bool
-    # surface: Surface
