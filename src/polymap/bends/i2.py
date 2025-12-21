@@ -1,5 +1,7 @@
+from typing import NamedTuple
 import geom
 
+from loguru import logger
 import networkx as nx
 from dataclasses import dataclass, field
 
@@ -11,6 +13,8 @@ from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.surfaces import Surface
 from rich import print
 
+from polymap.interfaces import make_repr_obj
+
 
 def get_nonzero_component(v: geom.Vector):
     res = list(filter(lambda x: x != 0, [v.x, v.y]))
@@ -19,7 +23,7 @@ def get_nonzero_component(v: geom.Vector):
 
 
 def make_surface_rep(surface: Surface):
-    return f"{surface.name} |  {str(surface.coords)}"
+    return f"{surface.name} | {surface.direction_vector} | {str(surface.coords)} "
 
 
 @dataclass
@@ -36,6 +40,9 @@ class Bend:
     def surface_tuple(self):
         return tuple(self.surfaces)
 
+    @property
+    def are_vectors_correct(self) -> bool: ...
+
     def __str__(self):
         return f"{type(self)}({self.surface_names})"
 
@@ -43,6 +50,15 @@ class Bend:
         for k, v in self.__dict__.items():
             if isinstance(v, Surface):
                 yield k, make_surface_rep(v)
+
+    def study_vectors(self):
+        def fx():
+            for k, v in self.__dict__.items():
+                if isinstance(v, Surface):
+                    yield k, make_surface_rep(v)
+
+        obj = make_repr_obj(fx)
+        return pretty_repr(obj)
 
 
 @dataclass
@@ -130,11 +146,13 @@ class PiThree(Bend):
     @property
     def are_vectors_correct(self):
         exp1 = self.s1.direction_vector == -self.s3.direction_vector
+        logger.debug(exp1)
         exp2 = (
             self.a.direction_vector
             == self.b.direction_vector
             == self.s2.direction_vector
         )
+        logger.debug(exp2)
         return exp1 and exp2
 
     @property
@@ -192,7 +210,7 @@ class KappaTwo(Bend):
         v2 = self.s1.direction_vector
 
         exp1 = v1 == self.s2.direction_vector
-        exp2 = v2 == self.b.direction_vector
+        exp2 = v2 == self.b.direction_vector or v2 == -self.b.direction_vector
 
         return exp1 and exp2
 
@@ -211,6 +229,55 @@ class ProblemIdentifyingBend(Exception):
         self.bends = bends
 
 
+def check_vectors(bends: list[Bend]):
+    passing = []
+    failing = []
+    for b in bends:
+        if b.are_vectors_correct:
+            passing.append(b)
+        else:
+            failing.append(b)
+
+    return passing, failing
+
+
+class BendListSummary(NamedTuple):
+    size: int
+    n_passing: int
+    n_failing: int
+
+    def __repr__(self) -> str:
+        def fx():
+            yield "size", self.size
+            yield "pass", self.n_passing
+
+        return pretty_repr(make_repr_obj(fx))
+
+
+@dataclass
+class BendList:
+    bends: list[Bend]
+
+    def __post_init__(self):
+        self.passing, self.failing = check_vectors(self.bends)
+
+    @property
+    def size(self):
+        return len(self.bends)
+
+    @property
+    def n_passing(self):
+        return len(self.passing)
+
+    @property
+    def n_failing(self):
+        return len(self.failing)
+
+    @property
+    def summary(self):
+        return BendListSummary(self.size, self.n_passing, self.n_failing)
+
+
 @dataclass
 class BendHolder:
     pi2s: list[PiTwo] = field(default_factory=list)
@@ -225,8 +292,16 @@ class BendHolder:
     def summary(self):
         sdata = {}
         for name, val in self.__dict__.items():
-            sdata[name] = len(val)
-        return f"BendHolder: {pretty_repr(sdata)}"
+            if name == "large" or name == "not_found":
+                sdata[name] = len(val)
+            else:
+                bl = BendList(val)
+                sdata[name] = bl.summary
+        return sdata
+
+    @property
+    def summary_str(self):
+        return f"BendHolder: {pretty_repr(self.summary_str)}"
 
     def get_next_bend(self):
         if self.pi2s:

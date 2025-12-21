@@ -83,7 +83,6 @@ def find_and_replace_coords_in_list(
 
 @dataclass
 class FancyOrthoDomain(OrthoDomain):
-    name: str = ""
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, FancyOrthoDomain):
