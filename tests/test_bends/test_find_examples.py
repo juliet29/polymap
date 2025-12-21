@@ -5,7 +5,6 @@ from polymap.bends.examples import BendExamples
 from polymap.bends.i2 import BendListSummary
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.logconf import logset
-from polymap.visuals.visuals import plot_polygon
 
 
 def study_make_bends_all():
@@ -19,7 +18,7 @@ def study_make_bends_all():
 def study_one_bend():
     coords = BendExamples().pi.three
     dom = FancyOrthoDomain.from_tuple_list(coords, "pi3")
-    plot_polygon(dom.polygon, show=True)
+    # plot_polygon(dom.polygon, show=True)
     bh = assign_bends(dom)
     logger.debug(bh.pi3s[0].study_vectors())
     logger.debug(bh.pi3s[0].are_vectors_correct)

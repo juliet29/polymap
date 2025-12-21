@@ -8,7 +8,7 @@ from polymap.bends.graph import (
     NodeData,
     create_cycle_graph,
     create_surface_graph_for_domain,
-    find_directed_edges,
+    order_nodes_based_on_graph,
     find_small_node_groups,
     handle_components,
     repr_graph,
@@ -30,15 +30,15 @@ def test_create_cycle_graph():
     assert list(G.edges) == expected_edges
 
 
-def test_find_directed_edges():
+def test_find_ordered_nodes():
     G = create_cycle_graph(range(5))
     logger.debug(G.edges)
 
     comp = {0, 4, 1}
-    edges = find_directed_edges(G, comp)
-    expected_edges = [(0, 1), (4, 0)]
-    logger.debug(edges)
-    assert edges == expected_edges
+    nodes = order_nodes_based_on_graph(G, comp)
+    expected_nodes = [4, 0, 1]
+    logger.debug(nodes)
+    assert nodes == expected_nodes
 
 
 class TestSimpleGraph:
@@ -61,11 +61,11 @@ class TestSimpleGraph:
     def test_find_edges(self):
         node_groups = find_small_node_groups(self.G)
         valid_node_groups = [i for i in node_groups if len(i) >= 2]
-        edges = find_directed_edges(self.G, valid_node_groups[0])
-        logger.debug(edges)
+        nodes = order_nodes_based_on_graph(self.G, valid_node_groups[0])
+        logger.debug(nodes)
 
-        expected_edges = [(4, 0)]
-        assert expected_edges == edges
+        expected_nodes = [4, 0]
+        assert expected_nodes == nodes
 
 
 class TestDomainSurfaceGraph:

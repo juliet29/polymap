@@ -1,3 +1,4 @@
+from loguru import logger
 from polymap.bends.graph import (
     create_surface_graph_for_domain,
     find_small_node_groups,
@@ -10,6 +11,7 @@ from polymap.bends.i2 import BendHolder, KappaOne, KappaTwo, PiOne, PiThree
 def assign_bends(domain: FancyOrthoDomain):
     G = create_surface_graph_for_domain(domain)
     components = find_small_node_groups(G)
+    logger.debug(f"components = {components}")
 
     # TODO:pi2s
 
@@ -26,6 +28,7 @@ def assign_bends(domain: FancyOrthoDomain):
             bh.large.append(comp)
         elif size == 3:
             res = handle_components(G, comp)
+            logger.debug(f"after have handled components: {[i.name for i in res]}")
             res = PiThree.from_surfaces(*info, *res)
             bh.pi3s.append(res)
         elif size == 2:

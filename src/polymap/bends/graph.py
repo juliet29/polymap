@@ -1,5 +1,10 @@
+from copy import deepcopy
 from dataclasses import dataclass
+from utils4plans.lists import get_unique_one
+from utils4plans.sets import set_difference
 
+
+from loguru import logger
 from rich.pretty import pretty_repr
 from polymap.geometry.surfaces import Surface
 from polymap.geometry.ortho import FancyOrthoDomain
@@ -58,20 +63,39 @@ def create_cycle_graph(nodes_: Iterable[T]):
     return G
 
 
-def find_directed_edges(G: nx.DiGraph, nodes: Iterable[T]):
-    sg = G.subgraph(nodes)
+def find_ends_of_a_directed_graph(G: nx.DiGraph):
+    root = get_unique_one(G.nodes, lambda x: len(list(G.predecessors(x))) == 0)
+    end = get_unique_one(G.nodes, lambda x: len(list(G.successors(x))) == 0)
+    return root, end
+
+
+def nodes_from_edges(edges_: Iterable[tuple[T, T]]):
+    edges = list(edges_)
+    n1 = [i[0] for i in edges] + [edges[-1][1]]
+    return n1
+
+
+def order_nodes_based_on_graph(G: nx.DiGraph, nodes_: Iterable[T]):
+    nodes = list(nodes_)
+    nodes_to_remove = set_difference(G.nodes, nodes)
+    sg = deepcopy(G)
+    sg.remove_nodes_from(nodes_to_remove)
+
+    logger.debug(sg.nodes)
+    if len(nodes) > 2:
+        root, end = find_ends_of_a_directed_graph(sg)
+        paths = list(nx.shortest_simple_paths(sg, root, end))
+        logger.debug(paths)
+        assert len(paths) == 1
+        return paths[0]
+
+    logger.debug(G.edge_subgraph(sg.edges).edges)
+    assert sg.order() == 2
+    assert len(sg.edges) == 1
+    e = list(sg.edges)[0]
+    return [e[0], e[1]]
     # TODO: some stronger conditions on this.. this is assuming that everuthing is connected..
     return list(sg.edges)
-
-
-def order_nodes_based_on_edges(G: nx.DiGraph, nodes: Iterable[T]):
-    def nodes_from_edges(edges_: Iterable[tuple[T, T]]):
-        edges = list(edges_)
-        n1 = [i[0] for i in edges] + [edges[-1][1]]
-        return n1
-
-    directed_edges = find_directed_edges(G, nodes)
-    return nodes_from_edges(directed_edges)
 
 
 def find_small_node_groups(G: nx.DiGraph):
@@ -96,7 +120,8 @@ def find_small_node_surfaces(G: nx.DiGraph, nodes: Iterable[str]) -> list[Surfac
 def handle_components(G: nx.DiGraph, nodes_: Iterable[str]):
     nodes = list(nodes_)
     if len(nodes) >= 2:
-        ordered_nodes = order_nodes_based_on_edges(G, nodes)
+        ordered_nodes = order_nodes_based_on_graph(G, nodes)
+        logger.debug(pretty_repr({"orig_nodes": nodes, "ordered": ordered_nodes}))
     else:
         ordered_nodes = nodes
     return find_small_node_surfaces(G, ordered_nodes)
