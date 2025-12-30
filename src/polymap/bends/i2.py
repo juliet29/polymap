@@ -1,4 +1,4 @@
-from typing import NamedTuple
+from typing import Literal, NamedTuple, TypedDict
 import geom
 
 from loguru import logger
@@ -23,7 +23,7 @@ def get_nonzero_component(v: geom.Vector):
 
 
 def make_surface_rep(surface: Surface):
-    return f"{surface.name} | {surface.direction_vector} | {str(surface.coords)} "
+    return f"{surface.name_w_domain} | {surface.direction_vector} | aligned={surface.aligned_vector} | {str(surface.coords)} "
 
 
 @dataclass
@@ -34,7 +34,7 @@ class Bend:
 
     @property
     def surface_names(self):
-        return [i.name for i in self.surfaces]
+        return [i.name_w_domain for i in self.surfaces]
 
     @property
     def surface_tuple(self):
@@ -70,13 +70,13 @@ class PiOne(Bend):
 
     @classmethod
     def from_surfaces(cls, domain: FancyOrthoDomain, G: nx.DiGraph, s1: Surface):
-        a = get_predecesor(G, s1.name)
-        b = get_successor(G, s1.name)
+        a = get_predecesor(G, s1.name_w_domain)
+        b = get_successor(G, s1.name_w_domain)
         return cls(a, s1, b, domain)
 
     @property
     def are_vectors_correct(self):
-        exp = self.a.direction_vector == -self.b.direction_vector
+        exp = self.a.aligned_vector == -self.b.aligned_vector
         return exp
 
     @property
@@ -99,19 +99,15 @@ class PiTwo(Bend):
     def from_surfaces(
         cls, domain: FancyOrthoDomain, G: nx.DiGraph, s1: Surface, s2: Surface
     ):
-        a = get_predecesor(G, s1.name)
-        b = get_successor(G, s1.name)
-        c = get_successor(G, s2.name)
+        a = get_predecesor(G, s1.name_w_domain)
+        b = get_successor(G, s1.name_w_domain)
+        c = get_successor(G, s2.name_w_domain)
         return cls(a, s1, b, s2, c, domain)
 
     @property
     def are_vectors_correct(self):
         exp1 = self.s1.direction_vector == -self.s2.direction_vector
-        exp2 = (
-            self.a.direction_vector
-            == self.b.direction_vector
-            == self.c.direction_vector
-        )
+        exp2 = self.a.aligned_vector == self.b.aligned_vector == self.c.aligned_vector
         return exp1 and exp2
 
     @property
@@ -139,20 +135,18 @@ class PiThree(Bend):
         s2: Surface,
         s3: Surface,
     ):
-        a = get_predecesor(G, s1.name)
-        b = get_successor(G, s3.name)
+        a = get_predecesor(G, s1.name_w_domain)
+        b = get_successor(G, s3.name_w_domain)
         return cls(a, s1, s2, s3, b, domain)
 
     @property
     def are_vectors_correct(self):
         exp1 = self.s1.direction_vector == -self.s3.direction_vector
-        logger.debug(exp1)
-        exp2 = (
-            self.a.direction_vector
-            == self.b.direction_vector
-            == self.s2.direction_vector
-        )
-        logger.debug(exp2)
+        exp2 = self.a.aligned_vector == self.b.aligned_vector == self.s2.aligned_vector
+        if (not exp1) or (not exp2):
+            logger.debug(exp1)
+            logger.debug(exp2)
+            logger.debug(self.study_vectors())
         return exp1 and exp2
 
     @property
@@ -171,8 +165,8 @@ class KappaOne(Bend):
 
     @classmethod
     def from_surfaces(cls, domain: FancyOrthoDomain, G: nx.DiGraph, s1: Surface):
-        a = get_predecesor(G, s1.name)
-        b = get_successor(G, s1.name)
+        a = get_predecesor(G, s1.name_w_domain)
+        b = get_successor(G, s1.name_w_domain)
         return cls(a, s1, b, domain)
 
     @property
@@ -200,17 +194,22 @@ class KappaTwo(Bend):
     def from_surfaces(
         cls, domain: FancyOrthoDomain, G: nx.DiGraph, s1: Surface, s2: Surface
     ):
-        a = get_predecesor(G, s1.name)
-        b = get_successor(G, s2.name)
+        a = get_predecesor(G, s1.name_w_domain)
+        b = get_successor(G, s2.name_w_domain)
         return cls(a, s1, s2, b, domain)
 
     @property
     def are_vectors_correct(self):
-        v1 = self.a.direction_vector
-        v2 = self.s1.direction_vector
+        v1 = self.a.aligned_vector
+        v2 = self.s1.aligned_vector
 
-        exp1 = v1 == self.s2.direction_vector
-        exp2 = v2 == self.b.direction_vector or v2 == -self.b.direction_vector
+        exp1 = (v1 == self.s2.aligned_vector) or (v1 == -1 * self.s2.aligned_vector)
+        exp2 = v2 == self.b.aligned_vector or v2 == -1 * self.b.aligned_vector
+
+        if (not exp1) or (not exp2):
+            logger.debug(exp1)
+            logger.debug(exp2)
+            logger.debug(self.study_vectors())
 
         return exp1 and exp2
 
@@ -218,8 +217,11 @@ class KappaTwo(Bend):
     def get_move(self):
         if self.s1.direction_vector == self.b.direction_vector:
             m1 = Move(self.domain, self.s1, get_nonzero_component(self.s2.vector))
+        elif self.a.direction_vector == -1 * self.s2.direction_vector:
+            m1 = Move(self.domain, self.s1, get_nonzero_component(self.s2.vector))
         else:
             m1 = Move(self.domain, self.s2, get_nonzero_component(self.s1.vector))
+            # TOOD consider a and 2 have diff directions..
         return [m1]
 
 
@@ -278,6 +280,19 @@ class BendList:
         return BendListSummary(self.size, self.n_passing, self.n_failing)
 
 
+class DomainSummary(TypedDict):
+    pi2s: BendListSummary
+    pi3s: BendListSummary
+    kappa2s: BendListSummary
+    pis: BendListSummary
+    kappas: BendListSummary
+    large: int
+    not_found: int
+
+
+BendNames = Literal["pis", "pi2s", "pi3s", "kappas", "kappa2s"]
+
+
 @dataclass
 class BendHolder:
     pi2s: list[PiTwo] = field(default_factory=list)
@@ -297,7 +312,7 @@ class BendHolder:
             else:
                 bl = BendList(val)
                 sdata[name] = bl.summary
-        return sdata
+        return DomainSummary(**sdata)
 
     @property
     def summary_str(self):

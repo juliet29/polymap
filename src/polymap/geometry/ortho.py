@@ -167,10 +167,10 @@ class FancyOrthoDomain(OrthoDomain):
         print(self.name)
         if sort and substantial:
             for i in sorted(self.substantial_surfaces, key=lambda surf: surf.direction):
-                print(f"{i.name:<20} | {i.range.size:.2f}")
+                print(f"{i.name_w_domain:<20} | {i.range.size:.2f}")
         else:
             for i in self.surfaces:
-                print(f"{i.name:<20} | {i.range.size:.4f}")
+                print(f"{i.name_w_domain:<20} | {i.range.size:.4f}")
 
     @property
     def summarize_vectors(self):

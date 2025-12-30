@@ -29,7 +29,7 @@ class NodeData:
     @property
     def repr_dict(self):
         def fx():
-            yield "surface_name", self.surface.name if self.surface else ""
+            yield "surface_name", self.surface.name_w_domain if self.surface else ""
             yield "is_small", self.is_small
 
         return make_repr_obj(fx)
@@ -50,8 +50,17 @@ class SurfaceNode:
 #
 
 
-def create_cycle_graph(nodes_: Iterable[T]):
+def get_predecesor(G: nx.DiGraph, node: object):
+    res = list(G.predecessors(node))[0]
+    return get_surface(G, res)
 
+
+def get_successor(G: nx.DiGraph, node: object):
+    res = list(G.successors(node))[0]
+    return get_surface(G, res)
+
+
+def create_cycle_graph(nodes_: Iterable[T]):
     nodes = list(nodes_)
     node_cycle = nodes + [nodes[0]]
 
@@ -63,39 +72,16 @@ def create_cycle_graph(nodes_: Iterable[T]):
     return G
 
 
-def find_ends_of_a_directed_graph(G: nx.DiGraph):
-    root = get_unique_one(G.nodes, lambda x: len(list(G.predecessors(x))) == 0)
-    end = get_unique_one(G.nodes, lambda x: len(list(G.successors(x))) == 0)
-    return root, end
+def create_surface_graph_for_domain(domain: FancyOrthoDomain):
 
-
-def nodes_from_edges(edges_: Iterable[tuple[T, T]]):
-    edges = list(edges_)
-    n1 = [i[0] for i in edges] + [edges[-1][1]]
-    return n1
-
-
-def order_nodes_based_on_graph(G: nx.DiGraph, nodes_: Iterable[T]):
-    nodes = list(nodes_)
-    nodes_to_remove = set_difference(G.nodes, nodes)
-    sg = deepcopy(G)
-    sg.remove_nodes_from(nodes_to_remove)
-
-    logger.debug(sg.nodes)
-    if len(nodes) > 2:
-        root, end = find_ends_of_a_directed_graph(sg)
-        paths = list(nx.shortest_simple_paths(sg, root, end))
-        logger.debug(paths)
-        assert len(paths) == 1
-        return paths[0]
-
-    logger.debug(G.edge_subgraph(sg.edges).edges)
-    assert sg.order() == 2
-    assert len(sg.edges) == 1
-    e = list(sg.edges)[0]
-    return [e[0], e[1]]
-    # TODO: some stronger conditions on this.. this is assuming that everuthing is connected..
-    return list(sg.edges)
+    surf_names = [i.name_w_domain for i in domain.surfaces]
+    G = create_cycle_graph(surf_names)
+    node_data = {
+        name: {"data": NodeData(is_small=surf.is_small, surface=surf)}
+        for name, surf in zip(surf_names, domain.surfaces)
+    }
+    nx.set_node_attributes(G, node_data)
+    return G
 
 
 def find_small_node_groups(G: nx.DiGraph):
@@ -104,6 +90,35 @@ def find_small_node_groups(G: nx.DiGraph):
     components = nx.connected_components(sg.to_undirected())
 
     return list(components)
+
+
+def find_ends_of_a_directed_graph(G: nx.DiGraph):
+    root = get_unique_one(G.nodes, lambda x: len(list(G.predecessors(x))) == 0)
+    end = get_unique_one(G.nodes, lambda x: len(list(G.successors(x))) == 0)
+    return root, end
+
+
+def order_nodes_based_on_graph(G: nx.DiGraph, nodes_: Iterable[T]):
+    nodes = list(nodes_)
+    nodes_to_remove = set_difference(G.nodes, nodes)
+    sg = deepcopy(G)
+    sg.remove_nodes_from(nodes_to_remove)
+
+    logger.trace(sg.nodes)
+    if len(nodes) > 2:
+        root, end = find_ends_of_a_directed_graph(sg)
+        paths = list(nx.shortest_simple_paths(sg, root, end))
+        logger.trace(paths)
+        assert len(paths) == 1
+        return paths[0]
+
+    logger.trace(G.edge_subgraph(sg.edges).edges)
+    assert sg.order() == 2
+    assert len(sg.edges) == 1
+    e = list(sg.edges)[0]
+    return [e[0], e[1]]
+    # TODO: some stronger conditions on this.. this is assuming that everuthing is connected..
+    return list(sg.edges)
 
 
 def find_small_node_surfaces(G: nx.DiGraph, nodes: Iterable[str]) -> list[Surface]:
@@ -121,22 +136,10 @@ def handle_components(G: nx.DiGraph, nodes_: Iterable[str]):
     nodes = list(nodes_)
     if len(nodes) >= 2:
         ordered_nodes = order_nodes_based_on_graph(G, nodes)
-        logger.debug(pretty_repr({"orig_nodes": nodes, "ordered": ordered_nodes}))
+        logger.trace(pretty_repr({"orig_nodes": nodes, "ordered": ordered_nodes}))
     else:
         ordered_nodes = nodes
     return find_small_node_surfaces(G, ordered_nodes)
-
-
-def create_surface_graph_for_domain(domain: FancyOrthoDomain):
-
-    surf_names = [i.name for i in domain.surfaces]
-    G = create_cycle_graph(surf_names)
-    node_data = {
-        name: {"data": NodeData(is_small=surf.is_small, surface=surf)}
-        for name, surf in zip(surf_names, domain.surfaces)
-    }
-    nx.set_node_attributes(G, node_data)
-    return G
 
 
 def get_surface(G: nx.Graph, node: str):
@@ -147,16 +150,6 @@ def get_surface(G: nx.Graph, node: str):
     return s
 
 
-def get_predecesor(G: nx.DiGraph, node: object):
-    res = list(G.predecessors(node))[0]
-    return get_surface(G, res)
-
-
-def get_successor(G: nx.DiGraph, node: object):
-    res = list(G.successors(node))[0]
-    return get_surface(G, res)
-
-
 def repr_graph(G: nx.DiGraph):
     fd = {}
     for node, d in G.nodes(data=True):
@@ -165,11 +158,3 @@ def repr_graph(G: nx.DiGraph):
         assert isinstance(data, NodeData)
         fd[node] = data.repr_dict
     return pretty_repr(fd, expand_all=True)
-
-    # def fx():
-    #     for node, d in G.nodes(data=True):
-    #         data = d["data"]
-    #         assert isinstance(data, NodeData)
-    #         return data.__repr__
-    #
-    # return make_repr_obj(fx, "SurfaceGraph")

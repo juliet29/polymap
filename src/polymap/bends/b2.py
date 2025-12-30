@@ -1,4 +1,5 @@
 from loguru import logger
+from polymap.geometry.modify.validate import InvalidPolygonError, validate_polygon
 from polymap.bends.graph import (
     create_surface_graph_for_domain,
     find_small_node_groups,
@@ -9,14 +10,24 @@ from polymap.bends.i2 import BendHolder, KappaOne, KappaTwo, PiOne, PiThree
 
 
 def assign_bends(domain: FancyOrthoDomain):
+
+    bh = BendHolder()
+    try:
+        validate_polygon(domain.polygon, domain.name)
+    except InvalidPolygonError as e:
+        logger.error(
+            f"Could not validate polygon, and could not assign bends ----- {e.message()}"
+        )
+        return bh
+
     G = create_surface_graph_for_domain(domain)
+    # TODO find 2pi groups
     components = find_small_node_groups(G)
-    logger.debug(f"components = {components}")
+    logger.trace(f"components = {components}")
 
     # TODO:pi2s
 
     info = (domain, G)
-    bh = BendHolder()
 
     # large_groups = []
     # uncategorized = []H
@@ -28,9 +39,13 @@ def assign_bends(domain: FancyOrthoDomain):
             bh.large.append(comp)
         elif size == 3:
             res = handle_components(G, comp)
-            logger.debug(f"after have handled components: {[i.name for i in res]}")
+            logger.debug(
+                f"after have handled components: {[i.name_w_domain for i in res]}"
+            )
             res = PiThree.from_surfaces(*info, *res)
             bh.pi3s.append(res)
+            # todo: check if vectors are correct, if not goes to same treatment as large..
+            #
         elif size == 2:
             res = handle_components(G, comp)
             res = KappaTwo.from_surfaces(*info, *res)
@@ -50,3 +65,6 @@ def assign_bends(domain: FancyOrthoDomain):
             bh.not_found.append(comp)
 
     return bh
+
+
+# TODO: consider making the checks of the bend vectos external.. ?

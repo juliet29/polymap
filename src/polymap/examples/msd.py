@@ -1,6 +1,9 @@
-from typing import Literal
+from typing import Literal, get_args
+from typing_extensions import NamedTuple
+from utils4plans.lists import chain_flatten
+from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.paths import static_paths
-from polymap.layout.interfaces import create_layout_from_json
+from polymap.layout.interfaces import Layout, create_layout_from_json
 
 from polymap.paths import DynamicPaths
 
@@ -26,6 +29,19 @@ MSD_IDs = Literal[
     "71308",
     "71318",
 ]
+
+
+class MSDDomainName(NamedTuple):
+    layout_id: MSD_IDs
+    domain_name: str
+
+    def __repr__(self) -> str:
+        return f"({self.layout_id}, {self.domain_name})"
+
+
+class MSDDomain(NamedTuple):
+    name: MSDDomainName
+    domain: FancyOrthoDomain
 
 
 def get_msd_plan():
@@ -56,6 +72,16 @@ def get_one_msd_layout(id: MSD_IDs | None = None):
         stem = stems[0]
 
     return stem, create_layout_from_json(stem, source_path)
+
+
+def get_all_msd_domains():
+    def get_layout_domains(msd_id: str, layout: Layout):
+        m: MSD_IDs = msd_id  # pyright: ignore[reportAssignmentType]
+        return [MSDDomain(MSDDomainName(m, d.name), d) for d in layout.domains]
+
+    all_layouts = [get_one_msd_layout(id) for id in get_args(MSD_IDs)]
+    doms = [get_layout_domains(id, layout) for id, layout in all_layouts]
+    return chain_flatten(doms)
 
 
 if __name__ == "__main__":

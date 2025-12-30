@@ -1,10 +1,6 @@
 from typing import NamedTuple
 
-from polymap.bends.bends import get_domain
 import shapely as sp
-from polymap.bends.iterate import DomainCleanFailureReport, iterate_clean_domain
-from polymap.bends.utils import get_msd_domain, make_bend_holder
-from polymap.examples.msd import MSD_IDs
 from polymap.visuals.visuals import plot_polygon
 from rich import print
 
@@ -23,18 +19,6 @@ def plot_coords():
     ]
     poly = sp.Polygon(coords)
     plot_polygon(poly, show=True)
-
-
-def test_fix_kappa():
-    domain_name = "kitchen_3"
-    id: MSD_IDs = "58613"
-    dom = get_domain(id, domain_name)
-    bh = make_bend_holder(dom)
-    k = bh.kappas[0]  # TODO: add a next method
-    print(str(k))
-    # new_dom = apply_move(k.get_move[0])
-    # plot_domain_move(dom, new_dom, k.surfaces)
-    #
 
 
 all_bad_doms2 = [
@@ -85,36 +69,37 @@ def summarize_failures(fails: list[Failures]):
         print(f)
 
 
-def test_fix_bad_domains():
-    fails: list[Failures] = []
+# def test_fix_bad_domains():
+#     fails: list[Failures] = []
+#
+#     def test(name):
+#
+#         dname, dom = get_msd_domain(name)
+#         res = iterate_clean_domain(
+#             dom, dname.msd_id, show_complete_iteration=False, show_failure=True
+#         )
+#
+#     for name in all_bad_doms2:
+#         print(f"[bold italic yellow]\n{name}")
+#         try:
+#             test(name)
+#         except DomainCleanFailureReport as e:
+#             fails.append(Failures(name, str(e)))
+#             print(f"[bold italic magenta]{name} failed in outer loop")
+#
+#     summarize_failures(fails)
+#
 
-    def test(name):
 
-        dname, dom = get_msd_domain(name)
-        res = iterate_clean_domain(
-            dom, dname.msd_id, show_complete_iteration=False, show_failure=True
-        )
-
-    for name in all_bad_doms2:
-        print(f"[bold italic yellow]\n{name}")
-        try:
-            test(name)
-        except DomainCleanFailureReport as e:
-            fails.append(Failures(name, str(e)))
-            print(f"[bold italic magenta]{name} failed in outer loop")
-
-    summarize_failures(fails)
-
-
-def test_bends_one():
-    domain_name = "shaft_10"
-    id: MSD_IDs = "27540"
-    dom = get_domain(id, domain_name)
-    bh = make_bend_holder(dom)
-    iterate_clean_domain(dom, id, show_failure=True)
-    # apply_move(bh.betas[0].get_move)
-
+# def test_bends_one():
+#     domain_name = "shaft_10"
+#     id: MSD_IDs = "27540"
+#     dom = get_domain(id, domain_name)
+#     bh = make_bend_holder(dom)
+#     iterate_clean_domain(dom, id, show_failure=True)
+#     # apply_move(bh.betas[0].get_move)
+#
 
 if __name__ == "__main__":
+    pass
     # test_bends_one()
-    test_fix_bad_domains()

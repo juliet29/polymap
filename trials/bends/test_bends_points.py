@@ -37,11 +37,11 @@ def test_create_new_surf():
 
 def test_remove_extra_point_from_domain():
     domain = create_ortho_domain("SQUARE_W_EXTRA_POINTS")
-    og_surf_names = [i.name for i in domain.surfaces]
+    og_surf_names = [i.name_w_domain for i in domain.surfaces]
     print(og_surf_names)
     surfs = [domain.get_surface("north", i) for i in [0, 1]]
     new_domain = fix_vector_group_on_domain(domain, surfs)
-    new_surf_names = [i.name for i in new_domain.surfaces]
+    new_surf_names = [i.name_w_domain for i in new_domain.surfaces]
 
     og_surf_names.remove("-north_1")
     assert og_surf_names == new_surf_names

@@ -1,31 +1,57 @@
-from utils4plans.geom import CoordsType
-from polymap.bends.examples import BendExamples, KappaExamples, PiExamples
+from loguru import logger
 import pytest
-from polymap.geometry.modify.validate import validate_polygon
+from polymap.bends.b2 import assign_bends
+from polymap.bends.examples import BendExamples
+from polymap.bends.i2 import BendListSummary
 from polymap.geometry.ortho import FancyOrthoDomain
-from polymap.visuals.visuals import plot_polygon
+from polymap.logconf import logset
 
 
-def test_kappa_one():
+def study_make_bends_all():
     be = BendExamples()
-    dom = FancyOrthoDomain.from_tuple_list(be.kappa.one)
-    validate_polygon(dom.polygon, "")
+    for dom in be.all_doms:
+        logger.info(f"[bold blue]Starting assignment for [red]{dom.name}[/red]")
+        bh = assign_bends(dom)
+        logger.info(bh.summary_str)
 
 
-pe = PiExamples()
-ke = KappaExamples()
+def study_one_bend():
+    coords = BendExamples().pi.three
+    dom = FancyOrthoDomain.from_tuple_list(coords, "pi3")
+    # plot_polygon(dom.polygon, show=True)
+    bh = assign_bends(dom)
+    logger.debug(bh.pi3s[0].study_vectors())
+    logger.debug(bh.pi3s[0].are_vectors_correct)
 
 
-@pytest.mark.parametrize(
-    "coords", [pe.one, pe.two, pe.three, ke.one, ke.two_in, ke.two_out]
-)
-def test_coords(coords: CoordsType):
-    dom = FancyOrthoDomain.from_tuple_list(coords)
-    validate_polygon(dom.polygon, "")
+class TestBendExamples:
+    keys = ["kappas", "kappa2s", "kappa2s", "pis", "pi2s", "pi3s"]
+    inp = [(i, j) for i, j in zip(BendExamples().all_doms, keys)]
+
+    @pytest.mark.parametrize("domain, key", inp)
+    def test_bends(self, domain: FancyOrthoDomain, key: str):
+
+        bh = assign_bends(domain)
+        res = bh.summary[key]
+
+        assert isinstance(res, BendListSummary)
+
+        assert res.size == 1
+
+    @pytest.mark.parametrize("domain, key", inp)
+    def test_passing(self, domain: FancyOrthoDomain, key: str):
+
+        bh = assign_bends(domain)
+        res = bh.summary[key]
+
+        assert isinstance(res, BendListSummary)
+
+        assert res.n_passing == 1
 
 
 if __name__ == "__main__":
-    be = BendExamples()
-    dom = FancyOrthoDomain.from_tuple_list(be.kappa.two_in)
-    validate_polygon(dom.polygon, "")
-    plot_polygon(dom.polygon, show=True)
+    logset()
+    study_one_bend()
+    # study_make_bends_all()
+
+    # t.test_bends()

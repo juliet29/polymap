@@ -6,6 +6,7 @@ from matplotlib.axes import Axes
 from utils4plans.geom import Coord
 from typing import NamedTuple
 
+from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.interfaces import GraphPairs
 from polymap.layout.interfaces import Layout
 import matplotlib as mpl
@@ -41,6 +42,15 @@ def plot_polygon(
     if show:
         plt.show()
     return ax
+
+
+def plot_domain_with_surfaces(domain: FancyOrthoDomain, title: str = ""):
+    ax = plot_polygon(domain.polygon, show=False, title=title)
+    surfs = domain.surfaces
+    surface_labels = [AnnotationPair(i.centroid, i.name) for i in surfs]
+    ax = add_annotations(surface_labels, ax)
+
+    plt.show()
 
 
 def plot_polygon_comparison(

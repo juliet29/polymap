@@ -16,7 +16,7 @@ def get_nonzero_component(v: geom.Vector):
 
 
 def make_surface_rep(surface: Surface):
-    return f"{surface.name} |  {str(surface.coords)}"
+    return f"{surface.name_w_domain} |  {str(surface.coords)}"
 
 
 @dataclass
@@ -51,7 +51,7 @@ class EtaBend(Bend):
 
     @property
     def surface_names(self):
-        return [i.name for i in self.surfaces]
+        return [i.name_w_domain for i in self.surfaces]
 
     @property
     def surface_tuple(self):
@@ -107,7 +107,7 @@ class PiBend(Bend):
 
     @property
     def surface_names(self):
-        return [i.name for i in self.surfaces]
+        return [i.name_w_domain for i in self.surfaces]
 
     @property
     def get_move(self):
@@ -135,7 +135,7 @@ class KappaBend(Bend):
 
     @property
     def surface_names(self):
-        return [i.name for i in self.surfaces]
+        return [i.name_w_domain for i in self.surfaces]
 
     @property
     def get_move(self):
@@ -163,7 +163,7 @@ class GammaBend(Bend):
 
     @property
     def surface_names(self):
-        return [i.name for i in self.surfaces]
+        return [i.name_w_domain for i in self.surfaces]
 
     @property
     def get_move(self):

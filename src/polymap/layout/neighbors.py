@@ -30,7 +30,7 @@ def get_candidate_surface_neighbors(layout: Layout, surf: Surface):
         | where(lambda x: x.location >= surf.location)
     )
 
-    print(f"curr_surf={surf.name}, loc={surf.location:.2f}")
+    print(f"curr_surf={surf.name_w_domain}, loc={surf.location:.2f}")
     print([(i.name, f"{i.location:.2f}") for i in res])
 
     return best_surface_for_each_domain(res)
@@ -79,7 +79,7 @@ def is_bad_surf(
         if virtual_poly.intersects(closer_poly):
             fs = other_surfs[further_surf_ix]
             print(
-                f"{fs.name}'s virtual domain intersects {surf.domain_name}. Eliminating {fs.name}..."
+                f"{fs.name_w_domain}'s virtual domain intersects {surf.domain_name}. Eliminating {fs.name_w_domain}..."
             )
             return True
 

@@ -4,7 +4,12 @@ import geom
 from utils4plans.geom import Coord
 from utils4plans.lists import sort_and_group_objects
 
-from polymap.geometry.vectors import Direction, determine_normal_direction, Axes
+from polymap.geometry.vectors import (
+    Direction,
+    determine_normal_direction,
+    Axes,
+    get_normal_vector_assuming_cw,
+)
 from polymap.interfaces import PairedCoord
 from polymap.geometry.range import FancyRange
 
@@ -61,8 +66,12 @@ class Surface:
         return hash(self.direction.name) + hash(self.coords) + hash(self.domain_name)
 
     @property
-    def name(self):
+    def name_w_domain(self):
         return str(self)
+
+    @property
+    def name(self):
+        return f"{self.direction.name}_{self.direction_ix}"
 
     @property
     def parallel_axis(self):
@@ -83,6 +92,10 @@ class Surface:
         return geom.Vector(
             [round(i) for i in [v.x, v.y, v.z]]  # pyright: ignore[reportArgumentType]
         )  # normal vector is always positive!
+
+    @property
+    def aligned_vector(self):
+        return get_normal_vector_assuming_cw(self.direction.name)
 
     @property
     def direction_vector(self):

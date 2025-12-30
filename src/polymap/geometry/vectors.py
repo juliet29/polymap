@@ -149,6 +149,20 @@ def compute_outward_normal_assuming_cw(v_: geom.Vector):
     return cross_prod
 
 
+def get_normal_vector_assuming_cw(drn: DirectionNames):
+    match drn:
+        case "north":
+            return CardinalDirections.EAST.aligned_vector
+        case "east":
+            return CardinalDirections.SOUTH.aligned_vector
+        case "south":
+            return CardinalDirections.WEST.aligned_vector
+        case "west":
+            return CardinalDirections.NORTH.aligned_vector
+        # case _
+        #     raise KeyError(f"Unexpected input. Wanted a member of `DirectionNames`, but got {drn}")
+
+
 def determine_normal_direction(v: geom.Vector):
     normal_vector = compute_outward_normal_assuming_cw(v)
     return CardinalDirections().get_drn_by_vector(normal_vector)

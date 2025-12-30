@@ -53,7 +53,7 @@ def find_new_surf_for_vector_group(surfs: list[Surface], domain_name: str):
 
 
 def fix_vector_group_on_domain(domain: FancyOrthoDomain, surfs: list[Surface]):
-    print(f"surf group to heal: {[i.name for i in surfs]}")
+    print(f"surf group to heal: {[i.name_w_domain for i in surfs]}")
     new_surf = find_new_surf_for_vector_group(surfs, domain.name)
     surf_indices = [domain.surfaces.index(i) for i in surfs]
     min_ix, max_ix = surf_indices[0], surf_indices[-1]
