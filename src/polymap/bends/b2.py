@@ -3,10 +3,37 @@ from polymap.geometry.modify.validate import InvalidPolygonError, validate_polyg
 from polymap.bends.graph import (
     create_surface_graph_for_domain,
     find_small_node_groups,
+    get_nodes_data,
+    get_successor_node,
     handle_components,
+    update_small_nbs,
 )
 from polymap.geometry.ortho import FancyOrthoDomain
-from polymap.bends.i2 import BendHolder, KappaOne, KappaTwo, PiOne, PiThree
+from polymap.bends.i2 import BendHolder, KappaOne, KappaTwo, PiOne, PiThree, PiTwo
+import networkx as nx
+
+
+def check_is_pi_two(G: nx.DiGraph, node: str):
+    data = get_nodes_data(G, node)
+    if data.is_small and data.is_nb2_small and not data.is_nb_small:
+        return True
+
+
+def make_pi_two_group(domain: FancyOrthoDomain, G_: nx.DiGraph):
+
+    def make(node: str):
+        n1 = get_successor_node(G, node)
+        n2 = get_successor_node(G, n1)
+
+        s1 = get_nodes_data(G, node).surface
+        s2 = get_nodes_data(G, n2).surface
+        assert s1 and s2
+        return PiTwo.from_surfaces(domain, G, s1, s2)
+
+    G = update_small_nbs(G_)
+
+    bends = [make(node) for node in G.nodes if check_is_pi_two(G, node)]
+    return bends
 
 
 def assign_bends(domain: FancyOrthoDomain):

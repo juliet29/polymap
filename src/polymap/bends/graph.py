@@ -25,12 +25,16 @@ class DomainGraph:
 class NodeData:
     is_small: bool = False
     surface: Surface | None = None
+    is_nb_small: bool = False
+    is_nb2_small: bool = False
 
     @property
     def repr_dict(self):
         def fx():
             yield "surface_name", self.surface.name_w_domain if self.surface else ""
             yield "is_small", self.is_small
+            yield "is_nb_small", self.is_nb_small
+            yield "is_nb2_small", self.is_nb2_small
 
         return make_repr_obj(fx)
 
@@ -47,7 +51,11 @@ class SurfaceNode:
     data: NodeData
 
 
-#
+def get_nodes_data(G: nx.DiGraph, node: str):
+    data = G.nodes[node].get("data")
+    assert isinstance(data, NodeData)
+    d: NodeData = data
+    return d
 
 
 def get_predecesor(G: nx.DiGraph, node: object):
@@ -58,6 +66,13 @@ def get_predecesor(G: nx.DiGraph, node: object):
 def get_successor(G: nx.DiGraph, node: object):
     res = list(G.successors(node))[0]
     return get_surface(G, res)
+
+
+def get_successor_node(G: nx.DiGraph, node: object):
+    res = list(G.successors(node))
+    assert len(res) == 1, f"Expected one successor, but got {res}"
+    # should assert num of succesors = 1
+    return res[0]
 
 
 def create_cycle_graph(nodes_: Iterable[T]):
@@ -81,6 +96,26 @@ def create_surface_graph_for_domain(domain: FancyOrthoDomain):
         for name, surf in zip(surf_names, domain.surfaces)
     }
     nx.set_node_attributes(G, node_data)
+    return G
+
+
+def update_small_nbs(G_: nx.DiGraph):
+    def check_nb_is_small(G: nx.DiGraph, nb: str):
+        data = get_nodes_data(G, nb)
+        return data.is_small
+
+    def update(G: nx.DiGraph, node: str):
+        data = get_nodes_data(G, node)
+        n1 = get_successor_node(G, node)
+        data.is_nb_small = check_nb_is_small(G, n1)
+
+        n2 = get_successor_node(G, n1)
+        data.is_nb2_small = check_nb_is_small(G, n2)
+
+    G = deepcopy(G_)
+    for node in G.nodes:
+        update(G, node)
+
     return G
 
 

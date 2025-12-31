@@ -3,7 +3,7 @@ from rich.pretty import pretty_repr
 from utils4plans.sets import set_equality
 import networkx as nx
 
-from polymap.bends.b2 import assign_bends
+from polymap.bends.b2 import assign_bends, check_is_pi_two, make_pi_two_group
 from polymap.bends.graph import (
     NodeData,
     create_cycle_graph,
@@ -12,6 +12,7 @@ from polymap.bends.graph import (
     find_small_node_groups,
     handle_components,
     repr_graph,
+    update_small_nbs,
 )
 from loguru import logger
 
@@ -113,20 +114,31 @@ class TestDomainSurfaceGraph:
         logger.debug(bh.summary)
 
 
-# def test_create_surface_graph():
-#     pe = PiExamples()
-#     domain = FancyOrthoDomain.from_tuple_list(pe.one)
-#     G = create_surface_graph_for_domain(domain)
-#     logger.debug(G)
-#     logger.debug(G.edges)
-#     # logger.debug(
-#     #     pretty_repr(G.nodes(data=True), max_width=10, indent_size=20, expand_all=True)
-#     # )
-#     # logger.debug(G.nodes(data=True))
-#     logger.debug(repr_graph(G))
+class TestPi2Identify:
+    pe = PiExamples()
+    domain = FancyOrthoDomain.from_tuple_list(pe.two)
+    G = create_surface_graph_for_domain(domain)
+    G_updated = update_small_nbs(G)
+
+    def print_graph(self):
+        # plot_domain_with_surfaces(self.domain, "pi two example")
+        logger.debug(repr_graph(self.G_updated))
+
+    def test_check_of_pi_two(self):
+        # TODO: changes names of surfaces.. => Have to fix tests after..
+        expected_node = "-east_0"
+        res = check_is_pi_two(self.G_updated, expected_node)
+        assert res
+
+    def test_make_pi_two_group(self):
+        bends = make_pi_two_group(self.domain, self.G_updated)
+        for b in bends:
+            logger.info(b.surface_names)
 
 
 if __name__ == "__main__":
     logset()
-    t = TestDomainSurfaceGraph()
-    t.test_make_bends()
+    t = TestPi2Identify()
+    t.test_make_pi_two_group()
+    # t.print_graph()
+    # t.test_check_of_pi_two()
