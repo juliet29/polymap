@@ -3,7 +3,7 @@ from rich.pretty import pretty_repr
 from utils4plans.sets import set_equality
 import networkx as nx
 
-from polymap.bends.b2 import assign_bends, check_is_pi_two, make_pi_two_group
+from polymap.bends.b2 import assign_bends, check_is_pi_two, identify_pi_twos
 from polymap.bends.graph import (
     NodeData,
     create_cycle_graph,
@@ -131,9 +131,10 @@ class TestPi2Identify:
         assert res
 
     def test_make_pi_two_group(self):
-        bends = make_pi_two_group(self.domain, self.G_updated)
-        for b in bends:
-            logger.info(b.surface_names)
+        bends = identify_pi_twos(self.domain, self.G_updated)
+        assert len(bends) == 1
+        # for b in bends:
+        #     logger.info(b.surface_names)
 
 
 if __name__ == "__main__":

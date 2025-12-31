@@ -1,4 +1,5 @@
 from loguru import logger
+from utils4plans.lists import chain_flatten
 from polymap.geometry.modify.validate import InvalidPolygonError, validate_polygon
 from polymap.bends.graph import (
     create_surface_graph_for_domain,
@@ -12,6 +13,8 @@ from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.bends.i2 import BendHolder, KappaOne, KappaTwo, PiOne, PiThree, PiTwo
 import networkx as nx
 
+from polymap.geometry.surfaces import Surface
+
 
 def check_is_pi_two(G: nx.DiGraph, node: str):
     data = get_nodes_data(G, node)
@@ -19,7 +22,7 @@ def check_is_pi_two(G: nx.DiGraph, node: str):
         return True
 
 
-def make_pi_two_group(domain: FancyOrthoDomain, G_: nx.DiGraph):
+def identify_pi_twos(domain: FancyOrthoDomain, G_: nx.DiGraph):
 
     def make(node: str):
         n1 = get_successor_node(G, node)
@@ -36,6 +39,12 @@ def make_pi_two_group(domain: FancyOrthoDomain, G_: nx.DiGraph):
     return bends
 
 
+def is_part_of_pi_twos(bends: list[PiTwo], surface: Surface):
+    pi2surfs = chain_flatten([[i.s1, i.s2] for i in bends])
+    if surface in pi2surfs:
+        return True
+
+
 def assign_bends(domain: FancyOrthoDomain):
 
     bh = BendHolder()
@@ -48,6 +57,7 @@ def assign_bends(domain: FancyOrthoDomain):
         return bh
 
     G = create_surface_graph_for_domain(domain)
+    bh.pi2s.extend(identify_pi_twos(domain, G))
     # TODO find 2pi groups
     components = find_small_node_groups(G)
     logger.trace(f"components = {components}")
@@ -79,6 +89,9 @@ def assign_bends(domain: FancyOrthoDomain):
             bh.kappa2s.append(res)
         elif size == 1:
             res = handle_components(G, comp)[0]
+            if is_part_of_pi_twos(bh.pi2s, res):
+                continue
+
             bend = KappaOne.from_surfaces(*info, res)
             if bend.are_vectors_correct:
                 bh.kappas.append(bend)
