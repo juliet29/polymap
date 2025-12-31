@@ -38,6 +38,10 @@ class MSDDomainName(NamedTuple):
     def __repr__(self) -> str:
         return f"({self.layout_id}, {self.domain_name})"
 
+    @property
+    def display_name(self):
+        return self.__repr__()
+
 
 class MSDDomain(NamedTuple):
     name: MSDDomainName

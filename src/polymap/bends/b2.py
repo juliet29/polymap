@@ -45,14 +45,14 @@ def is_part_of_pi_twos(bends: list[PiTwo], surface: Surface):
         return True
 
 
-def assign_bends(domain: FancyOrthoDomain):
+def assign_bends(domain: FancyOrthoDomain, domain_name: int | str = ""):
 
     bh = BendHolder()
     try:
         validate_polygon(domain.polygon, domain.name)
     except InvalidPolygonError as e:
         logger.error(
-            f"Could not validate polygon, and could not assign bends ----- {e.message()}"
+            f"Could not validate polygon, and could not assign bends for domain<{domain_name}> ----- {e.message()}"
         )
         return bh
 
@@ -76,9 +76,9 @@ def assign_bends(domain: FancyOrthoDomain):
             bh.large.append(comp)
         elif size == 3:
             res = handle_components(G, comp)
-            logger.debug(
-                f"after have handled components: {[i.name_w_domain for i in res]}"
-            )
+            # logger.debug(
+            #     f"after have handled components: {[i.name_w_domain for i in res]}"
+            # )
             res = PiThree.from_surfaces(*info, *res)
             bh.pi3s.append(res)
             # todo: check if vectors are correct, if not goes to same treatment as large..

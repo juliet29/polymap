@@ -7,6 +7,7 @@ from polymap.bends.b2 import assign_bends
 from polymap.bends.i2 import BendListSummary, BendNames, DomainSummary
 from polymap.examples.msd import MSDDomain, MSDDomainName, get_all_msd_domains
 from polymap.interfaces import make_repr
+from polymap.visuals.visuals import plot_domain_with_surfaces
 
 
 class DomainRes(NamedTuple):
@@ -53,17 +54,46 @@ def summarize_across_domains(data: list[DomainRes]):
     return res
 
 
-def study_msd_bends():
+class StudyMSDBends:
     doms = get_all_msd_domains()
-    data = map(lambda x: DomainRes(x, assign_bends(x.domain).summary), doms)
-    summary = summarize_across_domains(list(data))
-    logger.info(pretty_repr(summary))
+    data = list(
+        map(
+            lambda x: DomainRes(x, assign_bends(x.domain, x.name.display_name).summary),
+            doms,
+        )
+    )
+
+    def report(self):
+        summary = summarize_across_domains(self.data)
+        logger.info(pretty_repr(summary))
 
     # pi3_fails = summary["kappa2s"].domains
     #
     # logger.info(pretty_repr(pi3_fails))
 
+    def study_failing_bends(self, type_: BendNames):
+        # domains of interest
+        di = filter(
+            lambda x: x.bend_summary[type_].size > 0
+            and x.bend_summary[type_].n_failing > 0,
+            self.data,
+        )
+        return di
+
+    def summarize_failing(self, type_: BendNames):
+        doms_of_interest = self.study_failing_bends(type_)
+        for dom, summary in doms_of_interest:
+            logger.info("\n")
+            logger.info(f"[bold]{dom.name}")
+            bh = assign_bends(dom.domain, dom.name.display_name)
+            bends = bh.get_bend_group(type_)
+            for b in bends:
+                logger.info(b.study_vectors())
+                b.expected_vectors(log=True)
+            plot_domain_with_surfaces(dom.domain)
+
 
 if __name__ == "__main__":
     logconf.logset()
-    study_msd_bends()
+    s = StudyMSDBends()
+    s.summarize_failing("pi2s")

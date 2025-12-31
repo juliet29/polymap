@@ -23,7 +23,7 @@ def get_nonzero_component(v: geom.Vector):
 
 
 def make_surface_rep(surface: Surface):
-    return f"{surface.name_w_domain} | {surface.direction_vector} | aligned={surface.aligned_vector} | {str(surface.coords)} "
+    return f"{surface.name_w_domain} | {surface.aligned_vector} | {surface.is_small} |  {str(surface.coords)} "
 
 
 @dataclass
@@ -39,6 +39,8 @@ class Bend:
     @property
     def surface_tuple(self):
         return tuple(self.surfaces)
+
+    def expected_vectors(self, log: bool) -> tuple[bool] | tuple[bool, bool]: ...
 
     @property
     def are_vectors_correct(self) -> bool: ...
@@ -104,10 +106,18 @@ class PiTwo(Bend):
         c = get_successor(G, s2.name_w_domain)
         return cls(a, s1, b, s2, c, domain)
 
+    def expected_vectors(self, log=False):
+        exp1 = self.s1.aligned_vector == -self.s2.aligned_vector
+        exp2 = self.a.aligned_vector == self.b.aligned_vector == self.c.aligned_vector
+        if log:
+            logger.debug(exp1)
+            logger.debug(exp2)
+            logger.debug(exp1 and exp2)
+        return (exp1, exp2)
+
     @property
     def are_vectors_correct(self):
-        exp1 = self.s1.direction_vector == -self.s2.direction_vector
-        exp2 = self.a.aligned_vector == self.b.aligned_vector == self.c.aligned_vector
+        exp1, exp2 = self.expected_vectors()
         return exp1 and exp2
 
     @property
@@ -139,14 +149,19 @@ class PiThree(Bend):
         b = get_successor(G, s3.name_w_domain)
         return cls(a, s1, s2, s3, b, domain)
 
-    @property
-    def are_vectors_correct(self):
+    def expected_vectors(self, log=False):
         exp1 = self.s1.direction_vector == -self.s3.direction_vector
         exp2 = self.a.aligned_vector == self.b.aligned_vector == self.s2.aligned_vector
-        if (not exp1) or (not exp2):
+        if log:
             logger.debug(exp1)
             logger.debug(exp2)
-            logger.debug(self.study_vectors())
+            logger.debug(exp1 and exp2)
+
+        return (exp1, exp2)
+
+    @property
+    def are_vectors_correct(self):
+        exp1, exp2 = self.expected_vectors()
         return exp1 and exp2
 
     @property
@@ -258,6 +273,7 @@ class BendListSummary(NamedTuple):
 
 @dataclass
 class BendList:
+    # TODO: is this redundant?
     bends: list[Bend]
 
     def __post_init__(self):
@@ -337,3 +353,6 @@ class BendHolder:
 
         print(f"Next bend is {str(res)}")
         return res
+
+    def get_bend_group(self, type_: BendNames):
+        return self.__getattribute__(type_)
