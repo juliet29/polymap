@@ -6,10 +6,19 @@ from rich.pretty import pretty_repr
 from polymap import logconf
 from polymap.bends.b2 import assign_bends
 from polymap.bends.i2 import Bend, BendListSummary, BendNames, DomainSummary
-from polymap.bends.iterate2 import DomainCleanIterationFailure, iterate_clean_domain
-from polymap.examples.msd import MSDDomain, MSDDomainName, get_all_msd_domains
+from polymap.bends.iterate2 import (
+    DomainCleanIterationFailure,
+    clean_layout,
+    iterate_clean_domain,
+)
+from polymap.examples.msd import (
+    MSDDomain,
+    MSDDomainName,
+    get_all_msd_domains,
+    get_msd_layouts_as_objects,
+)
 from polymap.interfaces import make_repr
-from polymap.visuals.visuals import plot_domain_with_surfaces
+from polymap.visuals.visuals import plot_domain_with_surfaces, plot_layout_comparison
 
 
 class DomainRes(NamedTuple):
@@ -134,8 +143,27 @@ class StudyMSDBends:
         report()
 
 
+class StudyMSDLayouts:
+    layouts = get_msd_layouts_as_objects()
+
+    def study_all(self):
+        tracker = {}
+
+        for group in self.layouts:
+            new_layout, bad_domains = clean_layout(group.layout, group.layout_id)
+            tracker[group.layout_id] = bad_domains
+            plot_layout_comparison(
+                [group.layout, new_layout], [group.layout_id, "bends cleaned"]
+            )
+
+        logger.success(tracker)
+
+
 if __name__ == "__main__":
     logconf.logset()
-    s = StudyMSDBends()
-    s.study_moves_all_domain()
+    # s = StudyMSDBends()
+    # s.study_moves_all_domain()
     # s.summarize_failing("pi3s")
+
+    s = StudyMSDLayouts()
+    s.study_all()

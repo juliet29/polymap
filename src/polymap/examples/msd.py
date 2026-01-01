@@ -31,8 +31,13 @@ MSD_IDs = Literal[
 ]
 
 
+class MSDLayout(NamedTuple):
+    layout_id: str | MSD_IDs
+    layout: Layout
+
+
 class MSDDomainName(NamedTuple):
-    layout_id: MSD_IDs
+    layout_id: str | MSD_IDs
     domain_name: str
 
     def __repr__(self) -> str:
@@ -76,6 +81,10 @@ def get_one_msd_layout(id: MSD_IDs | None = None):
         stem = stems[0]
 
     return stem, create_layout_from_json(stem, source_path)
+
+
+def get_msd_layouts_as_objects():
+    return [MSDLayout(*get_one_msd_layout(id)) for id in get_args(MSD_IDs)]
 
 
 def get_all_msd_domains():
