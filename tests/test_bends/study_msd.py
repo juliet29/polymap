@@ -1,11 +1,12 @@
+from collections import Counter
 from typing import NamedTuple, get_args
 
 from loguru import logger
 from rich.pretty import pretty_repr
 from polymap import logconf
 from polymap.bends.b2 import assign_bends
-from polymap.bends.i2 import BendListSummary, BendNames, DomainSummary
-from polymap.bends.iterate2 import iterate_clean_domain
+from polymap.bends.i2 import Bend, BendListSummary, BendNames, DomainSummary
+from polymap.bends.iterate2 import DomainCleanIterationFailure, iterate_clean_domain
 from polymap.examples.msd import MSDDomain, MSDDomainName, get_all_msd_domains
 from polymap.interfaces import make_repr
 from polymap.visuals.visuals import plot_domain_with_surfaces
@@ -57,12 +58,17 @@ def summarize_across_domains(data: list[DomainRes]):
 
 class StudyMSDBends:
     doms = get_all_msd_domains()
-    data = list(
-        map(
-            lambda x: DomainRes(x, assign_bends(x.domain, x.name.display_name).summary),
-            doms,
+
+    @property
+    def data(self):
+        return list(
+            map(
+                lambda x: DomainRes(
+                    x, assign_bends(x.domain, x.name.display_name).summary
+                ),
+                self.doms,
+            )
         )
-    )
 
     def report(self):
         summary = summarize_across_domains(self.data)
@@ -92,9 +98,44 @@ class StudyMSDBends:
         dom = self.doms[0]
         iterate_clean_domain(dom)
 
+    def study_moves_all_domain(self):
+        def handle(dom: MSDDomain):
+            try:
+                iterate_clean_domain(dom)
+            except DomainCleanIterationFailure as e:
+                failures.append((e.domain, e.fail_type))
+                fail_counter[e.fail_type] += 1
+                if e.fail_type == "Invalid Move":
+                    assert isinstance(e.current_bend, Bend)
+                    fail_bend_counter[e.current_bend.bend_name] += 1
+                return
+
+            successes.append(dom.name.display_name)
+
+        def report():
+            s = f"[green]PASS:{len(successes)}/{dom_counter}"
+            f = f"[red]FAIL:{len(failures)}/{dom_counter}"
+
+            # TODO: need a logure log that is more like a summary...
+            logger.success(f"SUMMARY:{s} | {f}")
+            logger.success(fail_counter)
+            logger.success(fail_bend_counter)
+
+        failures = []
+        fail_counter = Counter()
+        fail_bend_counter = Counter()
+        successes = []
+        dom_counter = 0
+
+        for dom in self.doms:
+            handle(dom)
+            dom_counter += 1
+
+        report()
+
 
 if __name__ == "__main__":
     logconf.logset()
     s = StudyMSDBends()
-    s.study_moves_one_domain()
+    s.study_moves_all_domain()
     # s.summarize_failing("pi3s")

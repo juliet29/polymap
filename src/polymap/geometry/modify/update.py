@@ -1,4 +1,5 @@
 from copy import deepcopy
+from loguru import logger
 import shapely as sp
 from typing import NamedTuple
 from utils4plans.geom import Coord, tuple_list_from_list_of_coords
@@ -19,7 +20,6 @@ from polymap.interfaces import (
 )
 import geom
 from polymap.geometry.modify.validate import InvalidPolygonError, validate_polygon
-from rich import print
 
 
 class Move(NamedTuple):
@@ -86,7 +86,7 @@ def update_paired_coords(
 ):
     paired_coords = deepcopy(paired_coords_)
     update_coords_tuple = create_update_coords_tuple(paired_coords, target, vector)
-    print(update_coords_tuple)
+    # print(update_coords_tuple)
     for item in update_coords_tuple:
         paired_coords[item.ix] = item.paired_coord
 
@@ -107,12 +107,12 @@ def remove_zero_vector_coords(pcs: list[PairedCoord]):
 
 def update_domain(move: Move):
     domain, surface, location_delta = move
-    print(str(move))
+    logger.debug(str(move))
     vector = make_vector_2D(surface.positive_perpendicular_vector) * location_delta
     updated_paired_coords = update_paired_coords(
         domain.paired_coords, surface.coords, vector
     )
-    print(updated_paired_coords)
+    # print(updated_paired_coords)
 
     non_zero_paired_coords = remove_zero_vector_coords(updated_paired_coords)
     coords = coords_from_paired_coords_list(non_zero_paired_coords)

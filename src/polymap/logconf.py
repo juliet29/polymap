@@ -1,7 +1,7 @@
 from loguru import logger
 from rich.logging import RichHandler
 
-DEBUG_LEVEL = "DEBUG"
+DEBUG_LEVEL = "SUCCESS"
 
 HANDLERS = [
     {

@@ -11,7 +11,6 @@ from polymap.bends.graph import get_predecesor, get_successor
 from polymap.geometry.modify.update import Move
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.surfaces import Surface
-from rich import print
 
 from polymap.interfaces import make_repr_obj
 
@@ -44,6 +43,10 @@ class Bend:
 
     @property
     def are_vectors_correct(self) -> bool: ...
+
+    @property
+    def bend_name(self):
+        return f"{type(self)}"
 
     def __str__(self):
         return f"{type(self)}({self.surface_names})"
@@ -351,7 +354,7 @@ class BendHolder:
                 chain_flatten([v for v in self.__dict__.values()]),
             )
 
-        print(f"Next bend is {str(res)}")
+        logger.debug(f"Next bend is {str(res)}")
         return res
 
     def get_bend_group(self, type_: BendNames):
