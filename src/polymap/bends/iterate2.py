@@ -5,9 +5,8 @@ from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.bends.utils import (
     apply_move,
     find_small_surfs,
-    show_problem_bends,
 )
-from polymap.bends.i2 import Bend
+from polymap.bends.i2 import Bend, BendHolder
 from polymap.bends.points import heal_extra_points_on_domain
 from copy import deepcopy
 from polymap.bends.viz import DomainMoveDetails, plot_domain_iteration
@@ -33,8 +32,8 @@ class DomainCleanFailure(Exception):
         fail_type: FAIL_TYPES,
         details: str,
         surfaces: list[Surface] = [],
-        bends: list[Bend] = [],
-        current_bend: Bend = Bend(),
+        bends: BendHolder | None = None,
+        current_bend: Bend | None = None,
     ):
         self.domain = domain
         self.fail_type = fail_type
@@ -50,10 +49,14 @@ class DomainCleanFailure(Exception):
 
     def show_message(self, layout_id: str):
         logger.warning(f"[red bold]{self.fail_type} for {layout_id}-{self.domain.name}")
-        logger.warning(f"[red]{self.details}")
+        logger.warning(f"{self.details}")
 
         if self.bends:
-            show_problem_bends(self.bends)
+            logger.warning(self.bends.summary_str)
+
+        if self.current_bend:
+            logger.warning(f"Current bend is {str(self.current_bend)}")
+            logger.warning(self.current_bend.study_vectors())
 
 
 class DomainCleanIterationFailure(Exception):
@@ -80,6 +83,7 @@ def clean_domain(domain: FancyOrthoDomain, domain_name: str = ""):
             "Invalid Move",
             e.reason,
             surfaces=current_bend.surfaces,
+            bends=bend_holder,
             current_bend=current_bend,
         )
 
@@ -91,7 +95,7 @@ def clean_domain(domain: FancyOrthoDomain, domain_name: str = ""):
             "Failed to Clean Domain Correctly",
             e.reason,
             surfaces=current_bend.surfaces,
-            bends=[current_bend],
+            current_bend=current_bend,
         )
     return DomainMoveDetails(domain, dom3, current_bend.surfaces)
 
@@ -122,7 +126,7 @@ def iterate_clean_domain(
 
     small_surfs = find_small_surfs(domain)
     if not small_surfs:
-        logger.info(f"No small surfaces for {domain_name}")
+        logger.info(f"No small surfaces for {domain_name}. Ending iteration...")
         return domain
 
     logger.info(f"[blue italic]Starting iteration for {domain_name}")

@@ -101,7 +101,7 @@ class StudyMSDBends:
     def study_moves_all_domain(self):
         def handle(dom: MSDDomain):
             try:
-                iterate_clean_domain(dom)
+                iterate_clean_domain(dom, show_failure=False)
             except DomainCleanIterationFailure as e:
                 failures.append((e.domain, e.fail_type))
                 fail_counter[e.fail_type] += 1

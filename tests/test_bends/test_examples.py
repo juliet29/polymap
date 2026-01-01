@@ -1,8 +1,11 @@
 from loguru import logger
 import pytest
+from utils4plans.geom import CoordsType
 from polymap.bends.b2 import assign_bends
 from polymap.bends.examples import BendExamples
 from polymap.bends.i2 import BendListSummary
+from polymap.bends.iterate2 import iterate_clean_domain
+from polymap.examples.msd import MSDDomain, MSDDomainName
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.logconf import logset
 
@@ -22,6 +25,37 @@ def study_one_bend():
     bh = assign_bends(dom)
     logger.debug(bh.pi3s[0].study_vectors())
     logger.debug(bh.pi3s[0].are_vectors_correct)
+
+
+def study_move(coords: CoordsType, dom_name: str):
+    dom = FancyOrthoDomain.from_tuple_list(coords, dom_name)
+    msd_dom = MSDDomainName(0, dom_name)  # pyright: ignore[reportArgumentType]
+    res = iterate_clean_domain(
+        MSDDomain(msd_dom, dom),
+        show_failure=True,
+        show_complete_iteration=False,  # NOTE: change to true if want to actually see!
+    )
+    assert res
+
+
+class TestBendMoves:
+    def test_pi1(self):
+        study_move(BendExamples.pi.one, "pi1")
+
+    def test_pi2(self):
+        study_move(BendExamples.pi.two, "pi2")
+
+    def test_pi3(self):
+        study_move(BendExamples.pi.three, "pi3")
+
+    def test_kappa1(self):
+        study_move(BendExamples.kappa.one, "kappa1")
+
+    def test_kappa2in(self):
+        study_move(BendExamples.kappa.two_in, "kappa_two_in")
+
+    def test_kappa2out(self):
+        study_move(BendExamples.kappa.two_out, "kappa_two_out")
 
 
 class TestBendExamples:
@@ -51,7 +85,5 @@ class TestBendExamples:
 
 if __name__ == "__main__":
     logset()
-    study_one_bend()
-    # study_make_bends_all()
-
-    # t.test_bends()
+    t = TestBendMoves()
+    t.test_kappa2out()

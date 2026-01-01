@@ -87,7 +87,7 @@ class PiOne(Bend):
     @property
     def get_move(self):
         # TODO fix!
-        m = Move(self.domain, self.a, get_nonzero_component(self.s1.vector))
+        m = Move(self.domain, self.s1, get_nonzero_component(self.b.vector))
         return [m]
 
 
@@ -126,7 +126,7 @@ class PiTwo(Bend):
     @property
     def get_move(self):
         # TODO fix!
-        m = Move(self.domain, self.a, get_nonzero_component(self.s1.vector))
+        m = Move(self.domain, self.b, get_nonzero_component(self.s2.vector))
         return [m]
 
 
@@ -170,7 +170,7 @@ class PiThree(Bend):
     @property
     def get_move(self):
         # TODO fix!
-        m = Move(self.domain, self.a, get_nonzero_component(self.s1.vector))
+        m = Move(self.domain, self.s2, get_nonzero_component(self.s3.vector))
         return [m]
 
 
@@ -196,7 +196,7 @@ class KappaOne(Bend):
 
     @property
     def get_move(self):
-        m = Move(self.domain, self.a, get_nonzero_component(self.s1.vector))
+        m = Move(self.domain, self.b, -1 * get_nonzero_component(self.s1.vector))
         return [m]
 
 
@@ -234,12 +234,14 @@ class KappaTwo(Bend):
     @property
     def get_move(self):
         if self.s1.direction_vector == self.b.direction_vector:
+            # out
             m1 = Move(self.domain, self.s1, get_nonzero_component(self.s2.vector))
         elif self.a.direction_vector == -1 * self.s2.direction_vector:
+            # out
             m1 = Move(self.domain, self.s1, get_nonzero_component(self.s2.vector))
         else:
-            m1 = Move(self.domain, self.s2, get_nonzero_component(self.s1.vector))
-            # TOOD consider a and 2 have diff directions..
+            # in
+            m1 = Move(self.domain, self.s2, -1 * get_nonzero_component(self.s1.vector))
         return [m1]
 
 
@@ -335,7 +337,7 @@ class BendHolder:
 
     @property
     def summary_str(self):
-        return f"BendHolder: {pretty_repr(self.summary_str)}"
+        return f"BendHolder: {pretty_repr(self.summary)}"
 
     def get_next_bend(self):
         if self.pi2s:
@@ -353,7 +355,7 @@ class BendHolder:
                 "Bend holder is empty!",
                 chain_flatten([v for v in self.__dict__.values()]),
             )
-
+        logger.debug(self.summary_str)
         logger.debug(f"Next bend is {str(res)}")
         return res
 
