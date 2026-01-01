@@ -36,7 +36,10 @@ def identify_pi_twos(domain: FancyOrthoDomain, G_: nx.DiGraph):
     G = update_small_nbs(G_)
 
     bends = [make(node) for node in G.nodes if check_is_pi_two(G, node)]
-    return bends
+
+    # only want those where are passing bend checks
+    passing_bends = [i for i in bends if i.are_vectors_correct]
+    return passing_bends
 
 
 def is_part_of_pi_twos(bends: list[PiTwo], surface: Surface):
@@ -70,7 +73,7 @@ def assign_bends(domain: FancyOrthoDomain, domain_name: int | str = ""):
     # uncategorized = []H
 
     for comp_ in components:
-        comp = list(comp_)  # TODO: can fix this.
+        comp = list(comp_)  # TODO: can simplify this.
         size = len(comp)
         if size > 3:
             bh.large.append(comp)
@@ -79,8 +82,11 @@ def assign_bends(domain: FancyOrthoDomain, domain_name: int | str = ""):
             # logger.debug(
             #     f"after have handled components: {[i.name_w_domain for i in res]}"
             # )
-            res = PiThree.from_surfaces(*info, *res)
-            bh.pi3s.append(res)
+            bend = PiThree.from_surfaces(*info, *res)
+            if bend.are_vectors_correct:
+                bh.pi3s.append(bend)
+            else:
+                bh.large.append(comp)
             # todo: check if vectors are correct, if not goes to same treatment as large..
             #
         elif size == 2:
@@ -103,6 +109,13 @@ def assign_bends(domain: FancyOrthoDomain, domain_name: int | str = ""):
                 continue
 
             bh.not_found.append(comp)
+
+        # bh larges and bad pi3s become kappa2s
+        for comp in bh.large:
+            res = handle_components(G, comp)
+            s1, s2, *_ = res
+            bend = KappaTwo.from_surfaces(*info, s1, s2)
+            bh.kappa2s.append(bend)
 
     return bh
 

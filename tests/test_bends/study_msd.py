@@ -5,6 +5,7 @@ from rich.pretty import pretty_repr
 from polymap import logconf
 from polymap.bends.b2 import assign_bends
 from polymap.bends.i2 import BendListSummary, BendNames, DomainSummary
+from polymap.bends.iterate2 import iterate_clean_domain
 from polymap.examples.msd import MSDDomain, MSDDomainName, get_all_msd_domains
 from polymap.interfaces import make_repr
 from polymap.visuals.visuals import plot_domain_with_surfaces
@@ -67,12 +68,7 @@ class StudyMSDBends:
         summary = summarize_across_domains(self.data)
         logger.info(pretty_repr(summary))
 
-    # pi3_fails = summary["kappa2s"].domains
-    #
-    # logger.info(pretty_repr(pi3_fails))
-
     def study_failing_bends(self, type_: BendNames):
-        # domains of interest
         di = filter(
             lambda x: x.bend_summary[type_].size > 0
             and x.bend_summary[type_].n_failing > 0,
@@ -90,10 +86,15 @@ class StudyMSDBends:
             for b in bends:
                 logger.info(b.study_vectors())
                 b.expected_vectors(log=True)
-            plot_domain_with_surfaces(dom.domain)
+            plot_domain_with_surfaces(dom.domain, title=dom.name.display_name)
+
+    def study_moves_one_domain(self):
+        dom = self.doms[0]
+        iterate_clean_domain(dom)
 
 
 if __name__ == "__main__":
     logconf.logset()
     s = StudyMSDBends()
-    s.summarize_failing("pi2s")
+    s.study_moves_one_domain()
+    # s.summarize_failing("pi3s")

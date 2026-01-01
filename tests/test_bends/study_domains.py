@@ -11,7 +11,6 @@ from polymap.visuals.visuals import plot_domain_with_surfaces
 
 
 def test_bad_domain(id_: str | int, domain_name: str, show=False):
-
     id = str(id_)
     assert id in get_args(MSD_IDs), f"{id} not in MSD_IDS"
     msd_id: MSD_IDs = id  # pyright: ignore[reportAssignmentType]
