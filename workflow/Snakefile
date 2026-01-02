@@ -1,0 +1,11 @@
+rule test:
+  shell:
+    "uv run workflow/scripts/preproc.py welcome"
+
+rule rotate:
+  input:
+    "static/_01_inputs/msd/106493.json"
+  output:
+    "static/_04_temp/msd/106493/rotated.json"
+  shell:
+    "uv run workflow/scripts/preproc.py rotate {input} > {output}"

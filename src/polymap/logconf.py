@@ -1,7 +1,7 @@
 from loguru import logger
 from rich.logging import RichHandler
 
-DEBUG_LEVEL = "SUCCESS"
+DEBUG_LEVEL = "START"
 
 HANDLERS = [
     {
@@ -13,4 +13,9 @@ HANDLERS = [
 
 def logset():
     logger.remove()
+    logger.level("START", no=22, color="<CYAN>", icon="*")
+    logger.level("END", no=22, color="<CYAN>", icon="*")
+    logger.level("SUMMARY", no=27, color="<YELLOW>", icon="%")
     logger.add(level=DEBUG_LEVEL, **HANDLERS[0])
+
+    # TODO figure out logging to individual files for each.. or snakemake..

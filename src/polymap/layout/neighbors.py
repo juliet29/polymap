@@ -1,3 +1,4 @@
+from loguru import logger
 from pipe import where
 
 from utils4plans.lists import sort_and_group_objects
@@ -8,7 +9,6 @@ from polymap.geometry.surfaces import Surface, FancyRange
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.layout.interfaces import create_layout_from_dict
 from polymap.layout.interfaces import Layout
-from rich import print
 
 
 def get_candidate_surface_neighbors(layout: Layout, surf: Surface):
@@ -30,8 +30,8 @@ def get_candidate_surface_neighbors(layout: Layout, surf: Surface):
         | where(lambda x: x.location >= surf.location)
     )
 
-    print(f"curr_surf={surf.name_w_domain}, loc={surf.location:.2f}")
-    print([(i.name, f"{i.location:.2f}") for i in res])
+    logger.trace(f"curr_surf={surf.name_w_domain}, loc={surf.location:.2f}")
+    logger.trace([(i.name, f"{i.location:.2f}") for i in res])
 
     return best_surface_for_each_domain(res)
 
@@ -51,7 +51,7 @@ def make_virtual_domain(
 ):
     distance_range = FancyRange(surf.location, further_surf.location)
     axis_aligned_range = surf.range.intersection(further_surf.range, surf.parallel_axis)
-    print(f"{axis_aligned_range=}")
+    logger.trace(f"{axis_aligned_range=}")
 
     if surf.parallel_axis == "X":
         virtual_domain = FancyOrthoDomain.from_bounds(
@@ -78,7 +78,7 @@ def is_bad_surf(
         virtual_poly = virtual_domain.polygon
         if virtual_poly.intersects(closer_poly):
             fs = other_surfs[further_surf_ix]
-            print(
+            logger.trace(
                 f"{fs.name_w_domain}'s virtual domain intersects {surf.domain_name}. Eliminating {fs.name_w_domain}..."
             )
             return True
@@ -89,13 +89,11 @@ def filter_candidate_neighbors(
 ):
     # NOTE: neighbor furthest away from the current surf is first
     sorted_surfs = sort_surfaces(surf, other_surfs)
-    print("\nsorted_surfs=")
-    print(sorted_surfs)
     bad_surfs = []
 
     for further_surf in sorted_surfs:
         further_surf_ix = sorted_surfs.index(further_surf)
-        print(f"{further_surf_ix=}")
+        logger.trace(f"{further_surf_ix=}")
         # closer_domain = layout.get_domain(closer_surf.domain_name)
 
         virtual_domain = make_virtual_domain(surf, further_surf)
@@ -104,8 +102,6 @@ def filter_candidate_neighbors(
             bad_surfs.append(further_surf)
 
     remaining = set_difference(other_surfs, bad_surfs)
-    print("\nremaining=")
-    print(remaining)
 
     # print(f"{str(surf)}: {[i.domain_name for i in bad_surfs]}")
     return remaining
@@ -114,8 +110,6 @@ def filter_candidate_neighbors(
 def get_nbs_for_surf(layout: Layout, surf: Surface):
     potential_nbs = get_candidate_surface_neighbors(layout, surf)
     # return potential_nbs
-    print("\npotential_nbs=")
-    print(potential_nbs)
     if not potential_nbs:
         return []
     return filter_candidate_neighbors(layout, surf, potential_nbs)

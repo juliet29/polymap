@@ -2,7 +2,6 @@ from copy import deepcopy
 from typing import NamedTuple
 from warnings import warn
 
-from rich import print
 from utils4plans.lists import sort_and_group_objects_dict
 from utils4plans.sets import set_difference
 
@@ -17,7 +16,6 @@ def get_unchanged_domains(layout: Layout, new_doms: list[FancyOrthoDomain]):
     # TODO: this is something that might go under test!
     exist_names = [i.name for i in layout.domains]
     new_names = [i.name for i in new_doms]
-    print(f"{new_names=}")
     unchanged_names = set_difference(exist_names, new_names)
     unchanged_doms = [layout.get_domain(i) for i in unchanged_names]
     return unchanged_doms
@@ -33,8 +31,6 @@ def collect_domain_changes(axgraph: AxGraph, domain_name: str, nb_pairs: GraphPa
     updates: list[SurfaceUpdates] = []
     for surface, nbs in nb_pairs.items():
         deltas = [axgraph.get_delta(surface, nb) for nb in nbs]
-        print(domain_name)
-        print(deltas)
         # going to take the largest collect_domain_changes
         true_delta = max(deltas)
         updates.append(SurfaceUpdates(surface, true_delta))

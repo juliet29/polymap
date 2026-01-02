@@ -94,3 +94,7 @@ def create_layout_from_json(file_name: str, folder_path: Path = DynamicPaths.MSD
         domains.append(domain)
 
     return Layout(domains)
+
+
+def create_layout_from_path(path: Path):
+    return create_layout_from_json(path.stem, path.parent)

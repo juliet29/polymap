@@ -3,7 +3,7 @@ from typing import Any, Protocol, get_args
 import shapely as sp
 from loguru import logger
 
-from polymap.bends.iterate import clean_layout
+from polymap.bends.iterate2 import clean_layout
 from polymap.config import TOLERANCE
 from polymap.examples.msd import MSD_IDs, get_one_msd_layout
 from polymap.geometry.ortho import FancyOrthoDomain
@@ -42,7 +42,7 @@ def make_ortho_layout(layout: Layout):
 
     def make_ortho_doms(dom: FancyOrthoDomain):
         if not dom.is_orthogonal:
-            print(f"Resolving non-ortho on {dom.name}")
+            logger.info(f"Resolving non-ortho on {dom.name}")
 
             coords = make_ortho_coords(dom.normalized_coords, dom.vectors)
 
@@ -55,7 +55,7 @@ def make_ortho_layout(layout: Layout):
                 raise Exception("Failed to ortho domains")
             return new_dom
 
-        print(f"No non-ortho on {dom.name}")
+        logger.trace(f"No non-ortho on {dom.name}")
         return dom
 
     new_doms = map(lambda x: make_ortho_doms(x), layout.domains)
@@ -123,7 +123,7 @@ def process_layout(
 
     if rotate and ortho:
         angle, rotated_layout = rotate_layout(layout)
-        print(f"Rotated layout by {angle}")
+        logger.trace(f"Rotated layout by {angle}")
         layouts.extend([layout, rotated_layout])
 
         ortho_layout = attempt(make_ortho_layout, rotated_layout)
@@ -148,6 +148,6 @@ def process_layout(
     layy = attempt(create_updated_layout, Gy)
     layouts.append(layy)
     prep_study_plot(layout_id, layouts, graph_pairs, show_plot)
-    logger.success(f"[green]Finished process layout for {layout_id}")
+    # logger.success(f"[green]Finished process layout for {layout_id}")
 
     return layy
