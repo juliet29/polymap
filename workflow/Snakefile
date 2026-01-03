@@ -12,7 +12,7 @@ pathvars:
 
 rule some:
   input:
-    expand("<output_loc>/{sample}/rotate/out.json", sample=SMALL_SAMPLES)
+    expand("<output_loc>/{sample}/simplify/out.json", sample=SMALL_SAMPLES)
 
 rule all:
   input:

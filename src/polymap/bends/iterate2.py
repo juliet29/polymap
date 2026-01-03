@@ -58,6 +58,8 @@ def iterate_clean_domain(
     domain_name = msd_domain.name.display_name
     tracker: list[DomainMoveDetails] = []
 
+    logger.log("START", f"[blue italic]Starting to clean {domain_name}")
+
     try:
         validate_polygon(domain.polygon, domain_name)
     except InvalidPolygonError as e:
@@ -72,7 +74,7 @@ def iterate_clean_domain(
 
     small_surfs = find_small_surfs(domain)
     if not small_surfs:
-        logger.info(f"No small surfaces for {domain_name}. Ending iteration...")
+        logger.log("END", f"No small surfaces for {domain_name}. Ending iteration...\n")
         return domain
 
     logger.info(f"[blue italic]Starting iteration for {domain_name}")
@@ -116,7 +118,9 @@ def iterate_clean_domain(
     if show_complete_iteration:
         plot_domain_iteration(tracker, layout_id)
 
-    logger.info(f"[green italic]Successfully completed iteration for {domain_name}")
+    logger.log(
+        "END", f"[green italic]Successfully completed iteration for {domain_name}\n"
+    )
 
     return domain
 
