@@ -7,6 +7,7 @@ from typing import NamedTuple, Any, Generator, Callable
 
 GraphPairs = dict[str, list[str]]
 CoordsType = list[tuple[float | int, float | int]]
+CoordsTypeJSON = list[list[float]]
 
 
 class PairedCoord(NamedTuple):

@@ -4,32 +4,34 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 authors = [
-    { name = "Juliet Nwagwu Ume-Ezeoke", email = "jnwagwu@stanford.edu" }
+  { name = "Juliet Nwagwu Ume-Ezeoke", email = "jnwagwu@stanford.edu" },
 ]
 requires-python = ">=3.13"
 dependencies = [
-    "bpython>=0.25",
-    "cyclopts>=4.4.3",
-    "expression>=5.6.0",
-    "geom>=0.3.0",
-    "loguru>=0.7.3",
-    "matplotlib>=3.10.6",
-    "networkx>=3.5",
-    "numpy>=2.3.3",
-    "pipe>=2.2",
-    "ptpython>=3.0.31",
-    "pydantic>=2.12.5",
-    "pyprojroot>=0.3.0",
-    "pytest>=8.4.2",
-    "shapely>=2.1.2",
-    "snakemake>=9.14.5",
-    "tomli-w>=1.2.0",
-    "types-networkx>=3.5.0.20251106",
-    "whenever>=0.9.3",
+  "bpython>=0.25",
+  "cyclopts>=4.4.3",
+  "expression>=5.6.0",
+  "geom>=0.3.0",
+  "loguru>=0.7.3",
+  "matplotlib>=3.10.6",
+  "networkx>=3.5",
+  "numpy>=2.3.3",
+  "pipe>=2.2",
+  "ptpython>=3.0.31",
+  "pydantic>=2.12.5",
+  "pyprojroot>=0.3.0",
+  "pytest>=8.4.2",
+  "shapely>=2.1.2",
+  "snakemake>=9.14.5",
+  "tomli-w>=1.2.0",
+  "types-networkx>=3.5.0.20251106",
+  "whenever>=0.9.3",
 ]
 
 [project.scripts]
 polymap = "polymap:main"
+preproc = "polymap.scripts.preproc:main"
+
 
 [build-system]
 requires = ["uv_build>=0.8.3,<0.9.0"]

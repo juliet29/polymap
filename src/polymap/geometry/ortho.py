@@ -14,7 +14,7 @@ from polymap.geometry.vectors import (
     pretty_print_vector,
     vector_from_coords,
 )
-from polymap.interfaces import CoordsType, PairedCoord
+from polymap.interfaces import CoordsTypeJSON, PairedCoord
 from rich import print
 
 
@@ -193,8 +193,8 @@ class FancyOrthoDomain(OrthoDomain):
     def set_name(self, name: str):
         self.name = name
 
-    def dump(self) -> CoordsType:
-        return [i.as_tuple for i in self.normalized_coords]
+    def dump(self) -> CoordsTypeJSON:
+        return [list(i.as_tuple) for i in self.normalized_coords]
 
     # def get_range_by_axis(self, axis: Axes):
     #     bounds = ShapelyBounds(*self.shapely_polygon.bounds)

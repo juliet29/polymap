@@ -1,18 +1,31 @@
 from pathlib import Path
 
-input = Path("static/_01_inputs/msd")
-SAMPLES = [i.stem for i in input.iterdir() if i.suffix == ".json"]
+INPUT_PATH = Path("static/_01_inputs/msd")
+SAMPLES = [i.stem for i in INPUT_PATH.iterdir() if i.suffix == ".json"]
+SMALL_SAMPLES = SAMPLES[0:5]
   
 
 pathvars:
   input_loc="static/_01_inputs/msd",
-  output_loc="static/_04_temp/msd"
+  output_loc="static/_04_temp/msd", 
 
 
+rule some:
+  input:
+    expand("<output_loc>/{sample}/rotate/out.json", sample=SMALL_SAMPLES)
 
 rule all:
   input:
-    expand("<output_loc>/{sample}/rotate/out.json", sample=SAMPLES)
+    expand("<output_loc>/{sample}/ortho/out.json", sample=SAMPLES)
+
+
+rule rejig:
+  input:
+    expand("<input_loc>/{sample}.json", sample=SAMPLES)
+  shell:
+    "touch {input}"
+
+
 
 
 rule rotate:
@@ -23,9 +36,42 @@ rule rotate:
   log:
     "<output_loc>/{sample}/rotate/out.log"
   shell:
-    "uv run workflow/scripts/preproc.py rotate {input} > {output} 2>{log}"
+    "uv run preproc rotate {input} > {output} 2>{log}"
+
+
+rule ortho:
+  input:
+    "<output_loc>/{sample}/rotate/out.json"
+  output:
+    "<output_loc>/{sample}/ortho/out.json"
+  log:
+    "<output_loc>/{sample}/ortho/out.log"
+  shell:
+    "uv run preproc ortho {input} > {output} 2>{log}"
+
+
+rule simplify:
+  input:
+    "<output_loc>/{sample}/ortho/out.json"
+  output:
+    "<output_loc>/{sample}/simplify/out.json"
+  log:
+    "<output_loc>/{sample}/simplify/out.log"
+  shell:
+    "uv run preproc simplify {input} > {output} 2>{log}"
+
+
+rule pull:
+  input:
+    "<output_loc>/{sample}/simplify/out.json"
+  output:
+    "<output_loc>/{sample}/pull/out.json"
+  log:
+    "<output_loc>/{sample}/pull/out.log"
+  shell:
+    "uv run preproc pull {input} > {output} 2>{log}"
 
 
 rule test:
   shell:
-    "uv run workflow/scripts/preproc.py welcome"
+    "uv run preproc welcome"

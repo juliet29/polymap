@@ -42,20 +42,21 @@ def make_ortho_layout(layout: Layout):
 
     def make_ortho_doms(dom: FancyOrthoDomain):
         if not dom.is_orthogonal:
-            logger.info(f"Resolving non-ortho on {dom.name}")
 
+            logger.log("START", f"Resolving non-ortho on {dom.name}")
             coords = make_ortho_coords(dom.normalized_coords, dom.vectors)
 
             new_dom = FancyOrthoDomain(coords, name=dom.name)
             try:
                 assert new_dom.is_orthogonal
             except AssertionError:
-                print(f"{new_dom.name} is not ortho after trying to ortho")
-                new_dom.summarize_vectors
-                raise Exception("Failed to ortho domains")
+                raise RuntimeError(
+                    f"Failed to ortho domain {new_dom.name}: {new_dom.summarize_vectors}"
+                )
+            logger.log("END", f"Finished resolving non-ortho on {dom.name}\n")
             return new_dom
 
-        logger.trace(f"No non-ortho on {dom.name}")
+        logger.trace(f"No non-ortho on {dom.name}\n")
         return dom
 
     new_doms = map(lambda x: make_ortho_doms(x), layout.domains)
