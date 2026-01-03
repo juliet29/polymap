@@ -8,8 +8,10 @@ wheels/
 
 # Virtual environments
 .venv
-static/_04_temp/
 
+
+# Temporary outputs
+static/_04_temp/
 
 
 # make file out outputs and logs 

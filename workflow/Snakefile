@@ -1,13 +1,31 @@
-rule test:
-  shell:
-    "uv run workflow/scripts/preproc.py welcome"
+from pathlib import Path
+
+input = Path("static/_01_inputs/msd")
+SAMPLES = [i.stem for i in input.iterdir() if i.suffix == ".json"]
+  
+
+pathvars:
+  input_loc="static/_01_inputs/msd",
+  output_loc="static/_04_temp/msd"
+
+
+
+rule all:
+  input:
+    expand("<output_loc>/{sample}/rotate/out.json", sample=SAMPLES)
+
 
 rule rotate:
   input:
-    "static/_01_inputs/msd/106493.json"
+    "<input_loc>/{sample}.json"
   output:
-    "static/_04_temp/msd/106493/rotate/out.json"
+    "<output_loc>/{sample}/rotate/out.json"
   log:
-    "static/_04_temp/msd/106493/rotate/out.log"
+    "<output_loc>/{sample}/rotate/out.log"
   shell:
     "uv run workflow/scripts/preproc.py rotate {input} > {output} 2>{log}"
+
+
+rule test:
+  shell:
+    "uv run workflow/scripts/preproc.py welcome"
