@@ -6,6 +6,8 @@ rule rotate:
   input:
     "static/_01_inputs/msd/106493.json"
   output:
-    "static/_04_temp/msd/106493/rotated.json"
+    "static/_04_temp/msd/106493/rotate/out.json"
+  log:
+    "static/_04_temp/msd/106493/rotate/out.log"
   shell:
-    "uv run workflow/scripts/preproc.py rotate {input} > {output}"
+    "uv run workflow/scripts/preproc.py rotate {input} > {output} 2>{log}"

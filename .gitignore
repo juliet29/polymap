@@ -9,3 +9,9 @@ wheels/
 # Virtual environments
 .venv
 static/_04_temp/
+
+
+
+# make file out outputs and logs 
+.snakemake/
+**/**/.log

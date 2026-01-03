@@ -1,5 +1,7 @@
 from pathlib import Path
-from polymap.layout.interfaces import create_layout_from_path
+from loguru import logger
+from polymap import logconf
+from polymap.json_interfaces import read_layout_from_path
 from polymap.rotate.rotate import rotate_layout
 from cyclopts import App
 
@@ -8,17 +10,18 @@ app = App()
 
 @app.command()
 def rotate(path: Path):
-    layout = create_layout_from_path(path)  # make this more flexible using Pydantic
+    logconf.logset()
+    layout = read_layout_from_path(path)
 
     angle, layout = rotate_layout(layout)
-    print(f"{angle=}")
+    logger.info(f"{angle=}")
 
-    return layout
+    return layout.dump()
 
 
 @app.command()
 def welcome():
-    return "Hello friend"
+    return "Hello old friend"
 
 
 app()

@@ -63,6 +63,9 @@ class Layout:
     def domain_names(self):
         print([i.name for i in self.domains])
 
+    def dump(self) -> dict[str, CoordsType]:
+        return {d.name: d.dump() for d in self.domains}
+
     # def update_layout(self, new_domains: list[FancyOrthoDomain]):
     #     domains_to_replace = [self.get_domain(i.name) for i in new_domains]
     #     updated_domains = find_and_replace_in_list(
@@ -94,7 +97,3 @@ def create_layout_from_json(file_name: str, folder_path: Path = DynamicPaths.MSD
         domains.append(domain)
 
     return Layout(domains)
-
-
-def create_layout_from_path(path: Path):
-    return create_layout_from_json(path.stem, path.parent)
