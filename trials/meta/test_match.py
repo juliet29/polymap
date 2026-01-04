@@ -1,9 +1,17 @@
 import networkx as nx
+from polymap.logconf import logset
 from utils4plans.sets import set_equality
 
 from polymap.examples.msd import get_one_msd_layout
+from polymap.examples.layout import layout_coords
 from polymap.geometry.surfaces import print_surfaces
+from polymap.layout.graph import create_graph_for_all_surfaces_along_axis
+from polymap.layout.interfaces import create_layout_from_dict
 from polymap.layout.neighbors import get_nbs_for_surf
+from polymap.layout.visuals import (
+    plot_layout_with_graph_info,
+)
+
 
 MSD_NUM = "106493"
 
@@ -45,6 +53,21 @@ def test_get_candidates():
         ), f"Wrong surfs for {k}: {print_surfaces(res)}. Expeceted {v}"
 
 
+def try_plot_graph_for_example():
+    layout = create_layout_from_dict(layout_coords)
+    # plot_layout(layout, "example layout", add_labels=True)
+    Gx = create_graph_for_all_surfaces_along_axis(layout, "X")
+    plot_layout_with_graph_info(Gx, "example")
+
+
+def try_plot_graph_for_msd():
+    id, layout = get_one_msd_layout(MSD_NUM)
+    # plot_layout(layout, "example layout", add_labels=True)
+    Gx = create_graph_for_all_surfaces_along_axis(layout, "Y")
+    plot_layout_with_graph_info(Gx, id)
+
+
 if __name__ == "__main__":
     # graph = make_graphs(msd_106493)
-    test_get_candidates()
+    logset()
+    try_plot_graph_for_msd()

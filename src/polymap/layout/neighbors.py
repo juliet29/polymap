@@ -4,7 +4,7 @@ from pipe import where
 from utils4plans.lists import sort_and_group_objects
 from utils4plans.sets import set_difference
 
-from polymap.examples.layout import layout as sample_layout
+from polymap.examples.layout import layout_coords as sample_layout
 from polymap.geometry.surfaces import Surface, FancyRange
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.layout.interfaces import create_layout_from_dict

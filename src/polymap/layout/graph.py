@@ -29,6 +29,9 @@ class EdgeDataDiGraph(nx.DiGraph):
         res = list(self.edges(data=True))
         return [Edge(i[0], i[1], i[2]["data"]) for i in res]
 
+    def edge_dict(self):
+        return {e: ix for ix, e in enumerate(self.edges)}
+
 
 def collect_node_nbs(G: nx.DiGraph) -> GraphPairs:
     nb_dict = {}

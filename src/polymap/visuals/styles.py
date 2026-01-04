@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Literal, TypedDict
 from dataclasses import dataclass
 
@@ -53,3 +54,28 @@ class AnnotationStyles(PlotStyles):
 
     # def update_bbox_color(self, color: Color):
     #     self.bbox["fc"] = color
+    #
+
+
+@dataclass
+class EnclosedAnnotationStyle(AnnotationStyles):
+    edge_color: Color = "white"
+    fontsize: FontSize = "medium"
+
+    @property
+    def bbox(self):
+        return {
+            "boxstyle": "circle,pad=0.2",
+            "ec": self.edge_color,
+            "fc": self.edge_color,
+            "alpha": 0.4,
+            "fill": True,
+        }
+
+    @property
+    def values(self) -> dict:
+        d = deepcopy(self.__dict__)
+        d["bbox"] = self.bbox
+        # d["color"] = self.edge_color
+        d.pop("edge_color")
+        return d

@@ -1,4 +1,4 @@
-from polymap.examples.layout import layout as sample_layout
+from polymap.examples.layout import layout_coords as sample_layout
 from polymap.layout.interfaces import create_layout_from_dict
 
 

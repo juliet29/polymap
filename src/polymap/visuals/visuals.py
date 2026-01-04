@@ -16,14 +16,19 @@ from polymap.visuals.styles import AnnotationStyles
 
 class AnnotationPair(NamedTuple):
     coord: Coord
-    name: str
+    name: str | int | float
 
 
 def add_annotations(
-    annotation_pairs: list[AnnotationPair], ax: Axes, styles=AnnotationStyles()
+    annotation_pairs: list[AnnotationPair], ax: Axes, styles=[AnnotationStyles()]
 ):
-    for coord, name in annotation_pairs:
-        ax.text(*coord.as_tuple, s=name, **styles.values)
+    if len(styles) == 1:
+        for coord, name in annotation_pairs:
+            ax.text(*coord.as_tuple, s=str(name), **styles[0].values)
+    else:
+        assert len(annotation_pairs) == len(styles)
+        for (coord, name), style in zip(annotation_pairs, styles):
+            ax.text(*coord.as_tuple, s=str(name), **style.values)
 
     return ax
 
