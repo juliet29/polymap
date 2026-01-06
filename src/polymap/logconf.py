@@ -2,7 +2,7 @@ from loguru import logger
 from rich.logging import RichHandler
 from rich.console import Console
 
-DEBUG_LEVEL = "DEBUG"
+DEBUG_LEVEL = "TRACE"
 
 HANDLERS = [
     {

@@ -1,18 +1,19 @@
 from pathlib import Path
 
-INPUT_PATH = Path("static/_01_inputs/msd")
-SAMPLES = [i.stem for i in INPUT_PATH.iterdir() if i.suffix == ".json"]
+configfile: "example.yaml"
+
+INPUT_PATH = config["pathvars"]["input_loc"]
+SAMPLES = [i.stem for i in Path(INPUT_PATH).iterdir() if i.suffix == ".json"]
 SMALL_SAMPLES = SAMPLES[0:5]
   
 
-pathvars:
-  input_loc="static/_01_inputs/msd",
-  output_loc="static/_04_temp/msd", 
 
 
 rule some:
   input:
-    expand("<output_loc>/{sample}/simplify/out.json", sample=SMALL_SAMPLES)
+    expand("<output_loc>/{sample}/pull/out.png", sample=SMALL_SAMPLES)
+
+
 
 rule all:
   input:
@@ -65,11 +66,11 @@ rule pull:
   input:
     "<output_loc>/{sample}/simplify/out.json"
   output:
-    "<output_loc>/{sample}/pull/out.json"
+    "<output_loc>/{sample}/pull/out.png"
   log:
     "<output_loc>/{sample}/pull/out.log"
   shell:
-    "uv run preproc pull {input} > {output} 2>{log}"
+    "uv run preproc pull {input} {output} 2>{log}"
 
 
 rule test:

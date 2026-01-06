@@ -90,7 +90,8 @@ def create_annotation_for_graph(Gax: AxGraph):
 
 
 def plot_layout_with_graph_info(Gax: AxGraph, layout_name: str = "", show=True):
-    ax = plot_layout(Gax.layout, layout_name, show=False)
+    fig, ax = plt.subplots()
+    ax = plot_layout(Gax.layout, layout_name, show=False, ax=ax)
     annots = create_annotation_for_graph(Gax)
     logger.info(pretty_repr(annots))
     colors = mpl.colormaps["rainbow"](np.linspace(0, 1, len(annots) // 2))
@@ -100,4 +101,4 @@ def plot_layout_with_graph_info(Gax: AxGraph, layout_name: str = "", show=True):
     ax = add_annotations(annots, ax, styles)
     if show:
         plt.show()
-    return ax
+    return fig, ax
