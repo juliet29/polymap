@@ -93,7 +93,6 @@ def plot_layout_with_graph_info(Gax: AxGraph, layout_name: str = "", show=True):
     fig, ax = plt.subplots()
     ax = plot_layout(Gax.layout, layout_name, show=False, ax=ax)
     annots = create_annotation_for_graph(Gax)
-    logger.info(pretty_repr(annots))
     colors = mpl.colormaps["rainbow"](np.linspace(0, 1, len(annots) // 2))
     doubled_colors = [item for item in colors for _ in range(2)]
     styles = [EnclosedAnnotationStyle(edge_color=c) for c in doubled_colors]

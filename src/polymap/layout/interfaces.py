@@ -64,9 +64,12 @@ class Layout:
     def domain_names(self):
         print([i.name for i in self.domains])
 
-    def dump(self):
+    def dump(self, as_string: bool = True):
         d: dict[str, CoordsTypeJSON] = {d.name: d.dump() for d in self.domains}
-        return json.dumps(d)
+        if as_string:
+            return json.dumps(d)
+        else:
+            return d
 
     # def update_layout(self, new_domains: list[FancyOrthoDomain]):
     #     domains_to_replace = [self.get_domain(i.name) for i in new_domains]
