@@ -15,6 +15,7 @@ from polymap.examples.layout import example_layouts
 from polymap.paths import DynamicPaths
 import re
 
+
 app = App()
 
 
@@ -64,12 +65,28 @@ def simplify(path: Path):
 
 
 @app.command()
-def pull(path: Path, fig_save_path: Path):
+def xplan(path: Path, fig_save_path: Path):
     in_layout = read_layout_from_path(path)
     Gx = create_graph_for_all_surfaces_along_axis(in_layout, "X")
-    fig, ax = plot_layout_with_graph_info(Gx, get_case_name(path), show=False)
+
+    # TODO should be able to build the path based on the input..
+    #
+    case_name = get_case_name(path)
+
+    fig, _ = plot_layout_with_graph_info(Gx, case_name, show=False)
     fig.set_layout_engine("constrained")
     fig.savefig(fig_save_path, dpi=300)
+
+
+# @app.command()
+# def xmove(path: Path,  fig_save_path: Path, json_save_path: Path):
+#     layx = create_updated_layout(Gx)
+#     write_json(layx.dump(as_string=False), json_save_path, OVERWRITE=True)
+#     case_name = get_case_name(path)
+#
+#     fig, ax = plot_layout_alone(layx, f"{case_name} X-Pull")
+#     fig.set_layout_engine("constrained")
+#     fig.savefig(fig_save_path, dpi=300)
 
 
 @app.command()

@@ -103,6 +103,16 @@ def plot_layout(
     return ax
 
 
+def plot_layout_alone(
+    layout: Layout,
+    layout_name: str = "",
+):
+
+    fig, ax = plt.subplots()
+    ax = plot_layout(layout, layout_name, show=False, ax=ax)
+    return fig, ax
+
+
 def plot_layout_comparison(layouts: list[Layout], names: list[str]):
     n = len(layouts)
     fig, axs = plt.subplots(ncols=n)

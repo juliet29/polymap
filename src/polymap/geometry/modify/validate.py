@@ -1,4 +1,8 @@
 import matplotlib.pyplot as plt
+from typing import Literal
+from polymap.layout.interfaces import Layout
+from itertools import combinations
+from loguru import logger
 import shapely as sp
 
 from polymap.geometry.ortho import FancyOrthoDomain
@@ -63,3 +67,26 @@ def validate_polygon(p: sp.Polygon, domain_name: str):
             raise InvalidPolygonError(
                 p, domain_name, f"Non-ortho vector near {str(coords)}: v={v}"
             )
+
+
+class InvalidLayoutError(Exception):
+    def __init__(
+        self, domains: list[FancyOrthoDomain], type_: Literal["INTERSECTION"]
+    ) -> None:
+        self.domains = domains
+        self.type_ = type_
+
+    def message(self):
+        s = f"Invalid layout due to {self.type_} involving {[i.name for i in self.domains]}"
+        logger.error(s)
+
+
+# slow, naive check -> better check needs other graph..
+def validate_layout(layout: Layout):
+    combos = combinations(layout.domains, 2)
+    for pair in combos:
+        a, b = pair
+        if a.polygon.intersects(b.polygon):
+            raise InvalidLayoutError([a, b], "INTERSECTION")
+
+    return True

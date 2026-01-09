@@ -11,13 +11,13 @@ SMALL_SAMPLES = SAMPLES[0:5]
 
 rule some:
   input:
-    expand("<output_loc>/{sample}/pull/out.png", sample=SMALL_SAMPLES)
+    expand("<output_loc>/{sample}/xplan/out.png", sample=SMALL_SAMPLES)
 
 
 
 rule all:
   input:
-    expand("<output_loc>/{sample}/pull/out.png", sample=SAMPLES)
+    expand("<output_loc>/{sample}/pull/gx/out.png", sample=SAMPLES)
 
 
 rule rejig:
@@ -62,15 +62,15 @@ rule simplify:
     "uv run preproc simplify {input} > {output} 2>{log}"
 
 
-rule pull:
+rule xplan:
   input:
     "<output_loc>/{sample}/simplify/out.json"
   output:
-    "<output_loc>/{sample}/pull/out.png"
+    "<output_loc>/{sample}/xplan/out.png",
   log:
-    "<output_loc>/{sample}/pull/out.log"
+    "<output_loc>/{sample}/xplan/out.log"
   shell:
-    "uv run preproc pull {input} {output} 2>{log}"
+    "uv run preproc xplan {input} {output} 2>{log}"
 
 
 rule test:
