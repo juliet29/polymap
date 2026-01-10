@@ -1,6 +1,5 @@
 from copy import deepcopy
 from typing import NamedTuple
-from loguru import logger
 from pipe import where
 
 from utils4plans.lists import chain_flatten, sort_and_group_objects
@@ -10,7 +9,6 @@ from polymap.geometry.surfaces import Surface, FancyRange
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.layout.interfaces import create_layout_from_dict
 from polymap.layout.interfaces import Layout
-from rich.pretty import pretty_repr
 
 
 def get_candidate_surface_neighbors(layout: Layout, surf: Surface):
@@ -40,9 +38,9 @@ def sort_surfaces(surf: Surface, other_surfs: list[Surface]):
     max_range = FancyRange(surf.location, furthest.location)
     min_range = FancyRange(surf.location, closest.location)
     assert max_range.size >= min_range.size
-    logger.info(
-        f"curr_surf: {(surf.name_w_domain, surf.location)} \nsorted surfaces: {[(i.name_w_domain, i.location) for i in sorted_surfs]} "
-    )
+    # logger.info(
+    #     f"curr_surf: {(surf.name_w_domain, surf.location)} \nsorted surfaces: {[(i.name_w_domain, i.location) for i in sorted_surfs]} "
+    # )
     return sorted_surfs
 
 
@@ -97,9 +95,9 @@ def filter_neigbors(
             if res:
                 potential_nbs_local.remove(pair.further)
 
-    logger.info(
-        f"remaining potential_nbs: {[i.name_w_domain for i in potential_nbs_local]}"
-    )
+    # logger.info(
+    #     f"remaining potential_nbs: {[i.name_w_domain for i in potential_nbs_local]}"
+    # )
 
     return potential_nbs_local
 
@@ -108,10 +106,11 @@ def get_nbs_for_surf(layout: Layout, surf: Surface):
 
     potential_nbs = get_candidate_surface_neighbors(layout, surf)
     if not potential_nbs:
-        logger.log("END", f"No potential nbs for {surf.name_w_domain}. Exiting ...")
+        # logger.log("END", f"No potential nbs for {surf.name_w_domain}. Exiting ...")
+        #
         return []
 
-    logger.log("START", f"############ {surf.name_w_domain} ################")
+    # logger.log("START", f"############ {surf.name_w_domain} ################")
 
     if len(potential_nbs) > 1:
 
@@ -128,7 +127,7 @@ def get_nbs_for_surf(layout: Layout, surf: Surface):
         "True": [i.name_w_domain for i in true_nbs],
     }
 
-    logger.log("SUMMARY", pretty_repr(summary))
+    # logger.log("SUMMARY", pretty_repr(summary))
     return true_nbs
 
 

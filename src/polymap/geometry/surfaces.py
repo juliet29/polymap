@@ -144,7 +144,7 @@ def index_surfaces(surfaces: list[Surface]):
     grouped_surfaces = sort_and_group_objects(surfaces, lambda x: x.direction)
 
     def update_surfaces(surfs: list[Surface]):
-        sorted_surfaces = sorted(surfs, key=lambda s: s.location)
+        sorted_surfaces = sorted(surfs, key=lambda s: s.range.min)
         for ix, surf in enumerate(sorted_surfaces):
             surf.update_ix(ix)
 

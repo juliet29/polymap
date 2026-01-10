@@ -55,6 +55,7 @@ rule simplify:
   input:
     "<output_loc>/{sample}/ortho/out.json"
   output:
+    "<output_loc>/{sample}/simplify/out.png",
     "<output_loc>/{sample}/simplify/out.json"
   log:
     "<output_loc>/{sample}/simplify/out.log"
@@ -65,24 +66,60 @@ rule simplify:
 rule xplan:
   input:
     "<output_loc>/{sample}/simplify/out.json"
+  params:
+    ax="X"
   output:
     "<output_loc>/{sample}/xplan/out.png",
     "<output_loc>/{sample}/xplan/out.json"
   log:
     "<output_loc>/{sample}/xplan/out.log"
   shell:
-    "uv run preproc xplan {input} {output} 2>{log}"
+    "uv run preproc plan {params.ax} {input} {output} 2>{log}"
 
 rule xmove:
   input:
     "<output_loc>/{sample}/xplan/out.json"
+  params:
+    ax="X"
   output:
     "<output_loc>/{sample}/xmove/out.png",
     "<output_loc>/{sample}/xmove/out.json"
   log:
     "<output_loc>/{sample}/xmove/out.log"
   shell:
-    "uv run preproc xmove {input} {output} 2>{log}"
+    "uv run preproc move {params.ax} {input} {output} 2>{log}"
+
+
+
+
+rule yplan:
+  input:
+    "<output_loc>/{sample}/xmove/out.json"
+  params:
+    ax="Y"
+  output:
+    "<output_loc>/{sample}/yplan/out.png",
+    "<output_loc>/{sample}/yplan/out.json"
+  log:
+    "<output_loc>/{sample}/yplan/out.log"
+  shell:
+    "uv run preproc plan {params.ax} {input} {output} 2>{log}"
+
+rule ymove:
+  input:
+    "<output_loc>/{sample}/yplan/out.json"
+  params:
+    ax="Y"
+  output:
+    "<output_loc>/{sample}/ymove/out.png",
+    "<output_loc>/{sample}/ymove/out.json"
+  log:
+    "<output_loc>/{sample}/ymove/out.log"
+  shell:
+    "uv run preproc move {params.ax} {input} {output} 2>{log}"
+
+
+
 
 rule test:
   shell:

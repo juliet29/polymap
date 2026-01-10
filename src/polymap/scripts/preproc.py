@@ -22,6 +22,7 @@ from polymap.paths import DynamicPaths
 import re
 
 from polymap.visuals.visuals import plot_layout_alone
+from polymap.geometry.vectors import Axes
 
 
 app = App()
@@ -62,43 +63,53 @@ def ortho(path: Path, json_save_path: Path):
 
 
 @app.command()
-def simplify(path: Path, json_save_path: Path):
+def simplify(path: Path, fig_save_path: Path, json_save_path: Path):
     in_layout = read_layout_from_path(path)
     layout, bad_doms = clean_layout(in_layout, get_case_name(path))
     if bad_doms:
         logger.warning(
             f"Bad domains exist which may cause problems: {pretty_repr(bad_doms)}"
         )
-    return write_json(layout_to_model(layout).model_dump(), json_save_path)
-
-
-@app.command()
-def xplan(path: Path, fig_save_path: Path, json_save_path: Path):
-    in_layout = read_layout_from_path(path)
-    Gx = create_move_graph_for_all_surfaces_along_axis(in_layout, "X")
 
     case_name = get_case_name(path)
-
-    fig, _ = plot_layout_with_graph_info(Gx, case_name, show=False)
+    fig, _ = plot_layout_alone(
+        layout, f"{case_name} Simplified", show_surface_labels=True
+    )
     fig.set_layout_engine("constrained")
     fig.savefig(fig_save_path, dpi=300)
 
-    Gax_model = axgraph_to_model(Gx)
+    write_json(layout_to_model(layout).model_dump(), json_save_path)
+
+
+@app.command()
+def plan(ax: Axes, path: Path, fig_save_path: Path, json_save_path: Path):
+    in_layout = read_layout_from_path(path)
+    Gax = create_move_graph_for_all_surfaces_along_axis(in_layout, ax)
+
+    case_name = get_case_name(path)
+
+    fig, _ = plot_layout_with_graph_info(Gax, case_name, show=False)
+    fig.set_layout_engine("constrained")
+    fig.savefig(fig_save_path, dpi=300)
+
+    Gax_model = axgraph_to_model(Gax)
     write_json(Gax_model.model_dump(), json_save_path)
 
 
 @app.command()
-def xmove(path: Path, fig_save_path: Path, json_save_path: Path):
-    # TODO: put into its own function..
-    Gx = AxGraphModel.model_validate(read_json(path)).to_axgraph()
+def move(ax: Axes, path: Path, fig_save_path: Path, json_save_path: Path):
+    Gax = AxGraphModel.model_validate(read_json(path)).to_axgraph()
 
-    layx = try_moves(Gx)
-    write_json(layx.dump(as_string=False), json_save_path, OVERWRITE=True)
+    layout = try_moves(Gax)
     case_name = get_case_name(path)
 
-    fig, _ = plot_layout_alone(layx, f"{case_name} X-Pull", show_surface_labels=True)
+    fig, _ = plot_layout_alone(
+        layout, f"{case_name} {ax}-Pull", show_surface_labels=False
+    )
     fig.set_layout_engine("constrained")
     fig.savefig(fig_save_path, dpi=300)
+
+    write_json(layout.dump(as_string=False), json_save_path, OVERWRITE=True)
 
 
 @app.command()

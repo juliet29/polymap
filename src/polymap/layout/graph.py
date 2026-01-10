@@ -1,6 +1,7 @@
 from loguru import logger
 import networkx as nx
 from rich.pretty import pretty_repr
+from utils4plans.lists import chain_flatten
 from utils4plans.sets import set_difference
 from polymap.interfaces import GraphPairs
 from polymap.geometry.surfaces import Surface
@@ -41,11 +42,18 @@ class Edge(NamedTuple):
     v: str
     data: EdgeData
 
+    def summary_string(self):
+        s = f"({self.u},{self.v}):{self.data.delta:.4f}"
+        return s
+
 
 class EdgeDataDiGraph(nx.DiGraph):
     def edge_data(self):
         res = list(self.edges(data=True))
         return [Edge(i[0], i[1], i[2]["data"]) for i in res]
+
+    def edge_summary_list(self):
+        return [e.summary_string() for e in self.edge_data()]
 
 
 @dataclass
@@ -102,10 +110,13 @@ def create_move_graph(layout: Layout, G: EdgeDataDiGraph):
     if len(G.edges) <= 1:
         return G
 
-    # all the deltas are the same
+    # all the deltas are the same -> just need to move one..
     deltas = [i.data.delta for i in G.edge_data()]
     if len(set(deltas)) == 1:
-        return G
+        new_G = EdgeDataDiGraph()
+        e = G.edge_data()[0]
+        new_G.add_edge(e.u, e.v, data=e.data)
+        return new_G
 
     min_edge = sorted(G.edge_data(), key=lambda x: x.data.delta)[0]
     other_edges = set_difference(G.edge_data(), [min_edge])
@@ -114,7 +125,7 @@ def create_move_graph(layout: Layout, G: EdgeDataDiGraph):
     new_G = EdgeDataDiGraph()
     for e in new_edges:
         new_G.add_edge(e.u, e.v, data=e.data)
-    logger.info(pretty_repr(new_G.edge_data()))
+    # logger.info(pretty_repr(new_G.edge_data()))
 
     return new_G
 
@@ -138,9 +149,16 @@ def create_graph_for_all_surfaces_along_axis(layout: Layout, axis: Axes):
     return AxGraph(G, axis, layout)
 
 
+def summarize_graph_list(graphs: list[EdgeDataDiGraph]):
+    res = chain_flatten([g.edge_summary_list() for g in graphs])
+    logger.info(pretty_repr(res))
+
+
 def create_move_graph_for_all_surfaces_along_axis(layout: Layout, axis: Axes):
     graphs = create_individual_graphs(layout, axis)
+    summarize_graph_list(graphs)
     move_graphs = [create_move_graph(layout, g) for g in graphs]
+    summarize_graph_list(move_graphs)
 
     G = nx.compose_all(move_graphs)
     return AxGraph(G, axis, layout)
