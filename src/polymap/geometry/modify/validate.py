@@ -29,7 +29,9 @@ class InvalidPolygonError(Exception):
             self.plot()
 
     def message(self):
-        return f"[italic orange]{self.domain_name} is invalid! Reason: {self.reason}"
+        logger.error(
+            f"[italic orange]{self.domain_name} is invalid! Reason: {self.reason}"
+        )
 
     @property
     def domain(self):
@@ -86,7 +88,7 @@ def validate_layout(layout: Layout):
     combos = combinations(layout.domains, 2)
     for pair in combos:
         a, b = pair
-        if a.polygon.intersects(b.polygon):
+        if a.polygon.overlaps(b.polygon):
             raise InvalidLayoutError([a, b], "INTERSECTION")
 
     return True

@@ -1,25 +1,38 @@
+from polymap.layout.graph import AxGraph, EdgeDataDiGraph, EdgeData
+from loguru import logger
+from polymap import logconf
 import networkx as nx
-from polymap.layout.graph import AxGraph
 from polymap.layout.interfaces import Layout
 
 
-def create_Gx():
-    g = nx.DiGraph()
-    g.add_edges_from(
-        [
-            (1, 2, {"data": "a"}),
-            (1, 3, {"data": "b"}),
-            (4, 5, {"data": "c"}),
-            (4, 6, {"data": "d"}),
-        ]
-    )
-    return AxGraph(g, "X", Layout([]))
+class TestGraph:
+    @property
+    def Gx(self):
+        g = EdgeDataDiGraph()
+        delta = 2
+        domain_name = "test"
+        g.add_edges_from(
+            [
+                (1, 2, {"data": EdgeData(delta, domain_name)}),
+                (1, 3, {"data": EdgeData(delta, domain_name)}),
+                (4, 5, {"data": EdgeData(delta, domain_name)}),
+                (4, 6, {"data": EdgeData(delta, domain_name)}),
+            ]
+        )
+        return AxGraph(g, "X", Layout([]))
 
+    def test_roots(self):
+        assert set(self.Gx.roots) == set([1, 4])
 
-def test_graph():
-    Gx = create_Gx()
-    assert set(Gx.roots) == set([1, 4])
+    def test_components(self):
+
+        components = nx.weakly_connected_components(self.Gx.G)
+
+        logger.info(list(components))
+        pass
 
 
 if __name__ == "__main__":
-    test_graph()
+    logconf.logset()
+    t = TestGraph()
+    t.test_components()

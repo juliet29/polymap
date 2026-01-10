@@ -1,11 +1,11 @@
 from utils4plans.io import read_json
 from polymap.examples.layout import layout_coords
-import networkx as nx
 from polymap import logconf
 from polymap.json_interfaces import (
     AxGraphModel,
     LayoutModel,
-    NetworkxGraphModel,
+    edge_data_digraph_to_model,
+    layout_to_model,
 )
 from polymap.layout.graph import create_graph_for_all_surfaces_along_axis
 from polymap.layout.interfaces import create_layout_from_dict
@@ -21,19 +21,12 @@ def study_axgraph_model():
     #     DomainModel(name=i.name, coords=[c.as_tuple for c in i.coords])
     #     for i in layout.domains
     # ]
-    domains = {i.name: [c.as_tuple for c in i.coords] for i in layout.domains}
-    layout_model = LayoutModel(**domains)
+    layout_model = layout_to_model(layout)
     print(layout_model.model_dump(mode="json"))
 
     Gax = create_graph_for_all_surfaces_along_axis(layout, "X")
-    graph_dict = nx.node_link_data(Gax.G, edges="edges")
 
-    for e in graph_dict["edges"]:
-        e["data"] = e["data"].dump()
-
-    print(graph_dict)
-
-    graph_model = NetworkxGraphModel(**graph_dict)
+    graph_model = edge_data_digraph_to_model(Gax.G)
     print(graph_model)
     print(graph_model.model_dump(mode="json"))
     # Gaxmodel = AxGraphModel(G=Gax.G, ax=Gax.ax, layout=Gax.layout)
@@ -54,7 +47,7 @@ def study_readin_layout():
     print(layout)
 
     print(layout.to_layout())
-    print(layout.model_dump(mode="json"))
+    print(layout.model_dump_json())
 
 
 if __name__ == "__main__":

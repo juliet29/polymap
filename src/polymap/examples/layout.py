@@ -1,3 +1,4 @@
+from utils4plans.geom import Coord
 from polymap.interfaces import CoordsType
 
 green_north = 3.9
@@ -18,4 +19,22 @@ layout_coords: dict[str, CoordsType] = {
     "red": [(1, 3.1), (2, 3.1), (2, 4), (4, 4), (4, 5), (1, 5), (1, 3.1)],
 }
 
-example_layouts = [layout_coords]
+
+def gen_square(top_left: tuple[float, float], size: int) -> CoordsType:
+    tl = Coord(*top_left)
+    sz = size
+    tr = (tl.x + sz, tl.y)
+    br = (tl.x + sz, tl.y - sz)
+    bl = (tl.x, tl.y - sz)
+
+    order = [tl.as_tuple, tr, br, bl]
+    return order
+
+
+smart_graph_example: dict[str, CoordsType] = {
+    "A": gen_square((0, 3), 2),
+    "B": gen_square((3, 3), 1),
+    "C": gen_square((4, 1.5), 1),
+}
+
+example_layouts = [layout_coords, smart_graph_example]

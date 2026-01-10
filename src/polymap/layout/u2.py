@@ -1,7 +1,13 @@
 # updates 2
 
+from copy import deepcopy
+
 from polymap.geometry.modify.update import Move, update_domain
-from polymap.geometry.modify.validate import InvalidLayoutError, validate_layout
+from polymap.geometry.modify.validate import (
+    InvalidLayoutError,
+    InvalidPolygonError,
+    validate_layout,
+)
 from polymap.layout.graph import AxGraph, Edge
 from polymap.layout.interfaces import Layout
 
@@ -30,11 +36,16 @@ def apply_move_to_layout(layout: Layout, move: Move):
     return new_layout
 
 
-def try_moves(layout: Layout, moves: list[Move]):
+def try_moves(Gax: AxGraph):
+    moves = collect_moves(Gax)
+    layout = deepcopy(Gax.layout)
     for move in moves:
+        updated_domain = layout.get_domain(move.domain.name)
+        updated_surface = layout.get_surface_by_name(move.surface.name_w_domain)
+        new_move = Move(updated_domain, updated_surface, move.delta)
         try:
-            new_layout = apply_move_to_layout(layout, move)
-        except InvalidLayoutError as e:
+            new_layout = apply_move_to_layout(layout, new_move)
+        except (InvalidLayoutError, InvalidPolygonError) as e:
             e.message()
             continue
         layout = new_layout

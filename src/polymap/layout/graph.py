@@ -1,4 +1,7 @@
+from loguru import logger
 import networkx as nx
+from rich.pretty import pretty_repr
+from utils4plans.sets import set_difference
 from polymap.interfaces import GraphPairs
 from polymap.geometry.surfaces import Surface
 from polymap.geometry.surfaces import FancyRange
@@ -87,7 +90,36 @@ def create_graph_for_surface(
     return G
 
 
-def create_graph_for_all_surfaces_along_axis(layout: Layout, axis: Axes):
+def create_move_graph(layout: Layout, G: EdgeDataDiGraph):
+    def transform(e: Edge):
+        new_delta = -1 * (e.data.delta - min_edge.data.delta)
+        new_domain = layout.get_surface_by_name(e.v).domain_name
+
+        new_data = EdgeData(delta=new_delta, domain_name=new_domain)
+        new_edge = Edge(e.v, e.u, new_data)
+        return new_edge
+
+    if len(G.edges) <= 1:
+        return G
+
+    # all the deltas are the same
+    deltas = [i.data.delta for i in G.edge_data()]
+    if len(set(deltas)) == 1:
+        return G
+
+    min_edge = sorted(G.edge_data(), key=lambda x: x.data.delta)[0]
+    other_edges = set_difference(G.edge_data(), [min_edge])
+    new_edges = [transform(e) for e in other_edges] + [min_edge]
+
+    new_G = EdgeDataDiGraph()
+    for e in new_edges:
+        new_G.add_edge(e.u, e.v, data=e.data)
+    logger.info(pretty_repr(new_G.edge_data()))
+
+    return new_G
+
+
+def create_individual_graphs(layout: Layout, axis: Axes):
     surfaces = list(
         layout.get_surfaces(substantial_only=True)
         | where(lambda x: x.perpendicular_axis == axis)
@@ -96,8 +128,21 @@ def create_graph_for_all_surfaces_along_axis(layout: Layout, axis: Axes):
     )
 
     graphs = [create_graph_for_surface(layout, i) for i in surfaces]
+    return graphs
+
+
+def create_graph_for_all_surfaces_along_axis(layout: Layout, axis: Axes):
+    graphs = create_individual_graphs(layout, axis)
 
     G = nx.compose_all(graphs)
+    return AxGraph(G, axis, layout)
+
+
+def create_move_graph_for_all_surfaces_along_axis(layout: Layout, axis: Axes):
+    graphs = create_individual_graphs(layout, axis)
+    move_graphs = [create_move_graph(layout, g) for g in graphs]
+
+    G = nx.compose_all(move_graphs)
     return AxGraph(G, axis, layout)
 
 

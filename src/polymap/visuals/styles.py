@@ -61,6 +61,7 @@ class AnnotationStyles(PlotStyles):
 class EnclosedAnnotationStyle(AnnotationStyles):
     edge_color: Color = "white"
     fontsize: FontSize = "medium"
+    alpha: float = 0.4
 
     @property
     def bbox(self):
@@ -68,7 +69,7 @@ class EnclosedAnnotationStyle(AnnotationStyles):
             "boxstyle": "circle,pad=0.2",
             "ec": self.edge_color,
             "fc": self.edge_color,
-            "alpha": 0.4,
+            "alpha": self.alpha,
             "fill": True,
         }
 
@@ -78,4 +79,5 @@ class EnclosedAnnotationStyle(AnnotationStyles):
         d["bbox"] = self.bbox
         # d["color"] = self.edge_color
         d.pop("edge_color")
+        d.pop("alpha")
         return d

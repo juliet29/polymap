@@ -1,26 +1,17 @@
 from pathlib import Path
 import networkx as nx
 from pydantic import TypeAdapter, BaseModel, RootModel
-from utils4plans.geom import Coord, coords_type_list_to_coords
+from utils4plans.geom import coords_type_list_to_coords
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.vectors import Axes
 from polymap.interfaces import CoordsType
 from utils4plans.io import read_json
 
-from polymap.layout.graph import AxGraph, EdgeData
+from polymap.layout.graph import AxGraph, EdgeData, EdgeDataDiGraph
 from polymap.layout.interfaces import Layout
 
 
 layout_type_adapter = TypeAdapter(dict[str, CoordsType])
-
-
-class DomainModel(BaseModel):
-    name: str
-    coords: list[tuple[float, float]]
-
-    def to_domain(self):
-        coords = [Coord(*i) for i in self.coords]
-        return FancyOrthoDomain(coords, self.name)
 
 
 class LayoutModel(RootModel):
@@ -32,6 +23,11 @@ class LayoutModel(RootModel):
             for k, v in self.root.items()
         ]
         return Layout(domains)
+
+
+def layout_to_model(layout: Layout):
+    d = {i.name: [c.as_tuple for c in i.coords] for i in layout.domains}
+    return LayoutModel(d)
 
 
 class NodeModel(BaseModel):
@@ -69,19 +65,16 @@ class NetworkxGraphModel(BaseModel):
         data["edges"] = [i.to_edge_data_edges() for i in self.edges]
 
         graph = nx.node_link_graph(data, edges="edges")
-        return graph
+        return EdgeDataDiGraph(graph)
 
 
-def read_layout_from_path(path: Path):
-    res = read_json(path)
-    layout_input = layout_type_adapter.validate_python(res)
-    domains: list[FancyOrthoDomain] = []
-    for k, v in layout_input.items():
-        domain = FancyOrthoDomain.from_tuple_list(v)
-        domain.set_name(k)
-        domains.append(domain)
+def edge_data_digraph_to_model(G: EdgeDataDiGraph):
+    graph_dict = nx.node_link_data(G, edges="edges")
 
-    return Layout(domains)
+    for e in graph_dict["edges"]:
+        e["data"] = e["data"].dump()
+
+    return NetworkxGraphModel(**graph_dict)
 
 
 class AxGraphModel(BaseModel):
@@ -91,3 +84,21 @@ class AxGraphModel(BaseModel):
 
     def to_axgraph(self):
         return AxGraph(self.G.to_edge_data_digraph(), self.ax, self.layout.to_layout())
+
+
+def axgraph_to_model(Gax: AxGraph):
+    return AxGraphModel(
+        layout=layout_to_model(Gax.layout),
+        ax=Gax.ax,
+        G=edge_data_digraph_to_model(Gax.G),
+    )
+
+
+def read_layout_from_path(path: Path):
+    res = read_json(path)
+    layout_model = LayoutModel.model_validate(res)
+    return layout_model.to_layout()
+
+
+def dump_layout(layout: Layout):
+    return layout_to_model(layout).model_dump_json()

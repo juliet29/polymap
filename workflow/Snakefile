@@ -11,7 +11,7 @@ SMALL_SAMPLES = SAMPLES[0:5]
 
 rule some:
   input:
-    expand("<output_loc>/{sample}/xplan/out.png", sample=SMALL_SAMPLES)
+    expand("<output_loc>/{sample}/xmove/out.json", sample=SMALL_SAMPLES)
 
 
 
@@ -37,7 +37,7 @@ rule rotate:
   log:
     "<output_loc>/{sample}/rotate/out.log"
   shell:
-    "uv run preproc rotate {input} > {output} 2>{log}"
+    "uv run preproc rotate {input} {output} 2>{log}"
 
 
 rule ortho:
@@ -48,7 +48,7 @@ rule ortho:
   log:
     "<output_loc>/{sample}/ortho/out.log"
   shell:
-    "uv run preproc ortho {input} > {output} 2>{log}"
+    "uv run preproc ortho {input} {output} 2>{log}"
 
 
 rule simplify:
@@ -59,7 +59,7 @@ rule simplify:
   log:
     "<output_loc>/{sample}/simplify/out.log"
   shell:
-    "uv run preproc simplify {input} > {output} 2>{log}"
+    "uv run preproc simplify {input} {output} 2>{log}"
 
 
 rule xplan:
@@ -67,11 +67,22 @@ rule xplan:
     "<output_loc>/{sample}/simplify/out.json"
   output:
     "<output_loc>/{sample}/xplan/out.png",
+    "<output_loc>/{sample}/xplan/out.json"
   log:
     "<output_loc>/{sample}/xplan/out.log"
   shell:
     "uv run preproc xplan {input} {output} 2>{log}"
 
+rule xmove:
+  input:
+    "<output_loc>/{sample}/xplan/out.json"
+  output:
+    "<output_loc>/{sample}/xmove/out.png",
+    "<output_loc>/{sample}/xmove/out.json"
+  log:
+    "<output_loc>/{sample}/xmove/out.log"
+  shell:
+    "uv run preproc xmove {input} {output} 2>{log}"
 
 rule test:
   shell:

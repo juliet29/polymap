@@ -28,7 +28,7 @@ class Move(NamedTuple):
     delta: float
 
     def __str__(self) -> str:
-        return f"[green italic]Moving {self.surface} by {self.delta:.4f}"
+        return f"[green italic]Moving {self.surface.name_w_domain} by {self.delta:.4f}"
 
 
 class UpdateCoordsInfo(NamedTuple):

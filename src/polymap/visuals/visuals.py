@@ -11,7 +11,7 @@ from polymap.interfaces import GraphPairs
 from polymap.layout.interfaces import Layout
 import matplotlib as mpl
 
-from polymap.visuals.styles import AnnotationStyles
+from polymap.visuals.styles import AnnotationStyles, EnclosedAnnotationStyle
 
 
 class AnnotationPair(NamedTuple):
@@ -49,13 +49,19 @@ def plot_polygon(
     return ax
 
 
-def plot_domain_with_surfaces(domain: FancyOrthoDomain, title: str = ""):
-    ax = plot_polygon(domain.polygon, show=False, title=title)
+def plot_domain_with_surfaces(
+    domain: FancyOrthoDomain, title: str = "", ax: Axes | None = None, show=True
+):
+    if not ax:
+        fig, ax = plt.subplots()
+    ax = plot_polygon(domain.polygon, show=False, title=title, ax=ax)
     surfs = domain.surfaces
     surface_labels = [AnnotationPair(i.centroid, i.name) for i in surfs]
     ax = add_annotations(surface_labels, ax)
 
-    plt.show()
+    if show:
+        plt.show()
+    return ax
 
 
 def plot_polygon_comparison(
@@ -104,12 +110,24 @@ def plot_layout(
 
 
 def plot_layout_alone(
-    layout: Layout,
-    layout_name: str = "",
+    layout: Layout, layout_name: str = "", show_surface_labels: bool = False
 ):
 
     fig, ax = plt.subplots()
-    ax = plot_layout(layout, layout_name, show=False, ax=ax)
+    for domain in layout.domains:
+        ax = plot_polygon(domain.polygon, show=False, ax=ax)
+        surfs = domain.surfaces
+        if show_surface_labels:
+            style = EnclosedAnnotationStyle(
+                fontsize="xx-small", edge_color="white", alpha=1
+            )
+            surface_labels = [AnnotationPair(i.centroid, i.short_name) for i in surfs]
+            ax = add_annotations(surface_labels, ax, styles=[style])
+        room_label = AnnotationPair(domain.centroid, domain.name)
+        ax = add_annotations([room_label], ax)
+
+    ax.set_title(layout_name)
+
     return fig, ax
 
 

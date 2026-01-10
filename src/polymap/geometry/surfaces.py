@@ -74,6 +74,10 @@ class Surface:
         return f"{self.direction.name}_{self.direction_ix}"
 
     @property
+    def short_name(self):
+        return f"{self.direction.name[0].upper()}{self.direction_ix}"
+
+    @property
     def parallel_axis(self):
         # NOTE: this is the axis that describes how the surface is oriented
         return self.direction.normal_axis
