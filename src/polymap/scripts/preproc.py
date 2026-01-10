@@ -1,9 +1,16 @@
+import re
 from pathlib import Path
+
+from cyclopts import App
 from loguru import logger
 from rich.pretty import pretty_repr
 from utils4plans.io import read_json, write_json
+
 from polymap import logconf
 from polymap.bends.iterate2 import clean_layout
+from polymap.examples.layout import example_layouts
+from polymap.geometry.modify.validate import InvalidPolygonError
+from polymap.geometry.vectors import Axes
 from polymap.json_interfaces import (
     AxGraphModel,
     axgraph_to_model,
@@ -14,16 +21,12 @@ from polymap.layout.graph import create_move_graph_for_all_surfaces_along_axis
 from polymap.layout.interfaces import create_layout_from_dict
 from polymap.layout.u2 import try_moves
 from polymap.layout.visuals import plot_layout_with_graph_info
-from polymap.process.process import make_ortho_layout
-from polymap.rotate.rotate import rotate_layout
-from cyclopts import App
-from polymap.examples.layout import example_layouts
+from polymap.nonortho.main import orthogonalize_layout
 from polymap.paths import DynamicPaths
-import re
-
+from polymap.rotate.rotate import rotate_layout
 from polymap.visuals.visuals import plot_layout_alone
-from polymap.geometry.vectors import Axes
 
+# TODO: clean up imports to clean up project structure
 
 app = App()
 
@@ -58,8 +61,14 @@ def rotate(path: Path, json_save_path: Path):
 @app.command()
 def ortho(path: Path, json_save_path: Path):
     in_layout = read_layout_from_path(path)
-    layout = make_ortho_layout(in_layout)
-    return write_json(layout_to_model(layout).model_dump(), json_save_path)
+    try:
+        layout = orthogonalize_layout(in_layout)
+    # NOTE: this will fail  if any domain cannot be orthogonalized and will not produce a json
+    except InvalidPolygonError as e:
+        e.message()
+        return
+
+    write_json(layout_to_model(layout).model_dump(), json_save_path)
 
 
 @app.command()

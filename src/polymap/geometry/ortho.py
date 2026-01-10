@@ -173,12 +173,14 @@ class FancyOrthoDomain(OrthoDomain):
                 print(f"{i.name_w_domain:<20} | {i.range.size:.4f}")
 
     @property
-    def summarize_vectors(self):
+    def create_vector_summary(self):
+        lst = []
         for ix, i in enumerate(self.vectors):
             if is_perp_to_basis_vectors(i):
-                print(f"{ix:>3}| {pretty_print_vector(i)}")
+                lst.append(f"{ix:>3}| {pretty_print_vector(i)}")
             else:
-                print(f"{ix:>3}| {i} | NOT ORTHO")
+                lst.append(f"{ix:>3}| {i} | NOT ORTHO")
+        return lst
 
     def get_surface(self, direction_name: DirectionNames, direction_ix: int = 0):
         return get_unique_one(

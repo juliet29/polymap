@@ -1,9 +1,9 @@
 import geom
 from polymap.nonortho.interfaces import RotatedLinearGeoms
 from polymap.geometry.vectors import BasisVectors2D
-from rich import print
 from typing import NamedTuple
 from utils4plans.geom import Coord
+from loguru import logger
 
 
 class DotProdCombo(NamedTuple):
@@ -24,7 +24,7 @@ def get_aligned_vector(v: geom.Vector):
     # print(sorted_dot_prods)
     res = sorted_dot_prods[0]
     fres = res.basis * res.dot_prod
-    print(f"vector to align: {v} | result: {fres}")
+    logger.debug(f"vector to align: {v} | result: {fres}")
     # TODO throw error for large angles
     return fres
 
