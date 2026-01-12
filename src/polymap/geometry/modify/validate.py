@@ -1,5 +1,9 @@
 import matplotlib.pyplot as plt
+import numpy as np
 from typing import Literal
+
+from rich.pretty import pretty_repr
+from polymap.config import OVERLAP_TOLERANCE
 from polymap.layout.interfaces import Layout
 from itertools import combinations
 from loguru import logger
@@ -8,7 +12,8 @@ import shapely as sp
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.shapely_helpers import get_coords_from_shapely_polygon
 from polymap.geometry.vectors import is_perp_to_basis_vectors
-from polymap.visuals.visuals import plot_polygon
+from polymap.visuals.visuals import plot_layout_alone, plot_polygon
+from utils4plans.geom import ShapelyBounds
 
 
 class InvalidPolygonError(Exception):
@@ -73,14 +78,58 @@ def validate_polygon(p: sp.Polygon, domain_name: str):
 
 class InvalidLayoutError(Exception):
     def __init__(
-        self, domains: list[FancyOrthoDomain], type_: Literal["INTERSECTION"]
+        self,
+        domains: list[FancyOrthoDomain],
+        type_: Literal["INTERSECTION"],
+        layout: Layout,
     ) -> None:
         self.domains = domains
         self.type_ = type_
+        self.layout = layout
+
+    @property
+    def overlap(self):
+        a = self.domains[0]
+        b = self.domains[1]
+        overlap = sp.intersection(a.polygon, b.polygon)
+        return overlap
 
     def message(self):
         s = f"Invalid layout due to {self.type_} involving {[i.name for i in self.domains]}"
         logger.error(s)
+
+    def plot(self):
+        plot_layout_alone(
+            self.layout, show_surface_labels=True, layout_name="Failing Layout"
+        )
+        plot_polygon(
+            self.overlap,  # pyright: ignore[reportArgumentType]
+            title=f"Intersection of {self.domains[0].name} and {self.domains[1].name}",
+        )
+        logger.debug(
+            f"Overlap is {type(self.overlap)} and has bounds {pretty_repr(self.overlap.bounds)}"
+        )
+        plt.show()
+
+
+def overlap_near_zero(
+    domains: tuple[FancyOrthoDomain, FancyOrthoDomain], tolerance=OVERLAP_TOLERANCE
+):
+    a, b = domains
+    overlap = sp.intersection(a.polygon, b.polygon)
+
+    area_near_zero = np.isclose(overlap.area, 0)
+    if area_near_zero:
+        return True
+    bounds = ShapelyBounds(*overlap.bounds)
+    xsz = bounds.domain.horz_range.size()
+    x_near_zero = np.isclose(xsz, 0)
+
+    ysz = bounds.domain.vert_range.size()
+    y_near_zero = np.isclose(ysz, 0)
+
+    if x_near_zero or y_near_zero:
+        return True
 
 
 # slow, naive check -> better check needs other graph..
@@ -89,6 +138,11 @@ def validate_layout(layout: Layout):
     for pair in combos:
         a, b = pair
         if a.polygon.overlaps(b.polygon):
-            raise InvalidLayoutError([a, b], "INTERSECTION")
+            if overlap_near_zero((a, b)):
+                logger.warning(
+                    f"{a.name} and {b.name} overlap, but their overlap is near zero"
+                )
+                continue
+            raise InvalidLayoutError([a, b], "INTERSECTION", layout)
 
     return True

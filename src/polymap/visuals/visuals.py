@@ -116,15 +116,16 @@ def plot_layout_alone(
     fig, ax = plt.subplots()
     for domain in layout.domains:
         ax = plot_polygon(domain.polygon, show=False, ax=ax)
-        surfs = domain.surfaces
+        room_label = AnnotationPair(domain.centroid, domain.name)
+        ax = add_annotations([room_label], ax)
+
         if show_surface_labels:
+            surfs = domain.surfaces
             style = EnclosedAnnotationStyle(
                 fontsize="xx-small", edge_color="white", alpha=1
             )
             surface_labels = [AnnotationPair(i.centroid, i.short_name) for i in surfs]
             ax = add_annotations(surface_labels, ax, styles=[style])
-        room_label = AnnotationPair(domain.centroid, domain.name)
-        ax = add_annotations([room_label], ax)
 
     ax.set_title(layout_name)
 

@@ -1,4 +1,5 @@
 import re
+import math
 from pathlib import Path
 
 from cyclopts import App
@@ -18,7 +19,7 @@ from polymap.json_interfaces import (
     read_layout_from_path,
 )
 from polymap.layout.graph import create_move_graph_for_all_surfaces_along_axis
-from polymap.layout.interfaces import create_layout_from_dict
+from polymap.layout.interfaces import Layout, create_layout_from_dict
 from polymap.layout.u2 import try_moves
 from polymap.layout.visuals import plot_layout_with_graph_info
 from polymap.nonortho.main import orthogonalize_layout
@@ -40,6 +41,20 @@ def get_case_name(path: Path):
         return path.stem
 
 
+def get_path_parent(path: Path):
+    return path.parent
+
+
+def save_layout(layout: Layout, path: Path, title: str, fig_name: str = "out"):
+    case_name = get_case_name(path)
+    fig, _ = plot_layout_alone(
+        layout, f"{case_name} -  {title}", show_surface_labels=False
+    )
+    fig.set_layout_engine("constrained")
+    fig_save_path = path.parent / f"{fig_name}.png"
+    fig.savefig(fig_save_path, dpi=300)
+
+
 @app.command()
 def generate_examples():
     for ix, coords in enumerate(example_layouts):
@@ -51,11 +66,15 @@ def generate_examples():
 @app.command()
 def rotate(path: Path, json_save_path: Path):
     in_layout = read_layout_from_path(path)
+    save_layout(in_layout, json_save_path, "Input", "in")
 
-    angle, layout = rotate_layout(in_layout)
-    logger.info(f"{angle=}")
+    angle_radians, layout = rotate_layout(in_layout)
+    angle_degrees = math.degrees(angle_radians)
+    logger.info(f"{angle_degrees=}")
+    logger.info(f"{angle_radians=}")
+    save_layout(layout, json_save_path, f"Rotated by {angle_degrees:.2f}º")
 
-    return write_json(layout_to_model(layout).model_dump(), json_save_path)
+    write_json(layout_to_model(layout).model_dump(), json_save_path)
 
 
 @app.command()
@@ -67,8 +86,9 @@ def ortho(path: Path, json_save_path: Path):
     except InvalidPolygonError as e:
         e.message()
         return
+    save_layout(layout, json_save_path, "Orthoginalized")
 
-    write_json(layout_to_model(layout).model_dump(), json_save_path)
+    write_json(layout_to_model(layout).model_dump(), json_save_path, OVERWRITE=True)
 
 
 @app.command()
@@ -97,12 +117,12 @@ def plan(ax: Axes, path: Path, fig_save_path: Path, json_save_path: Path):
 
     case_name = get_case_name(path)
 
-    fig, _ = plot_layout_with_graph_info(Gax, case_name, show=False)
+    fig, _ = plot_layout_with_graph_info(Gax, f"{case_name} {ax}-Plan", show=False)
     fig.set_layout_engine("constrained")
     fig.savefig(fig_save_path, dpi=300)
 
     Gax_model = axgraph_to_model(Gax)
-    write_json(Gax_model.model_dump(), json_save_path)
+    write_json(Gax_model.model_dump(), json_save_path, OVERWRITE=True)
 
 
 @app.command()
@@ -113,7 +133,7 @@ def move(ax: Axes, path: Path, fig_save_path: Path, json_save_path: Path):
     case_name = get_case_name(path)
 
     fig, _ = plot_layout_alone(
-        layout, f"{case_name} {ax}-Pull", show_surface_labels=False
+        layout, f"{case_name} {ax}-Move", show_surface_labels=False
     )
     fig.set_layout_engine("constrained")
     fig.savefig(fig_save_path, dpi=300)
@@ -123,7 +143,7 @@ def move(ax: Axes, path: Path, fig_save_path: Path, json_save_path: Path):
 
 @app.command()
 def welcome():
-    return "Hello old friend"
+    return "Welcome to polymap"
 
 
 def main():

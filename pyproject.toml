@@ -25,6 +25,7 @@ dependencies = [
   "snakemake>=9.14.5",
   "tomli-w>=1.2.0",
   "types-networkx>=3.5.0.20251106",
+  "utils4plans",
   "whenever>=0.9.3",
 ]
 
@@ -36,3 +37,6 @@ preproc = "polymap.scripts.preproc:main"
 [build-system]
 requires = ["uv_build>=0.8.3,<0.9.0"]
 build-backend = "uv_build"
+
+[tool.uv.sources]
+utils4plans = { path = "../utils4plans" }

@@ -43,7 +43,9 @@ class Edge(NamedTuple):
     data: EdgeData
 
     def summary_string(self):
-        s = f"({self.u},{self.v}):{self.data.delta:.4f}"
+        edge = (self.u, self.v)
+        delta = float(f"{self.data.delta}")
+        s = {edge: delta}
         return s
 
 
@@ -53,7 +55,8 @@ class EdgeDataDiGraph(nx.DiGraph):
         return [Edge(i[0], i[1], i[2]["data"]) for i in res]
 
     def edge_summary_list(self):
-        return [e.summary_string() for e in self.edge_data()]
+        strs = [e.summary_string() for e in self.edge_data()]
+        return strs
 
 
 @dataclass
@@ -84,6 +87,11 @@ class AxGraph:
         return better_collect_nbs(self.G)
 
 
+def compute_delta_between_surfs(s1: Surface, s2: Surface):
+    delta = FancyRange(s1.location, s2.location).size
+    return delta
+
+
 def create_graph_for_surface(
     layout: Layout,
     surf: Surface,
@@ -91,7 +99,8 @@ def create_graph_for_surface(
     nbs = get_nbs_for_surf(layout, surf)
     G = EdgeDataDiGraph()  # nx.DiGraph()
     for nb in nbs:
-        delta = FancyRange(surf.location, nb.location).size
+        delta = compute_delta_between_surfs(surf, nb)
+        # delta = FancyRange(surf.location, nb.location).size
         G.add_edge(str(surf), str(nb), data=EdgeData(delta, surf.domain_name))
 
     # TODO: modify delta based on the overarching graph...., basically, have opportunities for bi-directional moves..
@@ -124,7 +133,8 @@ def create_move_graph(layout: Layout, G: EdgeDataDiGraph):
 
     new_G = EdgeDataDiGraph()
     for e in new_edges:
-        new_G.add_edge(e.u, e.v, data=e.data)
+        if abs(e.data.delta) > 0:
+            new_G.add_edge(e.u, e.v, data=e.data)
     # logger.info(pretty_repr(new_G.edge_data()))
 
     return new_G

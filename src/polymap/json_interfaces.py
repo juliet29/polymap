@@ -100,5 +100,5 @@ def read_layout_from_path(path: Path):
     return layout_model.to_layout()
 
 
-def dump_layout(layout: Layout):
-    return layout_to_model(layout).model_dump_json()
+# def dump_layout(layout: Layout):
+#     return layout_to_model(layout).model_dump_json()
