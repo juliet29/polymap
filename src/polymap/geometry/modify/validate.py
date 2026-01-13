@@ -134,15 +134,26 @@ def overlap_near_zero(
 
 # slow, naive check -> better check needs other graph..
 def validate_layout(layout: Layout):
+    near_zero_overlaps = False
     combos = combinations(layout.domains, 2)
     for pair in combos:
         a, b = pair
         if a.polygon.overlaps(b.polygon):
             if overlap_near_zero((a, b)):
-                logger.warning(
-                    f"{a.name} and {b.name} overlap, but their overlap is near zero"
-                )
+                near_zero_overlaps = True
+                # logger.warning(
+                #     f"{a.name} and {b.name} overlap, but their overlap is near zero"
+                # )
                 continue
             raise InvalidLayoutError([a, b], "INTERSECTION", layout)
-
+    logger.warning(f"{near_zero_overlaps=}")
     return True
+
+
+def validate_layout_no_holes(layout: Layout):
+    # union and check for holes
+
+    all_polys = [dom.polygon for dom in layout.domains]
+    union_poly = sp.union_all(all_polys)
+    num_holes = sp.get_num_interior_rings(union_poly)
+    return num_holes

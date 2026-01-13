@@ -85,7 +85,9 @@ def ortho(path: Path, json_save_path: Path):
     # NOTE: this will fail  if any domain cannot be orthogonalized and will not produce a json
     except InvalidPolygonError as e:
         e.message()
-        return
+        raise RuntimeError(
+            "Could not orthogonalize the layout due to at least one polygon being non-orthogonalizable"
+        )
     save_layout(layout, json_save_path, "Orthoginalized")
 
     write_json(layout_to_model(layout).model_dump(), json_save_path, OVERWRITE=True)

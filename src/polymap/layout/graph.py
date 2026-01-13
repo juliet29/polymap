@@ -167,10 +167,10 @@ def summarize_graph_list(graphs: list[EdgeDataDiGraph]):
 def create_move_graph_for_all_surfaces_along_axis(layout: Layout, axis: Axes):
     graphs = create_individual_graphs(layout, axis)
     summarize_graph_list(graphs)
-    move_graphs = [create_move_graph(layout, g) for g in graphs]
-    summarize_graph_list(move_graphs)
+    # move_graphs = [create_move_graph(layout, g) for g in graphs]
+    # summarize_graph_list(move_graphs)
 
-    G = nx.compose_all(move_graphs)
+    G = nx.compose_all(graphs)
     return AxGraph(G, axis, layout)
 
 

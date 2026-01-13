@@ -17,7 +17,7 @@ rule some:
 
 rule all:
   input:
-    expand("<output_loc>/{sample}/pull/gx/out.png", sample=SAMPLES)
+    expand("<output_loc>/{sample}/ymove/out.png", sample=SAMPLES)
 
 
 rule rejig:

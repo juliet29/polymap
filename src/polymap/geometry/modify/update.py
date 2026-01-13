@@ -1,5 +1,4 @@
 from copy import deepcopy
-from loguru import logger
 import shapely as sp
 from typing import NamedTuple
 from utils4plans.geom import Coord, tuple_list_from_list_of_coords
@@ -107,7 +106,7 @@ def remove_zero_vector_coords(pcs: list[PairedCoord]):
 
 def update_domain(move: Move):
     domain, surface, location_delta = move
-    logger.debug(str(move))
+    # logger.debug(str(move))
     vector = make_vector_2D(surface.positive_perpendicular_vector) * location_delta
     updated_paired_coords = update_paired_coords(
         domain.paired_coords, surface.coords, vector
