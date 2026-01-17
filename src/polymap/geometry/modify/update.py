@@ -29,6 +29,9 @@ class Move(NamedTuple):
     def __str__(self) -> str:
         return f"[green italic]Moving {self.surface.name_w_domain} by {self.delta:.4f}"
 
+    def summary(self) -> str:
+        return f"[green italic]Moving {self.surface.name_w_domain} by {self.delta}"
+
 
 class UpdateCoordsInfo(NamedTuple):
     paired_coord: PairedCoord
@@ -107,7 +110,18 @@ def remove_zero_vector_coords(pcs: list[PairedCoord]):
 def update_domain(move: Move):
     domain, surface, location_delta = move
     # logger.debug(str(move))
-    vector = make_vector_2D(surface.positive_perpendicular_vector) * location_delta
+    vector = (
+        make_vector_2D(surface.positive_perpendicular_vector) * location_delta
+    )  # TODO: this is likely the source of instability...
+    # d = {
+    #     "vx": get_component(vector, "x"),
+    #     "vy": get_component(vector, "y"),
+    #     "true": location_delta,
+    # }
+    # logger.trace(f"{d}")
+    # is_eq = d["vx"] == location_delta
+    # logger.trace(f"{is_eq=}")
+
     updated_paired_coords = update_paired_coords(
         domain.paired_coords, surface.coords, vector
     )
@@ -131,6 +145,14 @@ def update_domain(move: Move):
 
     validate_polygon(test_poly, domain.name)
 
-    return FancyOrthoDomain(
+    new_dom = FancyOrthoDomain(
         coords=get_coords_from_shapely_polygon(test_poly), name=domain.name
     )
+
+    # old_coords = move.domain.normalized_coords
+    # new_coords = new_dom.normalized_coords
+    # dif_coords = set_difference(old_coords, new_coords)
+    #
+    # logger.debug(len(dif_coords))
+    #
+    return new_dom

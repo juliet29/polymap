@@ -144,6 +144,13 @@ def move(ax: Axes, path: Path, fig_save_path: Path, json_save_path: Path):
 
 
 @app.command()
+def trial_move(path: Path):
+    logger.info(path)
+    Gax = AxGraphModel.model_validate(read_json(path)).to_axgraph()
+    try_moves(Gax)
+
+
+@app.command()
 def welcome():
     return "Welcome to polymap"
 

@@ -42,9 +42,9 @@ class Edge(NamedTuple):
     v: str
     data: EdgeData
 
-    def summary_string(self):
+    def summary_string(self, short: bool = False):
         edge = (self.u, self.v)
-        delta = float(f"{self.data.delta}")
+        delta = float(f"{self.data.delta:.2f}") if short else self.data.delta
         s = {edge: delta}
         return s
 

@@ -52,7 +52,7 @@ class Direction:
 
     @property
     def positive_vector(self):
-        if self.aligned_vector.x < 0 or self.aligned_vector.y < 0:
+        if self.aligned_vector.x < 0 or self.aligned_vector.y < 0:  # type: ignore
             # TODO: use get compoenent function..
             return -1 * self.aligned_vector
         return self.aligned_vector

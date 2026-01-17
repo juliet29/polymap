@@ -21,6 +21,7 @@ dependencies = [
   "pydantic>=2.12.5",
   "pyprojroot>=0.3.0",
   "pytest>=8.4.2",
+  "pytest-cov>=7.0.0",
   "shapely>=2.1.2",
   "snakemake>=9.14.5",
   "tomli-w>=1.2.0",

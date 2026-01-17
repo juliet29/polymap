@@ -119,6 +119,7 @@ def overlap_near_zero(
     overlap = sp.intersection(a.polygon, b.polygon)
 
     area_near_zero = np.isclose(overlap.area, 0)
+    logger.debug(f"overlap area between {a.name}, {b.name}: {overlap.area}")
     if area_near_zero:
         return True
     bounds = ShapelyBounds(*overlap.bounds)
@@ -133,21 +134,43 @@ def overlap_near_zero(
 
 
 # slow, naive check -> better check needs other graph..
-def validate_layout(layout: Layout):
-    near_zero_overlaps = False
-    combos = combinations(layout.domains, 2)
+def validate_layout_after_move(
+    layout: Layout, a: FancyOrthoDomain, b: FancyOrthoDomain
+):
+    # logger.info(f"{a.name, b.name}")
+
+    if a.polygon.overlaps(b.polygon):
+        logger.warning(f"{a.name} overlaps {b.name}")
+        if overlap_near_zero((a, b)):
+            pass
+        raise InvalidLayoutError([a, b], "INTERSECTION", layout)
+
+    return True
+
+
+def validate_layout_overlaps(layout: Layout):
+    combos = list(combinations(layout.domains, 2))
+
+    overlaps = []
     for pair in combos:
         a, b = pair
         if a.polygon.overlaps(b.polygon):
             if overlap_near_zero((a, b)):
-                near_zero_overlaps = True
-                # logger.warning(
-                #     f"{a.name} and {b.name} overlap, but their overlap is near zero"
-                # )
+                overlaps.append((a.name, b.name))
                 continue
             raise InvalidLayoutError([a, b], "INTERSECTION", layout)
-    logger.warning(f"{near_zero_overlaps=}")
-    return True
+
+    # if domain and overlaps:
+    #     logger.warning(
+    #         f"overlaps surrounding domain [bold]{domain.name}[/bold]: {pretty_repr(overlaps)}"
+    #     )
+    # elif not domain:
+    if overlaps:
+        logger.critical(
+            f"{len(overlaps)} NEAR ZERO OVERLAPS ACROSS THE LAYOUT! {pretty_repr(overlaps)}"
+        )
+    else:
+        logger.success("No overlaps in the layout")
 
 
 def validate_layout_no_holes(layout: Layout):

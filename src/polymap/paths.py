@@ -10,5 +10,4 @@ class DynamicPaths:
 
     MSD_PATHS = static_paths.inputs / "msd"
     example_paths = static_paths.inputs / "examples"
-    process_figs = static_paths.temp / "process_loop"
-    temp_json = static_paths.temp / "temp.json"
+    msd_outputs = static_paths.temp / "msd"
