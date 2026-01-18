@@ -26,6 +26,5 @@ jobs:
 
       - name: Test with pytest
         run: |
-        uv run pytest tests --cov=polymap
-        echo "tests finished"
-
+          uv run pytest tests --cov=polymap
+          echo "tests finished"
