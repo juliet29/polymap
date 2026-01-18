@@ -3,7 +3,7 @@ import pytest
 import geom
 
 from polymap.examples.sample_updates import BottomLData
-from polymap.geometry.update import (
+from polymap.geometry.modify.update import (
     UpdateCoordsInfo,
     create_update_coords_tuple,
     UpdateCoordsTuple,

@@ -1,7 +1,7 @@
 from typing import NamedTuple
 from polymap.examples.sample_domains import create_ortho_domain
 from polymap.examples.sample_updates import BottomLData
-from polymap.geometry.update import update_domain, InvalidPolygonError, Move
+from polymap.geometry.modify.update import update_domain, InvalidPolygonError, Move
 import pytest
 from polymap.geometry.vectors import CardinalDirections, Direction
 
