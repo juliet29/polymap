@@ -17,6 +17,7 @@ dependencies = [
   "networkx>=3.5",
   "numpy>=2.3.3",
   "pipe>=2.2",
+  "pre-commit>=4.5.1",
   "ptpython>=3.0.31",
   "pydantic>=2.12.5",
   "pyprojroot>=0.3.0",

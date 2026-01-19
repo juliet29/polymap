@@ -1,4 +1,5 @@
 from copy import deepcopy
+from polymap.visuals.visuals import plot_domain_with_surfaces
 from rich.pretty import pretty_repr
 from utils4plans.sets import set_equality
 import networkx as nx
@@ -18,7 +19,7 @@ from loguru import logger
 
 from polymap.bends.examples import PiExamples
 from polymap.geometry.ortho import FancyOrthoDomain
-from polymap.logconf import logset
+from utils4plans.logconfig import logset
 
 
 def test_create_cycle_graph():
@@ -74,6 +75,9 @@ class TestDomainSurfaceGraph:
     domain = FancyOrthoDomain.from_tuple_list(pe.one)
     G = create_surface_graph_for_domain(domain)
 
+    def show_domain(self):
+        plot_domain_with_surfaces(self.domain)
+
     def print_graph(self):
         logger.debug(repr_graph(self.G))
 
@@ -83,11 +87,14 @@ class TestDomainSurfaceGraph:
 
     def test_can_get_components_one(self):
         components = find_small_node_groups(self.G)
+        logger.debug(components)
         surfs = handle_components(self.G, components[0])
 
-        logger.debug(surfs)
+        logger.debug(pretty_repr(surfs))
 
-        expected_surf = self.domain.get_surface("north")
+        expected_surf = self.domain.get_surface("north", 1)
+
+        logger.debug(pretty_repr(expected_surf))
         assert surfs[0] == expected_surf
 
     def test_can_get_components_many(self):
@@ -103,7 +110,7 @@ class TestDomainSurfaceGraph:
         logger.debug(pretty_repr(surfs, expand_all=True))
 
         expected_surfs = [
-            self.domain.get_surface("north"),
+            self.domain.get_surface("north", 1),
             self.domain.get_surface("west", 1),
         ]
 
@@ -120,13 +127,16 @@ class TestPi2Identify:
     G = create_surface_graph_for_domain(domain)
     G_updated = update_small_nbs(G)
 
+    def show_domain(self):
+        plot_domain_with_surfaces(self.domain)
+
     def print_graph(self):
         # plot_domain_with_surfaces(self.domain, "pi two example")
         logger.debug(repr_graph(self.G_updated))
 
     def test_check_of_pi_two(self):
         # TODO: changes names of surfaces.. => Have to fix tests after..
-        expected_node = "-east_0"
+        expected_node = "-east_1"
         res = check_is_pi_two(self.G_updated, expected_node)
         assert res
 
@@ -140,6 +150,8 @@ class TestPi2Identify:
 if __name__ == "__main__":
     logset()
     t = TestPi2Identify()
-    t.test_make_pi_two_group()
+    t.show_domain()
+    t.print_graph()
+    t.test_check_of_pi_two()
     # t.print_graph()
     # t.test_check_of_pi_two()

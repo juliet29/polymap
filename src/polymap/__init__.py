@@ -1,2 +1,1 @@
-def main() -> None:
-    print("Hello from polymap!")
+from rich.pretty import pretty_repr

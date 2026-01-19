@@ -1,10 +1,9 @@
-name: PythonTest
+name: Run Tests
 
 on: [push]
 
 jobs:
-  test-with-pytest:
-    name: python-test
+  test:
     runs-on: ubuntu-latest
 
     steps:
