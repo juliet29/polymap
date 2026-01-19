@@ -7,7 +7,7 @@ from polymap.bends.i2 import BendListSummary
 from polymap.bends.iterate2 import iterate_clean_domain
 from polymap.examples.msd import MSDDomain, MSDDomainName
 from polymap.geometry.ortho import FancyOrthoDomain
-from polymap.logconf import logset
+from utils4plans.logconfig import logset
 
 
 def study_make_bends_all():
