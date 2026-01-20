@@ -1,6 +1,6 @@
 from utils4plans.geom import Coord
 from rich import print
-from polymap.examples.sample_domains import create_ortho_domain
+from polymap.examples.domains import create_ortho_domain
 from polymap.geometry.modify.delete import Delete, delete_paired_coords
 from polymap.geometry.ortho import create_paired_coords
 from polymap.interfaces import PairedCoord

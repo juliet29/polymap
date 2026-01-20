@@ -1,4 +1,4 @@
-from polymap.examples.sample_domains import ortho_coords
+from polymap.examples.domains import ortho_coords
 from utils4plans.geom import Coord
 from polymap.geometry.ortho import create_paired_coords
 from polymap.geometry.vectors import CardinalDirections as CD, vector_from_coords

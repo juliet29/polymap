@@ -1,6 +1,6 @@
 from loguru import logger
 from rich.pretty import pretty_repr
-from polymap.examples.sample_domains import create_ortho_domain
+from polymap.examples.domains import create_ortho_domain
 from polymap.geometry.modify.validate import InvalidPolygonError
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.logconf import logset

@@ -6,7 +6,7 @@ from polymap.bends.points import (
     fix_vector_group_on_domain,
     heal_extra_points_on_domain,
 )
-from polymap.examples.sample_domains import OrthoNames, create_ortho_domain
+from polymap.examples.domains import OrthoNames, create_ortho_domain
 from rich import print
 
 from polymap.geometry.update import validate_polygon

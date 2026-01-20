@@ -1,4 +1,4 @@
-from polymap.bends.b2 import assign_bends
+from polymap.bends.bends import assign_bends
 from polymap.examples.msd import MSDDomain, MSDDomainName
 from polymap.geometry.ortho import FancyOrthoDomain
 

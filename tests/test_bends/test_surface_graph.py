@@ -4,7 +4,7 @@ from rich.pretty import pretty_repr
 from utils4plans.sets import set_equality
 import networkx as nx
 
-from polymap.bends.b2 import assign_bends, check_is_pi_two, identify_pi_twos
+from polymap.bends.bends import assign_bends, check_is_pi_two, identify_pi_twos
 from polymap.bends.graph import (
     NodeData,
     create_cycle_graph,
@@ -17,7 +17,7 @@ from polymap.bends.graph import (
 )
 from loguru import logger
 
-from polymap.bends.examples import PiExamples
+from polymap.examples.bends import PiExamples
 from polymap.geometry.ortho import FancyOrthoDomain
 from utils4plans.logconfig import logset
 

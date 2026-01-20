@@ -10,7 +10,14 @@ from polymap.bends.graph import (
     update_small_nbs,
 )
 from polymap.geometry.ortho import FancyOrthoDomain
-from polymap.bends.i2 import BendHolder, KappaOne, KappaTwo, PiOne, PiThree, PiTwo
+from polymap.bends.interfaces import (
+    BendHolder,
+    KappaOne,
+    KappaTwo,
+    PiOne,
+    PiThree,
+    PiTwo,
+)
 import networkx as nx
 
 from polymap.geometry.surfaces import Surface

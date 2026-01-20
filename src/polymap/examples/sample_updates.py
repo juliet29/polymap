@@ -1,4 +1,4 @@
-from polymap.examples.sample_domains import create_ortho_domain
+from polymap.examples.domains import create_ortho_domain
 
 
 class BottomLData:

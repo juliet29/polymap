@@ -8,7 +8,7 @@ from rich.pretty import pretty_repr
 from utils4plans.io import read_json, write_json
 
 from polymap import logconf
-from polymap.bends.iterate2 import clean_layout
+from polymap.bends.main import clean_layout
 from polymap.examples.layout import example_layouts
 from polymap.geometry.modify.validate import InvalidPolygonError
 from polymap.geometry.vectors import Axes

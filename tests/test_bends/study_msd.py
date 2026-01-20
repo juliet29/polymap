@@ -4,9 +4,9 @@ from typing import NamedTuple, get_args
 from loguru import logger
 from rich.pretty import pretty_repr
 from polymap import logconf
-from polymap.bends.b2 import assign_bends
-from polymap.bends.i2 import Bend, BendListSummary, BendNames, DomainSummary
-from polymap.bends.iterate2 import (
+from polymap.bends.bends import assign_bends
+from polymap.bends.interfaces import Bend, BendListSummary, BendNames, DomainSummary
+from polymap.bends.main import (
     DomainCleanIterationFailure,
     clean_layout,
     iterate_clean_domain,

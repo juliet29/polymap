@@ -3,7 +3,7 @@ from typing import Any, Protocol, get_args
 import shapely as sp
 from loguru import logger
 
-from polymap.bends.iterate2 import clean_layout
+from polymap.bends.main import clean_layout
 from polymap.config import TOLERANCE
 from polymap.examples.msd import MSD_IDs, get_one_msd_layout
 from polymap.geometry.ortho import FancyOrthoDomain
@@ -51,7 +51,7 @@ def make_ortho_layout(layout: Layout):
                 assert new_dom.is_orthogonal
             except AssertionError:
                 raise RuntimeError(
-                    f"Failed to ortho domain {new_dom.name}: {new_dom.summarize_vectors}"
+                    f"Failed to ortho domain {new_dom.name}: {new_dom.create_vector_summary}"
                 )
             logger.log("END", f"Finished resolving non-ortho on {dom.name}\n")
             return new_dom

@@ -1,6 +1,6 @@
 from polymap.geometry.ortho import FancyOrthoDomain
 
-from polymap.bends.i2 import Bend, BendHolder
+from polymap.bends.interfaces import Bend, BendHolder
 from polymap.geometry.surfaces import Surface
 from typing import Literal
 

@@ -1,5 +1,5 @@
 from utils4plans.geom import CoordsType
-from polymap.bends.examples import BendExamples, KappaExamples, PiExamples
+from polymap.examples.bends import BendExamples, KappaExamples, PiExamples
 import pytest
 from polymap.geometry.modify.validate import validate_polygon
 from polymap.geometry.ortho import FancyOrthoDomain
