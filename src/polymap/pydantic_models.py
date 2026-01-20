@@ -1,6 +1,6 @@
 from pathlib import Path
 import networkx as nx
-from pydantic import TypeAdapter, BaseModel, RootModel
+from pydantic import BaseModel, RootModel
 from utils4plans.geom import coords_type_list_to_coords
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.vectors import Axes
@@ -11,9 +11,7 @@ from polymap.layout.interfaces import AxGraph, EdgeData, EdgeDataDiGraph
 from polymap.geometry.layout import Layout
 
 
-layout_type_adapter = TypeAdapter(dict[str, CoordsType])
-
-
+#  ------- Layout ---------
 class LayoutModel(RootModel):
     root: dict[str, CoordsType]
 
@@ -28,6 +26,19 @@ class LayoutModel(RootModel):
 def layout_to_model(layout: Layout):
     d = {i.name: [c.as_tuple for c in i.coords] for i in layout.domains}
     return LayoutModel(d)
+
+
+def read_layout_from_path(path: Path):
+    res = read_json(path)
+    layout_model = LayoutModel.model_validate(res)
+    return layout_model.to_layout()
+
+
+def write_layout(layout: Layout, path: Path):
+    write_json(layout_to_model(layout).model_dump(), path, OVERWRITE=True)
+
+
+# ------ NetworkX Graph -----------
 
 
 class NodeModel(BaseModel):
@@ -77,6 +88,9 @@ def edge_data_digraph_to_model(G: EdgeDataDiGraph):
     return NetworkxGraphModel(**graph_dict)
 
 
+# ------ AxGraph -----------
+
+
 class AxGraphModel(BaseModel):
     G: NetworkxGraphModel
     ax: Axes
@@ -92,17 +106,3 @@ def axgraph_to_model(Gax: AxGraph):
         ax=Gax.ax,
         G=edge_data_digraph_to_model(Gax.G),
     )
-
-
-def read_layout_from_path(path: Path):
-    res = read_json(path)
-    layout_model = LayoutModel.model_validate(res)
-    return layout_model.to_layout()
-
-
-def write_layout(layout: Layout, path: Path):
-    write_json(layout_to_model(layout).model_dump(), path, OVERWRITE=True)
-
-
-# def dump_layout(layout: Layout):
-#     return layout_to_model(layout).model_dump_json()
