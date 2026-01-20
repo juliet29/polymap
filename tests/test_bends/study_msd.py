@@ -8,8 +8,8 @@ from polymap.bends.bends import assign_bends
 from polymap.bends.interfaces import Bend, BendListSummary, BendNames, DomainSummary
 from polymap.bends.main import (
     DomainCleanIterationFailure,
-    clean_layout,
-    iterate_clean_domain,
+    remove_bends_from_layout,
+    remove_all_bends_from_domain,
 )
 from polymap.examples.msd import (
     MSDDomain,
@@ -105,12 +105,12 @@ class StudyMSDBends:
 
     def study_moves_one_domain(self):
         dom = self.doms[0]
-        iterate_clean_domain(dom)
+        remove_all_bends_from_domain(dom)
 
     def study_moves_all_domain(self):
         def handle(dom: MSDDomain):
             try:
-                iterate_clean_domain(dom, show_failure=False)
+                remove_all_bends_from_domain(dom, show_failure=False)
             except DomainCleanIterationFailure as e:
                 failures.append((e.domain, e.fail_type))
                 fail_counter[e.fail_type] += 1
@@ -150,7 +150,9 @@ class StudyMSDLayouts:
         tracker = {}
 
         for group in self.layouts:
-            new_layout, bad_domains = clean_layout(group.layout, group.layout_id)
+            new_layout, bad_domains = remove_bends_from_layout(
+                group.layout, group.layout_id
+            )
             tracker[group.layout_id] = bad_domains
             plot_layout_comparison(
                 [group.layout, new_layout], [group.layout_id, "bends cleaned"]

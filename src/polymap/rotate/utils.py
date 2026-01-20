@@ -2,7 +2,9 @@ import numpy as np
 import shapely as sp
 
 
-def angle_between_vectors(v1: np.ndarray, v2: np.ndarray):
+def angle_between_vectors(
+    v1: np.ndarray, v2: np.ndarray
+):  # TODO: duplicated code for findinf angles .. -> really should be in utils4plans
     # TODO: can geom library handle this?
     dot_product = np.dot(v1, v2)
     magnitude_v1 = np.linalg.norm(v1)

@@ -2,7 +2,7 @@ from utils4plans.sets import set_equality
 from polymap import logconf
 from loguru import logger
 from polymap.examples.layout import smart_graph_example
-from polymap.layout.graph import (
+from polymap.layout.main.plan import (
     create_graph_for_all_surfaces_along_axis,
     create_move_graph,
     Edge,

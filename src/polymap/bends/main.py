@@ -17,7 +17,7 @@ from loguru import logger
 from polymap.layout.interfaces import Layout
 
 
-def clean_domain(domain: FancyOrthoDomain, domain_name: str = ""):
+def remove_one_bend_from_domain(domain: FancyOrthoDomain, domain_name: str = ""):
     bend_holder = assign_bends(domain, domain_name)
 
     current_bend = bend_holder.get_next_bend()
@@ -46,7 +46,7 @@ def clean_domain(domain: FancyOrthoDomain, domain_name: str = ""):
     return DomainMoveDetails(domain, dom3, current_bend.surfaces)
 
 
-def iterate_clean_domain(
+def remove_all_bends_from_domain(
     msd_domain: MSDDomain,
     show_complete_iteration=False,
     show_failure: bool = False,
@@ -85,7 +85,9 @@ def iterate_clean_domain(
             break
 
         try:
-            move_details = clean_domain(domain, msd_domain.name.display_name)
+            move_details = remove_one_bend_from_domain(
+                domain, msd_domain.name.display_name
+            )
         except DomainCleanFailure as e:
             e.show_message(layout_id)
             if show_failure:
@@ -123,7 +125,7 @@ def iterate_clean_domain(
     return domain
 
 
-def clean_layout(layout: Layout, layout_id: str = ""):
+def remove_bends_from_layout(layout: Layout, layout_id: str = ""):
     # TODO: do we assume the doms are ortho coming in?
     bad_domains = []
     non_balconies = list(filter(lambda x: "balcony" not in x.name, layout.domains))
@@ -132,7 +134,7 @@ def clean_layout(layout: Layout, layout_id: str = ""):
     for dom in layout.domains:
         try:
             msd_dom = MSDDomain(MSDDomainName(layout_id, dom.name), dom)
-            new_dom = iterate_clean_domain(msd_dom)
+            new_dom = remove_all_bends_from_domain(msd_dom)
             new_doms.append(new_dom)
         except DomainCleanIterationFailure as e:
             bad_domains.append(f"{e.domain}")

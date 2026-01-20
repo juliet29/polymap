@@ -1,5 +1,5 @@
-import re
 import math
+import re
 from pathlib import Path
 
 from cyclopts import App
@@ -8,7 +8,7 @@ from rich.pretty import pretty_repr
 from utils4plans.io import read_json, write_json
 
 from polymap import logconf
-from polymap.bends.main import clean_layout
+from polymap.bends.main import remove_bends_from_layout
 from polymap.examples.layout import example_layouts
 from polymap.geometry.modify.validate import InvalidPolygonError
 from polymap.geometry.vectors import Axes
@@ -20,11 +20,11 @@ from polymap.json_interfaces import (
 )
 from polymap.layout.graph import create_move_graph_for_all_surfaces_along_axis
 from polymap.layout.interfaces import Layout, create_layout_from_dict
-from polymap.layout.u2 import try_moves
+from polymap.layout.move import try_moves
 from polymap.layout.visuals import plot_layout_with_graph_info
 from polymap.nonortho.main import orthogonalize_layout
 from polymap.paths import DynamicPaths
-from polymap.rotate.rotate import rotate_layout
+from polymap.rotate.main import rotate_layout
 from polymap.visuals.visuals import plot_layout_alone
 
 # TODO: clean up imports to clean up project structure
@@ -58,7 +58,7 @@ def save_layout(layout: Layout, path: Path, title: str, fig_name: str = "out"):
 @app.command()
 def generate_examples():
     for ix, coords in enumerate(example_layouts):
-        layout = create_layout_from_dict(coords)
+        layout = create_layout_from_dict(coords)  # should be in utils..
         path = DynamicPaths.example_paths / f"{1000 + ix}.json"
         write_json(layout.dump(as_string=False), path, OVERWRITE=True)
 
@@ -96,7 +96,7 @@ def ortho(path: Path, json_save_path: Path):
 @app.command()
 def simplify(path: Path, fig_save_path: Path, json_save_path: Path):
     in_layout = read_layout_from_path(path)
-    layout, bad_doms = clean_layout(in_layout, get_case_name(path))
+    layout, bad_doms = remove_bends_from_layout(in_layout, get_case_name(path))
     if bad_doms:
         logger.warning(
             f"Bad domains exist which may cause problems: {pretty_repr(bad_doms)}"

@@ -20,9 +20,9 @@ from polymap.layout.graph import (
     Edge,
     EdgeData,
     EdgeDataDiGraph,
-    compute_delta_between_surfs,
-    create_move_graph,
 )
+from polymap.layout.main.plan import compute_delta_between_surfs, create_move_graph
+
 from polymap.layout.interfaces import Layout
 
 

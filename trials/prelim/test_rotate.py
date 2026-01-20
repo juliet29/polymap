@@ -1,5 +1,5 @@
 from polymap.examples.msd import get_msd_plan
-from polymap.rotate.rotate import rotate_layout
+from polymap.rotate.main import rotate_layout
 from polymap.visuals.visuals import plot_layout_comparison
 from math import degrees
 

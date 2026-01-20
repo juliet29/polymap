@@ -3,7 +3,7 @@ from typing import Any, Protocol, get_args
 import shapely as sp
 from loguru import logger
 
-from polymap.bends.main import clean_layout
+from polymap.bends.main import remove_bends_from_layout
 from polymap.config import TOLERANCE
 from polymap.examples.msd import MSD_IDs, get_one_msd_layout
 from polymap.geometry.ortho import FancyOrthoDomain
@@ -16,7 +16,7 @@ from polymap.layout.update import create_updated_layout
 from polymap.nonortho.dot import make_ortho_coords
 from polymap.process.interfaces import ProcessGraphPairs, ProcessLayouts
 from polymap.process.viz import make_study_plot
-from polymap.rotate.rotate import rotate_layout
+from polymap.rotate.main import rotate_layout
 
 
 def simplify_layout_shapely(layout: Layout, tolerance: float = TOLERANCE):
@@ -34,7 +34,7 @@ def simplify_layout_shapely(layout: Layout, tolerance: float = TOLERANCE):
 
 
 def simplify_layout(layout: Layout, id: str = "", tolerance: float = TOLERANCE):
-    new_layout, bad_domains = clean_layout(layout, layout_id=id)
+    new_layout, bad_domains = remove_bends_from_layout(layout, layout_id=id)
     return new_layout
 
 
