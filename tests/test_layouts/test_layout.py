@@ -1,5 +1,5 @@
 from polymap.examples.layout import layout_coords as sample_layout
-from polymap.layout.interfaces import create_layout_from_dict
+from polymap.geometry.layout import create_layout_from_dict
 
 
 def test_get_surface_in_layout():

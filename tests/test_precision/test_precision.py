@@ -5,7 +5,7 @@ from utils4plans.logconfig import logset
 from polymap.examples.layout import gen_square
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.shapely_helpers import decrease_precision
-from polymap.layout.interfaces import Layout
+from polymap.geometry.layout import Layout
 from polymap.visuals.visuals import plot_layout
 
 

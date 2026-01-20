@@ -7,8 +7,8 @@ from polymap.json_interfaces import (
     edge_data_digraph_to_model,
     layout_to_model,
 )
-from polymap.layout.graph import create_graph_for_all_surfaces_along_axis
-from polymap.layout.interfaces import create_layout_from_dict
+from polymap.layout.main.plan import create_graph_for_all_surfaces_along_axis
+from polymap.geometry.layout import create_layout_from_dict
 from rich import print
 from polymap.paths import DynamicPaths
 

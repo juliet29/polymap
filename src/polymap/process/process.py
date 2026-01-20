@@ -11,7 +11,7 @@ from polymap.geometry.shapely_helpers import get_coords_from_shapely_polygon
 from polymap.geometry.vectors import Axes
 from polymap.interfaces import GraphPairs
 from polymap.layout.graph import create_graph_for_all_surfaces_along_axis
-from polymap.layout.interfaces import Layout
+from polymap.geometry.layout import Layout
 from polymap.layout.update import create_updated_layout
 from polymap.nonortho.dot import make_ortho_coords
 from polymap.process.interfaces import ProcessGraphPairs, ProcessLayouts

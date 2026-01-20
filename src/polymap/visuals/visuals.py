@@ -8,7 +8,7 @@ from typing import NamedTuple
 
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.interfaces import GraphPairs
-from polymap.layout.interfaces import Layout
+from polymap.geometry.layout import Layout
 import matplotlib as mpl
 
 from polymap.visuals.styles import AnnotationStyles, EnclosedAnnotationStyle

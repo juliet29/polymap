@@ -8,7 +8,7 @@ from polymap.layout.main.plan import (
     Edge,
     EdgeData,
 )
-from polymap.layout.interfaces import create_layout_from_dict
+from polymap.geometry.layout import create_layout_from_dict
 from polymap.visuals.visuals import plot_layout
 
 

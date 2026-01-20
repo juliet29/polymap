@@ -1,7 +1,7 @@
 from loguru import logger
 from polymap.geometry.modify.validate import InvalidPolygonError
 from polymap.geometry.ortho import FancyOrthoDomain
-from polymap.layout.interfaces import Layout
+from polymap.geometry.layout import Layout
 from polymap.nonortho.dot import make_ortho_coords
 
 

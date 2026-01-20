@@ -2,7 +2,7 @@ from polymap.layout.graph import AxGraph, EdgeDataDiGraph, EdgeData
 from loguru import logger
 import networkx as nx
 from utils4plans.logconfig import logset
-from polymap.layout.interfaces import Layout
+from polymap.geometry.layout import Layout
 
 
 class TestGraph:

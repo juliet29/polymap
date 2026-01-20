@@ -5,7 +5,7 @@ from utils4plans.lists import chain_flatten
 from utils4plans.sets import set_difference
 from polymap.geometry.surfaces import Surface
 from polymap.geometry.surfaces import FancyRange
-from polymap.layout.interfaces import Layout
+from polymap.geometry.layout import Layout
 from polymap.layout.neighbors import get_nbs_for_surf
 from polymap.geometry.vectors import Axes
 from pipe import where, sort

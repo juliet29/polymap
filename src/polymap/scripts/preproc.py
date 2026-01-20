@@ -19,7 +19,7 @@ from polymap.json_interfaces import (
     read_layout_from_path,
 )
 from polymap.layout.graph import create_move_graph_for_all_surfaces_along_axis
-from polymap.layout.interfaces import Layout, create_layout_from_dict
+from polymap.geometry.layout import Layout, create_layout_from_dict
 from polymap.layout.move import try_moves
 from polymap.layout.visuals import plot_layout_with_graph_info
 from polymap.nonortho.main import orthogonalize_layout

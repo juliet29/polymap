@@ -1,7 +1,7 @@
 from typing import NamedTuple
 
 from polymap.interfaces import GraphPairs
-from polymap.layout.interfaces import Layout
+from polymap.geometry.layout import Layout
 
 
 class ProcessLayouts(NamedTuple):

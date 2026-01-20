@@ -8,7 +8,7 @@ from polymap.interfaces import CoordsType
 from utils4plans.io import read_json
 
 from polymap.layout.graph import AxGraph, EdgeData, EdgeDataDiGraph
-from polymap.layout.interfaces import Layout
+from polymap.geometry.layout import Layout
 
 
 layout_type_adapter = TypeAdapter(dict[str, CoordsType])

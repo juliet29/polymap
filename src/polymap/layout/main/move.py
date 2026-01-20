@@ -23,7 +23,7 @@ from polymap.layout.graph import (
 )
 from polymap.layout.main.plan import compute_delta_between_surfs, create_move_graph
 
-from polymap.layout.interfaces import Layout
+from polymap.geometry.layout import Layout
 
 
 def study_small_change(name: str, l1: Layout, l2: Layout):

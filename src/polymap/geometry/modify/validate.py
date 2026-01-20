@@ -4,7 +4,7 @@ from typing import Literal
 
 from rich.pretty import pretty_repr
 from polymap.config import OVERLAP_TOLERANCE
-from polymap.layout.interfaces import Layout
+from polymap.geometry.layout import Layout
 from itertools import combinations
 from loguru import logger
 import shapely as sp

@@ -2,7 +2,7 @@ import shapely as sp
 
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.shapely_helpers import get_coords_from_shapely_polygon
-from polymap.layout.interfaces import Layout
+from polymap.geometry.layout import Layout
 from polymap.rotate.utils import rotate_multipolygon
 from itertools import starmap
 

@@ -3,7 +3,7 @@ from typing_extensions import NamedTuple
 from utils4plans.lists import chain_flatten
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.paths import static_paths
-from polymap.layout.interfaces import Layout, create_layout_from_json
+from polymap.geometry.layout import Layout, create_layout_from_json
 
 from polymap.paths import DynamicPaths
 

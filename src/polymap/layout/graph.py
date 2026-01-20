@@ -1,6 +1,6 @@
 import networkx as nx
 from polymap.interfaces import GraphPairs
-from polymap.layout.interfaces import Layout
+from polymap.geometry.layout import Layout
 from polymap.geometry.vectors import Axes
 from dataclasses import dataclass
 from typing import NamedTuple

@@ -14,7 +14,7 @@ from polymap.bends.errors import DomainCleanFailure, DomainCleanIterationFailure
 
 from loguru import logger
 
-from polymap.layout.interfaces import Layout
+from polymap.geometry.layout import Layout
 
 
 def remove_one_bend_from_domain(domain: FancyOrthoDomain, domain_name: str = ""):
