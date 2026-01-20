@@ -1,6 +1,6 @@
 from pathlib import Path
 
-configfile: "example.yaml"
+configfile: "config/example.yaml"
 
 INPUT_PATH = config["pathvars"]["input_loc"]
 SAMPLES = [i.stem for i in Path(INPUT_PATH).iterdir() if i.suffix == ".json"]
@@ -17,15 +17,7 @@ rule some:
 
 rule all:
   input:
-    expand("<output_loc>/{sample}/ymove/out.png", sample=SAMPLES)
-
-
-rule rejig:
-  input:
-    expand("<input_loc>/{sample}.json", sample=SAMPLES)
-  shell:
-    "touch {input}"
-
+    expand("<output_loc>/{sample}/ymove/out.json", sample=SAMPLES)
 
 
 
@@ -37,7 +29,7 @@ rule rotate:
   log:
     "<output_loc>/{sample}/rotate/out.log"
   shell:
-    "uv run preproc rotate {input} {output} 2>{log}"
+    "uv run polymap make rotate {input} {output} 2>{log}"
 
 
 rule ortho:
@@ -48,19 +40,18 @@ rule ortho:
   log:
     "<output_loc>/{sample}/ortho/out.log"
   shell:
-    "uv run preproc ortho {input} {output} 2>{log}"
+    "uv run polymap make ortho {input} {output} 2>{log}"
 
 
 rule simplify:
   input:
     "<output_loc>/{sample}/ortho/out.json"
   output:
-    "<output_loc>/{sample}/simplify/out.png",
     "<output_loc>/{sample}/simplify/out.json"
   log:
     "<output_loc>/{sample}/simplify/out.log"
   shell:
-    "uv run preproc simplify {input} {output} 2>{log}"
+    "uv run polymap make simplify {input} {output} 2>{log}"
 
 
 rule xplan:
@@ -69,12 +60,11 @@ rule xplan:
   params:
     ax="X"
   output:
-    "<output_loc>/{sample}/xplan/out.png",
     "<output_loc>/{sample}/xplan/out.json"
   log:
     "<output_loc>/{sample}/xplan/out.log"
   shell:
-    "uv run preproc plan {params.ax} {input} {output} 2>{log}"
+    "uv run polymap make plan {params.ax} {input} {output} 2>{log}"
 
 rule xmove:
   input:
@@ -82,12 +72,11 @@ rule xmove:
   params:
     ax="X"
   output:
-    "<output_loc>/{sample}/xmove/out.png",
     "<output_loc>/{sample}/xmove/out.json"
   log:
     "<output_loc>/{sample}/xmove/out.log"
   shell:
-    "uv run preproc move {params.ax} {input} {output} 2>{log}"
+    "uv run polymap make move {params.ax} {input} {output} 2>{log}"
 
 
 
@@ -98,12 +87,11 @@ rule yplan:
   params:
     ax="Y"
   output:
-    "<output_loc>/{sample}/yplan/out.png",
     "<output_loc>/{sample}/yplan/out.json"
   log:
     "<output_loc>/{sample}/yplan/out.log"
   shell:
-    "uv run preproc plan {params.ax} {input} {output} 2>{log}"
+    "uv run polymap make plan {params.ax} {input} {output} 2>{log}"
 
 rule ymove:
   input:
@@ -111,16 +99,15 @@ rule ymove:
   params:
     ax="Y"
   output:
-    "<output_loc>/{sample}/ymove/out.png",
     "<output_loc>/{sample}/ymove/out.json"
   log:
     "<output_loc>/{sample}/ymove/out.log"
   shell:
-    "uv run preproc move {params.ax} {input} {output} 2>{log}"
+    "uv run polymap make move {params.ax} {input} {output} 2>{log}"
 
 
 
 
 rule test:
   shell:
-    "uv run preproc welcome"
+    "uv run polymap make welcome"

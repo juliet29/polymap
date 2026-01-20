@@ -17,7 +17,7 @@ from polymap.examples.msd import (
     get_all_msd_domains,
     get_msd_layouts_as_objects,
 )
-from polymap.interfaces import make_repr
+from polymap.bends.utils import make_repr
 from polymap.visuals.visuals import plot_domain_with_surfaces, plot_layout_comparison
 
 
@@ -146,26 +146,32 @@ class StudyMSDBends:
 class StudyMSDLayouts:
     layouts = get_msd_layouts_as_objects()
 
-    def study_all(self):
+    def study_all(self, show_success: bool = False, lim: int | None = None):
         tracker = {}
 
-        for group in self.layouts:
+        if lim:
+            layouts = self.layouts[0:lim]
+        else:
+            layouts = self.layouts
+
+        for group in layouts:
             new_layout, bad_domains = remove_bends_from_layout(
                 group.layout, group.layout_id
             )
             tracker[group.layout_id] = bad_domains
-            plot_layout_comparison(
-                [group.layout, new_layout], [group.layout_id, "bends cleaned"]
-            )
+            if show_success:
+                plot_layout_comparison(
+                    [group.layout, new_layout], [group.layout_id, "bends cleaned"]
+                )
 
         logger.success(tracker)
 
 
 if __name__ == "__main__":
-    logconf.logset()
+    logconfig.logset(debug_level="SUCCESS")
     # s = StudyMSDBends()
     # s.study_moves_all_domain()
     # s.summarize_failing("pi3s")
 
     s = StudyMSDLayouts()
-    s.study_all()
+    s.study_all(lim=2)

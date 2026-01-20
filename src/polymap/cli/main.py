@@ -17,7 +17,7 @@ def welcome():
 
 
 def main():
-    logconfig.logset()
+    logconfig.logset(to_stderr=True)
     app()
 
 

@@ -3,10 +3,9 @@
 from loguru import logger
 from utils4plans import logconfig
 from polymap.geometry.modify.validate import (
-    validate_layout_domain,
     validate_layout_no_holes,
 )
-from polymap.json_interfaces import read_layout_from_path
+from polymap.pydantic_models import read_layout_from_path
 from polymap.paths import DynamicPaths
 
 
@@ -24,12 +23,11 @@ class StudyValidation:
         res = validate_layout_no_holes(self.layout)
         logger.info(res)
 
-    def try_validate_no_overlaps(self):
-        validate_layout_domain(self.layout)
+    # def try_validate_no_overlaps(self):
+    #     validate_layout_domain(self.layout)
 
 
 if __name__ == "__main__":
 
-    logconf.logset()
+    logconfig.logset()
     s = StudyValidation()
-    s.try_validate_no_overlaps()
