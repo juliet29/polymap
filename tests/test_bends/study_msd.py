@@ -3,7 +3,7 @@ from typing import NamedTuple, get_args
 
 from loguru import logger
 from rich.pretty import pretty_repr
-from polymap import logconf
+from utils4plans import logconfig
 from polymap.bends.bends import assign_bends
 from polymap.bends.interfaces import Bend, BendListSummary, BendNames, DomainSummary
 from polymap.bends.main import (

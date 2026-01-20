@@ -3,7 +3,7 @@ from rich.pretty import pretty_repr
 from polymap.examples.domains import create_ortho_domain
 from polymap.geometry.modify.validate import InvalidPolygonError
 from polymap.geometry.ortho import FancyOrthoDomain
-from polymap.logconf import logset
+from utils4plans.logconfig import logset
 from polymap.nonortho.main import orthogonalize_dom
 from polymap.visuals.visuals import plot_polygon
 

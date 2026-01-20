@@ -2,7 +2,7 @@
 #
 # from loguru import logger
 # from rich.pretty import pretty_repr
-# from polymap import logconf
+# from utils4plans import logconfig
 # from polymap.bends.b2 import assign_bends
 # from polymap.bends.bends import get_domain
 # from polymap.bends.problems import pi3s, kappa2s

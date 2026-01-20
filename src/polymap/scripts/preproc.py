@@ -7,7 +7,7 @@ from loguru import logger
 from rich.pretty import pretty_repr
 from utils4plans.io import read_json, write_json
 
-from polymap import logconf
+from utils4plans import logconfig
 from polymap.bends.main import remove_bends_from_layout
 from polymap.examples.layout import example_layouts
 from polymap.geometry.modify.validate import InvalidPolygonError

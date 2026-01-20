@@ -1,5 +1,5 @@
 from utils4plans.sets import set_equality
-from polymap import logconf
+from utils4plans import logconfig
 from loguru import logger
 from polymap.examples.layout import smart_graph_example
 from polymap.layout.main.plan import (

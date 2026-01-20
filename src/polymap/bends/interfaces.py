@@ -12,7 +12,7 @@ from polymap.geometry.modify.update import Move
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.surfaces import Surface
 
-from polymap.interfaces import make_repr_obj
+from polymap.bends.utils import make_repr_obj
 
 
 def get_nonzero_component(v: geom.Vector):

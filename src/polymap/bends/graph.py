@@ -11,7 +11,7 @@ from polymap.geometry.ortho import FancyOrthoDomain
 from typing import Iterable, TypeVar
 import networkx as nx
 from utils4plans.lists import pairwise
-from polymap.interfaces import make_repr_obj
+from polymap.bends.utils import make_repr_obj
 
 T = TypeVar("T")
 

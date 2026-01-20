@@ -3,7 +3,7 @@ from utils4plans.lists import chain_flatten
 from utils4plans.sets import set_equality
 from typing import TypeVar
 
-from polymap import logconf
+from utils4plans import logconfig
 
 T = TypeVar("T")
 

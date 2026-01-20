@@ -1,9 +1,10 @@
 import networkx as nx
-from polymap.interfaces import GraphPairs
 from polymap.geometry.layout import Layout
 from polymap.geometry.vectors import Axes
 from dataclasses import dataclass
 from typing import NamedTuple
+
+GraphPairs = dict[str, list[str]]
 
 
 def collect_nbs(G: nx.DiGraph) -> GraphPairs:

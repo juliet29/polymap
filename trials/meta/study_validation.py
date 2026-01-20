@@ -1,7 +1,7 @@
 # validation
 
 from loguru import logger
-from polymap import logconf
+from utils4plans import logconfig
 from polymap.geometry.modify.validate import (
     validate_layout_domain,
     validate_layout_no_holes,

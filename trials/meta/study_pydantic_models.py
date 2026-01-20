@@ -1,6 +1,6 @@
 from utils4plans.io import read_json
 from polymap.examples.layout import layout_coords
-from polymap import logconf
+from utils4plans import logconfig
 from polymap.json_interfaces import (
     AxGraphModel,
     LayoutModel,
