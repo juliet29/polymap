@@ -1,4 +1,5 @@
 from loguru import logger
+import pytest
 from rich.pretty import pretty_repr
 from polymap.examples.domains import create_ortho_domain
 from polymap.geometry.modify.validate import InvalidPolygonError
@@ -17,6 +18,10 @@ class TestAlignSkewedDomains:
     def square_2tri(self):
         return create_ortho_domain("SQUARE_2TRI")
 
+    @property
+    def alignable_domain(self):
+        return create_ortho_domain("NON_ORTHO_SQUARE")
+
     def plot(self, dom: FancyOrthoDomain):
         plot_polygon(dom.polygon, show=True)
 
@@ -30,6 +35,16 @@ class TestAlignSkewedDomains:
             logger.info(pretty_repr(e.domain.create_vector_summary))
             return
         plot_polygon(new_dom.polygon, show=True, title="final polygon")
+
+    def test_alignment_works(self):
+        dom = self.alignable_domain
+        res = orthogonalize_dom(dom)
+        assert res.is_orthogonal
+
+    def test_alignment_fails(self):
+        dom = self.square_tri
+        with pytest.raises(InvalidPolygonError):
+            res = orthogonalize_dom(dom)
 
 
 if __name__ == "__main__":

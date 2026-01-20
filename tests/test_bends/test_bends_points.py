@@ -9,7 +9,7 @@ from polymap.bends.points import (
 from polymap.examples.domains import OrthoNames, create_ortho_domain
 from rich import print
 
-from polymap.geometry.update import validate_polygon
+from polymap.geometry.modify.update import validate_polygon
 
 # TODO: move to tests!
 
@@ -17,7 +17,7 @@ from polymap.geometry.update import validate_polygon
 def test_find_vector_groups():
     domain = create_ortho_domain("SQUARE_W_EXTRA_POINTS")
     result = find_vector_groups_on_domain(domain)
-    group_names = list(map(lambda x: tuple(i.name.split("-")[1] for i in x), result))
+    group_names = list(map(lambda x: tuple(i.name for i in x), result))
     print(group_names)
 
     expected_groups = [("north_0", "north_1"), ("east_0",), ("south_0",), ("west_0",)]

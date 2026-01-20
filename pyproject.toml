@@ -1,7 +1,7 @@
 [project]
 name = "polymap"
 version = "0.1.0"
-description = "Add your description here"
+description = "Module for creating EnergyPlus ready floor plans from geometry containing holes."
 readme = "README.md"
 authors = [
   { name = "Juliet Nwagwu Ume-Ezeoke", email = "jnwagwu@stanford.edu" },
@@ -32,9 +32,7 @@ dependencies = [
 ]
 
 [project.scripts]
-polymap = "polymap:main"
-preproc = "polymap.scripts.preproc:main"
-
+polymap = "polymap.cli.main:main"
 
 [build-system]
 requires = ["uv_build>=0.8.3,<0.9.0"]

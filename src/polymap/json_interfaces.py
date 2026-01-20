@@ -5,7 +5,7 @@ from utils4plans.geom import coords_type_list_to_coords
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.vectors import Axes
 from utils4plans.geom import CoordsType
-from utils4plans.io import read_json
+from utils4plans.io import read_json, write_json
 
 from polymap.layout.interfaces import AxGraph, EdgeData, EdgeDataDiGraph
 from polymap.geometry.layout import Layout
@@ -98,6 +98,10 @@ def read_layout_from_path(path: Path):
     res = read_json(path)
     layout_model = LayoutModel.model_validate(res)
     return layout_model.to_layout()
+
+
+def write_layout(layout: Layout, path: Path):
+    write_json(layout_to_model(layout).model_dump(), path, OVERWRITE=True)
 
 
 # def dump_layout(layout: Layout):
