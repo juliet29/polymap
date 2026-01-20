@@ -8,7 +8,7 @@ from itertools import groupby
 
 from polymap.geometry.surfaces import Surface, create_surface
 from polymap.geometry.vectors import vector_from_coords
-from polymap.interfaces import PairedCoord, coords_from_paired_coords_list
+from polymap.geometry.paired_coords import PairedCoord, coords_from_paired_coords_list
 from rich import print
 
 

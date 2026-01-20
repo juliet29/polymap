@@ -4,7 +4,7 @@ import shapely as sp
 from utils4plans.geom import Coord, Range
 
 from polymap.geometry.vectors import Axes
-from polymap.interfaces import PairedCoord
+from polymap.geometry.paired_coords import PairedCoord
 
 import numpy as np
 

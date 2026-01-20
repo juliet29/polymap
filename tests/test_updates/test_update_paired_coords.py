@@ -8,7 +8,7 @@ from polymap.geometry.modify.update import (
     create_update_coords_tuple,
     UpdateCoordsTuple,
 )
-from polymap.interfaces import PairedCoord
+from polymap.geometry.paired_coords import PairedCoord
 from rich import print  # type:ignore
 
 PairedCoordUpdateResult = tuple[PairedCoord, PairedCoord, PairedCoord]

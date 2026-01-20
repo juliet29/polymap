@@ -4,10 +4,10 @@ from pydantic import TypeAdapter, BaseModel, RootModel
 from utils4plans.geom import coords_type_list_to_coords
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.vectors import Axes
-from polymap.interfaces import CoordsType
+from utils4plans.geom import CoordsType
 from utils4plans.io import read_json
 
-from polymap.layout.graph import AxGraph, EdgeData, EdgeDataDiGraph
+from polymap.layout.interfaces import AxGraph, EdgeData, EdgeDataDiGraph
 from polymap.geometry.layout import Layout
 
 

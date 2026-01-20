@@ -13,7 +13,7 @@ from polymap.geometry.vectors import (
     vector_as_coord,
     vector_from_coords,
 )
-from polymap.interfaces import (
+from polymap.geometry.paired_coords import (
     PairedCoord,
     coords_from_paired_coords_list,
 )

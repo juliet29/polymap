@@ -3,7 +3,7 @@ from rich import print
 from polymap.examples.domains import create_ortho_domain
 from polymap.geometry.modify.delete import Delete, delete_paired_coords
 from polymap.geometry.ortho import create_paired_coords
-from polymap.interfaces import PairedCoord
+from polymap.geometry.paired_coords import PairedCoord
 
 
 def test_delete_on_square():

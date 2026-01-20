@@ -1,4 +1,4 @@
-from polymap.interfaces import CoordsType
+from utils4plans.geom import CoordsType
 from polymap.geometry.ortho import FancyOrthoDomain
 from typing import Literal
 

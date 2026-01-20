@@ -10,7 +10,7 @@ from polymap.geometry.vectors import (
     Axes,
     get_normal_vector_assuming_cw,
 )
-from polymap.interfaces import PairedCoord
+from polymap.geometry.paired_coords import PairedCoord
 from polymap.geometry.range import FancyRange
 
 

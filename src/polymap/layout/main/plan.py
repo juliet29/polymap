@@ -9,7 +9,7 @@ from polymap.geometry.layout import Layout
 from polymap.layout.neighbors import get_nbs_for_surf
 from polymap.geometry.vectors import Axes
 from pipe import where, sort
-from polymap.layout.graph import Edge, EdgeData, EdgeDataDiGraph, AxGraph
+from polymap.layout.interfaces import Edge, EdgeData, EdgeDataDiGraph, AxGraph
 
 
 def compute_delta_between_surfs(s1: Surface, s2: Surface):

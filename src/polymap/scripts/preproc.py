@@ -18,10 +18,10 @@ from polymap.json_interfaces import (
     layout_to_model,
     read_layout_from_path,
 )
-from polymap.layout.graph import create_move_graph_for_all_surfaces_along_axis
+from polymap.layout.interfaces import create_move_graph_for_all_surfaces_along_axis
 from polymap.geometry.layout import Layout, create_layout_from_dict
 from polymap.layout.move import try_moves
-from polymap.layout.visuals import plot_layout_with_graph_info
+from polymap.layout.viz import plot_layout_with_graph_info
 from polymap.nonortho.main import orthogonalize_layout
 from polymap.paths import DynamicPaths
 from polymap.rotate.main import rotate_layout

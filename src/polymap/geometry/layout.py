@@ -1,6 +1,6 @@
 from polymap.geometry.ortho import FancyOrthoDomain
 from polymap.geometry.surfaces import Surface
-from polymap.interfaces import CoordsType, CoordsTypeJSON
+from utils4plans.geom import CoordsType
 
 
 from utils4plans.lists import chain_flatten, get_unique_one
@@ -10,7 +10,6 @@ from pathlib import Path
 from polymap.paths import DynamicPaths
 from typing import TypeVar
 from rich import print
-import json
 
 
 from dataclasses import dataclass
@@ -45,13 +44,6 @@ class Layout:
     @property
     def domain_names(self):
         print([i.name for i in self.domains])
-
-    def dump(self, as_string: bool = True):
-        d: dict[str, CoordsTypeJSON] = {d.name: d.dump() for d in self.domains}
-        if as_string:
-            return json.dumps(d)
-        else:
-            return d
 
 
 def create_layout_from_dict(

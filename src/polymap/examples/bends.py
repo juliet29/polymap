@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 from polymap.geometry.ortho import FancyOrthoDomain
-from polymap.interfaces import CoordsType
+from utils4plans.geom import CoordsType
 
 
 class Geom:

@@ -1,6 +1,6 @@
 from typing import NamedTuple
 
-from polymap.interfaces import PairedCoord
+from polymap.geometry.paired_coords import PairedCoord
 
 
 class Delete(NamedTuple):

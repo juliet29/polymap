@@ -1,5 +1,5 @@
 from utils4plans.geom import Coord
-from polymap.interfaces import CoordsType
+from utils4plans.geom import CoordsType
 
 green_north = 3.9
 pink_north = 3.8

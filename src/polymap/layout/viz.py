@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from utils4plans.geom import Coord
 from utils4plans.lists import chain_flatten
 from polymap.geometry.surfaces import Surface
-from polymap.layout.graph import AxGraph
+from polymap.layout.interfaces import AxGraph
 from polymap.visuals.styles import EnclosedAnnotationStyle
 from polymap.visuals.visuals import AnnotationPair, add_annotations, plot_layout
 from rich.pretty import pretty_repr

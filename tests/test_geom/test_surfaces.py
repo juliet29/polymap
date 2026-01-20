@@ -11,7 +11,7 @@ from polymap.geometry.surfaces import (
     coords_to_range,
 )
 import pytest
-from polymap.interfaces import PairedCoord
+from polymap.geometry.paired_coords import PairedCoord
 from utils4plans.sets import set_difference
 
 

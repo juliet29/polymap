@@ -15,7 +15,7 @@ from polymap.geometry.modify.validate import (
     validate_layout_overlaps,
 )
 from polymap.geometry.ortho import FancyOrthoDomain
-from polymap.layout.graph import (
+from polymap.layout.interfaces import (
     AxGraph,
     Edge,
     EdgeData,
