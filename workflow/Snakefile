@@ -110,4 +110,4 @@ rule ymove:
 
 rule test:
   shell:
-    "uv run polymap make welcome"
+    "uv run polymap  welcome"
