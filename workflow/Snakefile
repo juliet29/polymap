@@ -1,20 +1,20 @@
 from pathlib import Path
 
 include: "rules/cleanup.smk"
-include: "rules/common.smk"
+# include: "rules/common.smk"
 
 
 
 
-rule some:
-  input:
-    expand("<output_loc>/{sample}/ymove/out.json", sample=SMALL_SAMPLES)
-
-
-
-rule all:
-  input:
-    expand("<output_loc>/{sample}/ymove/out.json", sample=SAMPLES)
+# rule some:
+#   input:
+#     expand("<output_loc>/{sample}/ymove/out.json", sample=SMALL_SAMPLES)
+#
+#
+#
+# rule all:
+#   input:
+#     expand("<output_loc>/{sample}/ymove/out.json", sample=SAMPLES)
 
 
 
