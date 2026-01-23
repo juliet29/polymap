@@ -1,7 +1,7 @@
 from pathlib import Path
 
-input: "rules/cleanup.smk"
-input: "rules/common.smk"
+include: "rules/cleanup.smk"
+include: "rules/common.smk"
 
 
 
