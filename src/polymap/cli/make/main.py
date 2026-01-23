@@ -13,6 +13,7 @@ from polymap.cli.make.utils import (
     save_figure,
     save_layout_figure,
 )
+from polymap.geometry.modify.precision import decrease_layout_precision
 from polymap.geometry.modify.validate import InvalidPolygonError
 from polymap.geometry.vectors import Axes
 from polymap.layout.main.move import try_moves
@@ -68,6 +69,7 @@ def simplify(path: Path, out_path: Path):
         logger.warning(
             f"Bad domains exist which may cause problems: {pretty_repr(bad_doms)}"
         )
+    layout = decrease_layout_precision(layout)
     save_layout_figure(layout, out_path, "Simplified", show_surfaces_labels=True)
     write_json(layout_to_model(layout).model_dump(), out_path)
 

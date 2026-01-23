@@ -24,7 +24,6 @@ dependencies = [
   "pytest>=8.4.2",
   "pytest-cov>=7.0.0",
   "shapely>=2.1.2",
-  "snakefmt>=0.11.2",
   "snakemake>=9.14.5",
   "tomli-w>=1.2.0",
   "types-networkx>=3.5.0.20251106",

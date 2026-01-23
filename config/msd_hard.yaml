@@ -1,0 +1,3 @@
+pathvars:
+  input_loc: "static/_01_inputs/msd_hard"
+  output_loc: "static/_04_temp/msd_hard"
