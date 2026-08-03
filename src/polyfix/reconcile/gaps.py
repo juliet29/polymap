@@ -7,15 +7,13 @@ from polyfix.geometry.layout import Layout
 from polyfix.geometry.range import FancyRange
 from polyfix.geometry.surfaces import SMALL_SURFACE_SIZE, Surface
 
-# north/east are the "positive" representatives (as in create_individual_graphs) so
-# each facing pair is reported once, from the lower surface toward its neighbour.
 POSITIVE_FACING = {"north", "east"}
 
 
 @dataclass
 class Gap:
-    surface: Surface  # positive-facing (north/east)
-    neighbor: Surface  # a facing surface across the gap (may be one of several)
+    surface: Surface
+    neighbor: Surface
     overlap: FancyRange
     distance: float
 
@@ -36,11 +34,6 @@ def find_gaps(
     min_gap: float = 1e-3,
     min_overlap: float = SMALL_SURFACE_SIZE,
 ) -> list[Gap]:
-    # Near-misses geomeppy won't match: for each positive-facing surface, every
-    # facing surface (any room) that overlaps its span and sits min_gap < d <=
-    # eps_gap beyond it. Unlike get_nbs_for_surf (which collapses to the single
-    # binding neighbour for moving), detection must keep ALL overlapping faces so
-    # partial-overlap gaps aren't missed. Units are the layout's own (polyfix frame).
     def facing_gaps(surf: Surface) -> list[Gap]:
         candidates = (
             layout.get_other_surfaces(surf, substantial_only=True)

@@ -36,10 +36,6 @@ def replace_domain(layout: Layout, moved) -> Layout:
 
 
 def apply_side(layout: Layout, side: Surface, gap: Gap, delta: float) -> Layout:
-    # Close the gap by moving `side` (one wall of the pair) to the meeting line.
-    # positive_perpendicular_vector is +axis regardless of facing, so delta is
-    # +distance for the (lower) surface and -distance for the (higher) neighbour.
-    # If the wall overhangs the overlap, split it and move only the overlap segment.
     dom = layout.get_domain(side.domain_name)
     surf = dom.get_surface_by_name(side.name_w_domain)
     at = [
@@ -70,10 +66,6 @@ def repair_cost(before: Layout, after: Layout, domain_name: str) -> float:
 
 
 def best_repair(layout: Layout, gap: Gap, gap_kwargs: dict) -> Repair | None:
-    # Candidates: move either side toward the other. HARD CONSTRAINTS: stays valid,
-    # adjacency graph unchanged (GED == 0), and the move actually reduces the gap
-    # count (guards against ineffective / wrong-direction moves). Among survivors,
-    # least area+shape distortion.
     g_before = adjacency_graph(layout)
     n_before = len(find_gaps(layout, **gap_kwargs))
     repairs: list[Repair] = []
@@ -99,8 +91,6 @@ def best_repair(layout: Layout, gap: Gap, gap_kwargs: dict) -> Repair | None:
 
 
 def close_gaps(layout: Layout, **gap_kwargs) -> Layout:
-    # Iteratively close near-miss gaps; skip (and log) any with no topology-
-    # preserving repair rather than forcing a bad move.
     skipped: set[tuple[str, str]] = set()
 
     def key(g: Gap):

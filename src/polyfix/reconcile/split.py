@@ -15,16 +15,12 @@ def axis_value(coord: Coord, ax: Axes) -> float:
 
 
 def coord_on_axis(pos: float, location: float, ax: Axes) -> Coord:
-    # pos varies along the surface's parallel axis; location is fixed on the other
     return Coord(pos, location) if ax == "X" else Coord(location, pos)
 
 
 def split_surface(
     domain: FancyOrthoDomain, surface: Surface, at: list[float]
 ) -> FancyOrthoDomain:
-    # Insert collinear vertices into `surface`, splitting it into segments at the
-    # `at` positions (given along the surface's parallel axis). Geometry is
-    # unchanged; the domain just gains vertices so the segments can move alone.
     ax = surface.parallel_axis
     rng = surface.range
     positions = sorted(set(at))

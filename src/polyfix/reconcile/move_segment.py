@@ -19,11 +19,6 @@ def edge_vector(pc: PairedCoord):
 
 
 def move_segment(move: Move) -> FancyOrthoDomain:
-    # Move one edge perpendicular by delta, jog-aware. Unlike update_domain (which
-    # assumes perpendicular neighbours and stretches them), this checks each
-    # neighbour: a PERPENDICULAR one is stretched (its shared vertex moves), a
-    # COLLINEAR one is left in place and a perpendicular connector is inserted —
-    # cutting a notch. Reduces to update_domain when both neighbours are perpendicular.
     domain, surface, delta = move
     vector = make_vector_2D(surface.positive_perpendicular_vector) * delta
 

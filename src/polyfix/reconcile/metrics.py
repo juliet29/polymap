@@ -5,13 +5,11 @@ from polyfix.adjacencies.zonal import capture_zone_adjacencies
 from polyfix.geometry.layout import Layout
 from polyfix.layout.main.plan import create_move_graph_for_all_surfaces_along_axis
 
-# shared edges intersect with ~0 area; real overlaps are larger. Units are the
-# layout's own squared (polyfix frame), not necessarily m^2.
 OVERLAP_TOL = 1e-4
 
 
 def shape_factor(polygon) -> float:
-    return polygon.length**2 / polygon.area  # 16 for a square, larger = less compact
+    return polygon.length**2 / polygon.area
 
 
 def room_metrics(layout: Layout) -> dict[str, dict[str, float]]:
@@ -27,8 +25,6 @@ def floor_metrics(layout: Layout) -> dict[str, float]:
 
 
 def adjacency_graph(layout: Layout) -> nx.Graph:
-    # compose the X- and Y-plan graphs WITHOUT moving; used for both before and
-    # after layouts so the two graphs are computed identically
     gx = create_move_graph_for_all_surfaces_along_axis(layout, "X")
     gy = create_move_graph_for_all_surfaces_along_axis(layout, "Y")
     G = nx.Graph()
@@ -41,7 +37,6 @@ def adjacency_graph(layout: Layout) -> nx.Graph:
 
 
 def graph_edit_distance(g_before: nx.Graph, g_after: nx.Graph) -> float:
-    # rooms keep identity by name, so only added/removed adjacencies cost
     return nx.graph_edit_distance(
         g_before, g_after, node_match=lambda a, b: a["name"] == b["name"], timeout=10
     )
