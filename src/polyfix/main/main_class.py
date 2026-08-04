@@ -18,9 +18,10 @@ from polyfix.pydantic_models import read_layout_from_path
 
 
 class PolyFixer:
-    def __init__(self, init_geom: Path, save_loc: Path) -> None:
+    def __init__(self, init_geom: Path, save_loc: Path, save_angle: bool) -> None:
         self.init_geom_path = init_geom
         self.save_loc = save_loc
+        self.save_angle = save_angle
 
         # self.lo: Layout | None = None
         # self.gx: AxGraph | None = None
@@ -29,7 +30,7 @@ class PolyFixer:
 
     def __call__(self):
         in_layout = read_layout_from_path(self.init_geom_path)
-        self.lo = Rotate(self.save_loc)(in_layout)
+        self.lo = Rotate(self.save_loc, self.save_angle)(in_layout)
         self.lo = Ortho(self.save_loc)(self.lo)
         self.lo = Simplify(self.save_loc)(self.lo)
 
@@ -46,3 +47,6 @@ class PolyFixer:
         assert isinstance(self.gx, AxGraph) and isinstance(self.gy, AxGraph)
         adj = capture_zone_adjacencies(self.gx, self.gy)
         write_yaml(adj, self.save_loc / "out.adj.yaml")
+
+    def save_rotation_angle(self):
+        pass
