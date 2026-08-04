@@ -18,6 +18,11 @@ class MSDPaths:
     hard = base / "msd_hard"
 
 
+class ExternalMSDPaths:
+    base = Path("/scratch/users/jnwagwu/msd2/test_msd/")
+    proc = base / "processed"
+
+
 class SVGPaths:
     base = StaticPaths.temp / "svgs"
     ablation_c = base / "ablation_c/init"
@@ -25,6 +30,7 @@ class SVGPaths:
 
 class Inputs:
     msd = MSDPaths
+    ext_msd = ExternalMSDPaths
     svg = SVGPaths
 
 

@@ -30,6 +30,7 @@ dependencies = [
   "types-networkx>=3.5.0.20251106",
   "utils4plans[figures,yaml]",
   "whenever>=0.9.3",
+  "matplotlib-backend-kitty>=2.1.2",
 ]
 
 [project.scripts]

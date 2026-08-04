@@ -69,7 +69,7 @@ class FixBaseClass:
         write_json(model.model_dump(), self.save_folder / "out.json")
 
         fig, _ = plot_layout_with_graph_info(axgraph, show=False)
-        save_figure(fig, path=self.save_folder / "out.fig")
+        save_figure(fig, path=self.save_folder / "out.png")
 
     def handle_error(self, input):
         try:

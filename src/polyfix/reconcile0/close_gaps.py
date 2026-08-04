@@ -10,7 +10,6 @@ from polyfix.geometry.surfaces import Surface
 from polyfix.reconcile.gaps import Gap, find_gaps
 from polyfix.reconcile.metrics import (
     adjacency_graph,
-    graph_edit_distance,
     is_valid,
     room_metrics,
 )
@@ -78,11 +77,15 @@ def best_repair(layout: Layout, gap: Gap, gap_kwargs: dict) -> Repair | None:
         ok, _ = is_valid(after)
         if not ok:
             continue
-        if graph_edit_distance(g_before, adjacency_graph(after)) != 0:
-            continue
+        # if graph_edit_distance(g_before, adjacency_graph(after)) != 0:
+        #     continue
         if len(find_gaps(after, **gap_kwargs)) >= n_before:
             continue
-        repairs.append(Repair(after, side.domain_name, repair_cost(layout, after, side.domain_name)))
+        repairs.append(
+            Repair(
+                after, side.domain_name, repair_cost(layout, after, side.domain_name)
+            )
+        )
 
     if not repairs:
         return None
@@ -97,13 +100,17 @@ def close_gaps(layout: Layout, **gap_kwargs) -> Layout:
         return (g.surface.name_w_domain, g.neighbor.name_w_domain)
 
     for _ in range(MAX_PASSES):
-        remaining = [g for g in find_gaps(layout, **gap_kwargs) if key(g) not in skipped]
+        remaining = [
+            g for g in find_gaps(layout, **gap_kwargs) if key(g) not in skipped
+        ]
         if not remaining:
             return layout
         gap = remaining[0]
         repair = best_repair(layout, gap, gap_kwargs)
         if repair is None:
-            logger.warning(f"no topology-preserving repair for {gap.summary()}; skipping")
+            logger.warning(
+                f"no topology-preserving repair for {gap.summary()}; skipping"
+            )
             skipped.add(key(gap))
             continue
         logger.info(f"closed {gap.summary()}: {repair.summary()}")

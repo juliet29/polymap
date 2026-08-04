@@ -1,6 +1,7 @@
 import re
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from utils4plans.io.extras.figures import save_mpl_fig
 
@@ -33,7 +34,7 @@ def make_fig_save_path(
     path: Path,
     fig_name: str = "out",
 ):
-    fig_save_path = path.parent / f"{fig_name}.png"
+    fig_save_path = path / f"{fig_name}.png"
     return fig_save_path
 
 
@@ -44,9 +45,8 @@ def save_layout_figure(
     fig_name: str = "out",
     show_surfaces_labels: bool = False,
 ):
-    case_name = get_case_name(path)
-    fig, _ = plot_layout_alone(
-        layout, f"{case_name} -  {title}", show_surface_labels=show_surfaces_labels
-    )
+    # case_name = get_case_name(path)
+    fig, _ = plot_layout_alone(layout, title, show_surface_labels=show_surfaces_labels)
     fig_save_path = make_fig_save_path(path, fig_name)
     save_figure(fig, fig_save_path)
+    plt.close()

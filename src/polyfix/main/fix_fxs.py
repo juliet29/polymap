@@ -6,7 +6,7 @@ from polyfix.layout.main.move import try_moves
 from polyfix.layout.main.plan import create_move_graph_for_all_surfaces_along_axis
 from polyfix.main.fix_class import FixBaseClass, Stage
 from polyfix.nonortho.main import orthogonalize_layout
-from polyfix.reconcile.close_gaps import close_gaps
+from polyfix.reconcile.main import reconcile_all
 from polyfix.rotate.main import rotate_layout
 
 
@@ -84,9 +84,9 @@ class Reconcile(FixBaseClass):
         super().__init__(
             fix_type="Action",
             stage=Stage.RECONCILE,
-            fx=close_gaps,
+            fx=self.local_fx,
             save_loc=save_loc,
         )
 
     def local_fx(self, layout):
-        return close_gaps(layout)
+        return reconcile_all(layout)
