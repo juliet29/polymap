@@ -7,6 +7,7 @@ from utils4plans.geom import Coord, OrthoDomain
 from utils4plans.lists import get_unique_one
 
 from polyfix.geometry.paired_coords import PairedCoord, create_paired_coords
+from polyfix.geometry.shapely_helpers import get_coords_from_shapely_polygon
 from polyfix.geometry.surfaces import create_surface, index_surfaces
 from polyfix.geometry.vectors import (
     DirectionNames,
@@ -26,6 +27,11 @@ class FancyOrthoDomain(OrthoDomain):
 
     def __hash__(self) -> int:
         return hash(self.name) + sum([hash(i) for i in self.coords])
+
+    @classmethod
+    def from_shapely_polygon(cls, poly: sp.Polygon, name: str = ""):
+        c = get_coords_from_shapely_polygon(poly)
+        return cls(c, name=name)
 
     @classmethod
     def from_bounds(

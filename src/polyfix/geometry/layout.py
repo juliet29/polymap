@@ -18,6 +18,10 @@ T = TypeVar("T")
 class Layout:
     domains: list[FancyOrthoDomain]
 
+    def __repr__(self) -> str:
+        d = {"n_domains": len(self.domains)}
+        return f"Layout({d})"
+
     def get_domain(self, name):
         return get_unique_one(self.domains, lambda x: x.name == name)
 

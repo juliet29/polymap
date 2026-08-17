@@ -13,6 +13,7 @@ def update_domain_and_layout(
 ):
     pass
     validate_polygon(new_geom, original_domain.name)
+    # TODO: make this a util..
     new_domain = FancyOrthoDomain(
         get_coords_from_shapely_polygon(new_geom), name=original_domain.name
     )
