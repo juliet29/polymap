@@ -1,13 +1,13 @@
-import shapely as sp
-from shapely import plotting
-import matplotlib.pyplot as plt
-from matplotlib.axes import Axes
-from utils4plans.geom import Coord
 from typing import NamedTuple
 
-from polyfix.geometry.ortho import FancyOrthoDomain
-from polyfix.geometry.layout import Layout
+import matplotlib.pyplot as plt
+import shapely as sp
+from matplotlib.axes import Axes
+from shapely import plotting
+from utils4plans.geom import Coord
 
+from polyfix.geometry.layout import Layout
+from polyfix.geometry.ortho import FancyOrthoDomain
 from polyfix.visuals.styles import AnnotationStyles, EnclosedAnnotationStyle
 
 
@@ -84,7 +84,7 @@ def plot_layout(
     layout_name: str = "",
     ax: Axes | None = None,
     add_labels=True,
-    show=True,
+    show=False,
 ):
 
     if not ax:
